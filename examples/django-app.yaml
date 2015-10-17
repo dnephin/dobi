@@ -1,0 +1,26 @@
+
+steps:
+
+  - name: app
+    image: "django-app-name"
+    tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
+    build:
+      context: .
+    compose:
+      project: "${UNIQUE_ID}"
+      run: "app /target/export-db.sh /target/export.sql"
+      config:
+        app:
+          image: "django-app-name:${UNIQUE_ID}"
+          links:
+            - database
+          volumes:
+            - ./dockerfiles/database:/target
+        database:
+          image: "postgres:9.4"
+
+  - name: database
+    image: "app-name-database"
+    tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
+    build:
+      context: dockerfiles/database

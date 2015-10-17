@@ -1,0 +1,20 @@
+
+
+steps:
+  - name: builder
+    image: "project-dev"
+    build:
+      dockerfile: Dockerfile.build
+      context: .
+      args:
+        GO_VERSION: 1.5
+    run:
+      volumes:
+        - ./dist:/target
+
+  - name: dist
+    image: "project"
+    tags: ["latest", "${VERSION}"]
+    build:
+      dockerfile: Dockerfile.run
+      context: .
