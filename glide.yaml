@@ -1,5 +1,7 @@
 package: github.com/dnephin/dbp
 import:
-  - package: gopkg.in/alecthomas/kingpin.v2
   - package: gopkg.in/yaml.v2
   - package: github.com/fsouza/go-dockerclient
+  - package: gopkg.in/alecthomas/kingpin.v2
+  - package: github.com/alecthomas/template
+  - package: github.com/alecthomas/units

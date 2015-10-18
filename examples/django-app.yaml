@@ -6,6 +6,9 @@ steps:
     tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
     build:
       context: .
+
+  - name: database-export
+    image: "django-app-name"
     compose:
       project: "${UNIQUE_ID}"
       run: "app /target/export-db.sh /target/export.sql"
