@@ -2,10 +2,10 @@
 
 
 BUILD_ID ?= $(shell git rev-parse --short HEAD 2>/dev/null)
-DOCKER_IMAGE := dbp-dev:$(BUILD_ID)
+DOCKER_IMAGE := buildpipe-dev:$(BUILD_ID)
 
 VOLUMES := \
-	-v $(CURDIR):/go/src/github.com/dnephin/dbp \
+	-v $(CURDIR):/go/src/github.com/dnephin/buildpipe \
 	-v $(CURDIR)/dist/bin:/go/bin \
 	-v $(CURDIR)/dist/pkg:/go/pkg
 

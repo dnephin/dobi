@@ -4,7 +4,7 @@ FROM    golang:1.5
 RUN     curl -sL -o /usr/bin/glide https://dl.bintray.com/dnephin/glide/glide-0.6.1 && \
         chmod +x /usr/bin/glide
 
-WORKDIR /go/src/github.com/dnephin/dbp
+WORKDIR /go/src/github.com/dnephin/buildpipe
 
 ENV     CGO_ENABLED=0
 ENV     GO15VENDOREXPERIMENT=1

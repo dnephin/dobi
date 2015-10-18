@@ -1,7 +1,7 @@
 package steps
 
 import (
-	cf "github.com/dnephin/dbp/config"
+	cf "github.com/dnephin/buildpipe/config"
 )
 
 func Run(config *cf.Config) error {

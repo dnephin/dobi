@@ -1,4 +1,4 @@
-package: github.com/dnephin/dbp
+package: github.com/dnephin/buildpipe
 import:
   - package: gopkg.in/yaml.v2
   - package: github.com/fsouza/go-dockerclient

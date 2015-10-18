@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/dnephin/dbp/config"
-	"github.com/dnephin/dbp/steps"
+	"github.com/dnephin/buildpipe/config"
+	"github.com/dnephin/buildpipe/steps"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
