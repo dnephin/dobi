@@ -3,9 +3,9 @@ steps:
 
   - name: app
     image: "django-app-name"
-    tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
     build:
       context: .
+      tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
 
   - name: database-export
     image: "django-app-name"
@@ -24,6 +24,6 @@ steps:
 
   - name: database
     image: "app-name-database"
-    tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
     build:
       context: dockerfiles/database
+      tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]

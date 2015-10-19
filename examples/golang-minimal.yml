@@ -14,7 +14,7 @@ steps:
 
   - name: dist
     image: "project"
-    tags: ["latest", "${VERSION}"]
     build:
       dockerfile: Dockerfile.run
       context: .
+      tags: ["latest", "${VERSION}"]
