@@ -1,11 +1,14 @@
 package steps
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	cf "github.com/dnephin/buildpipe/config"
 	"github.com/fsouza/go-dockerclient"
+	"github.com/hashicorp/errwrap"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,15 +20,17 @@ type Step struct {
 }
 
 func (step *Step) run() error {
-	actions := []Action{
-		step.pullImage,
-		step.buildImage,
-		step.runContainer,
-		step.runCompose,
+	log.WithFields(log.Fields{"name": step.config.Name}).Info("Running step")
+
+	actions := map[string]Action{
+		"Pull image":    step.pullImage,
+		"Build image":   step.buildImage,
+		"Run container": step.runContainer,
+		"Run compose":   step.runCompose,
 	}
-	for _, action := range actions {
+	for name, action := range actions {
 		if err := action(); err != nil {
-			return err
+			return errwrap.Wrapf(name+" step failed: {{err}}", err)
 		}
 	}
 	return nil
@@ -35,6 +40,8 @@ func (step *Step) pullImage() error {
 	if !step.config.Pull {
 		return nil
 	}
+
+	log.WithFields(log.Fields{"image": step.config.Image}).Info("Pulling image")
 	return step.client.PullImage(docker.PullImageOptions{
 		Repository: step.config.Image,
 		// TODO: OutputStream to stdout?
@@ -47,6 +54,7 @@ func (step *Step) buildImage() error {
 		return nil
 	}
 
+	log.WithFields(log.Fields{"image": step.config.Image}).Info("Building image")
 	// TODO: add first tag if there are build tags
 	// TODO: support other build options
 	err := step.client.BuildImage(docker.BuildImageOptions{
@@ -54,7 +62,8 @@ func (step *Step) buildImage() error {
 		Dockerfile: step.config.Build.Dockerfile,
 		Pull:       step.config.Build.Pull,
 		ContextDir: step.config.Build.Context,
-		// TODO: OutputStream
+		// TODO: where should this output go?
+		OutputStream: os.Stdout,
 	})
 	if err != nil {
 		return err
@@ -71,6 +80,9 @@ func (step *Step) runContainer() error {
 	if step.config.Run == nil {
 		return nil
 	}
+	log.WithFields(log.Fields{
+		"cmd": step.config.Run.Command,
+	}).Info("Running command")
 
 	// TODO: support other run options
 	container, err := step.client.CreateContainer(docker.CreateContainerOptions{
@@ -91,6 +103,9 @@ func (step *Step) runCompose() error {
 	if step.config.Compose == nil {
 		return nil
 	}
+	log.WithFields(log.Fields{
+		"run": step.config.Compose.Run,
+	}).Info("Running docker-compose")
 
 	// TODO: accept an alterate path to binary
 	cmd := exec.Command(
@@ -122,6 +137,7 @@ func Run(config *cf.Config) error {
 	if err != nil {
 		return err
 	}
+	log.Info("Docker client created")
 
 	for _, stepConfig := range config.Steps {
 		step := Step{client: client, config: stepConfig}

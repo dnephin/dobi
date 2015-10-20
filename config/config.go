@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/fsouza/go-dockerclient"
 	"gopkg.in/yaml.v2"
 )
@@ -76,6 +77,7 @@ func Load(filename string) (*Config, error) {
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{"filename": filename}).Info("Configuration loaded")
 	return config, nil
 }
 
