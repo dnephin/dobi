@@ -25,25 +25,9 @@ type ComposeConfig struct {
 }
 
 type RunConfig struct {
-	Command []string
-	Volumes []string
-}
-
-func (run *RunConfig) VolumeMounts() []docker.Mount {
-	if run.Volumes == nil || len(run.Volumes) == 0 {
-		return nil
-	}
-
-	mounts := []docker.Mount{}
-	for _, volumeSpec := range run.Volumes {
-		// TODO: support mode
-		parts := strings.Split(volumeSpec, ":")
-		mounts = append(mounts, docker.Mount{
-			Source:      parts[0],
-			Destination: parts[1],
-		})
-	}
-	return mounts
+	Command    []string
+	Volumes    []string
+	Privileged bool
 }
 
 type StepConfig struct {

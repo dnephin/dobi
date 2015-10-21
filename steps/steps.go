@@ -88,15 +88,43 @@ func (step *Step) runContainer() error {
 	container, err := step.client.CreateContainer(docker.CreateContainerOptions{
 		// TODO: give the container a unique name based on UNIQUE_ID and step name?
 		Config: &docker.Config{
-			Cmd:    step.config.Run.Command,
-			Mounts: step.config.Run.VolumeMounts(),
+			Cmd:   step.config.Run.Command,
+			Image: step.config.Image,
+		},
+		HostConfig: &docker.HostConfig{
+			// TODO: support relative paths or {{PWD}}
+			Binds:      step.config.Run.Volumes,
+			Privileged: step.config.Run.Privileged,
 		},
 	})
 	if err != nil {
 		return err
 	}
+	if err := step.client.StartContainer(container.ID, nil); err != nil {
+		return err
+	}
 
-	return step.client.StartContainer(container.ID, nil)
+	if err := step.client.AttachToContainer(docker.AttachToContainerOptions{
+		Container:    container.ID,
+		OutputStream: os.Stdout,
+		ErrorStream:  os.Stderr,
+		Logs:         true,
+		Stream:       true,
+		Stdout:       true,
+		Stderr:       true,
+	}); err != nil {
+		return err
+	}
+	if err := step.client.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            container.ID,
+		RemoveVolumes: true,
+	}); err != nil {
+		log.WithFields(log.Fields{
+			"container": container.ID,
+			"error":     err.Error(),
+		}).Warn("Failed to remove container.")
+	}
+	return nil
 }
 
 func (step *Step) runCompose() error {
