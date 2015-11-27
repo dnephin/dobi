@@ -1,20 +1,75 @@
+#
+# An example configuration for a golang application.
+#
+# This configuration handles the common tasks required for most projects:
+#   * build one or more binaries
+#   * run unit tests
+#   * run integration tests against a service dependency
+#   * run linting and style checks
+#   * build a docker image for publishing the application
+#
 
+#
+# An `image` resource
+#
+# Produces an image with a single tag
+#
+builder-image:
+  image: "project-dev"
+  tags: ["latest"]
+  dockerfile: Dockerfile.build
+  context: .
+  args:
+    GO_VERSION: 1.5
 
-steps:
-  - name: builder
-    image: "project-dev"
-    build:
-      dockerfile: Dockerfile.build
-      context: .
-      args:
-        GO_VERSION: 1.5
-    run:
-      volumes:
-        - ./dist:/target
+#
+# A `volume` resource for the binaries
+#
+dist:
+  volume: "project-dist"
+  type: "host"
+  path: "./dist"
 
-  - name: dist
-    image: "project"
-    build:
-      dockerfile: Dockerfile.run
-      context: .
-      tags: ["latest", "${VERSION}"]
+#
+# A `volume` resource for the project source
+#
+source:
+  volume: "project-src"
+  type: "host"
+  path: "."
+
+#
+# A `container` resource for building the binaries
+#
+build-binary:
+  container: "project-build-binary"
+  image:
+    resource: "builder-image"
+  state_file: "./dist/binary-name"
+  depends:
+    - resource: "dist"
+      path: "/target"
+    - resource: "source"
+      path: "/go/src/github.com/org/project"
+
+#
+# An `image` resource for publishing the project as a minimal docker image
+#
+dist-image:
+  image: "project-name"
+  dockerfile: Dockerfile.run
+  context: .
+  tags: ["latest", "${VERSION}"]
+  depends: ["build-binary"]
+
+#
+# A `container` resource for running unit tests
+#
+test-unit:
+  container: "project-test-unit"
+  command: "go test -v ./..."
+  image:
+    resource: "builder-image"
+  depends:
+    - resource: "source"
+      path: "/go/src/github.com/org/project"
