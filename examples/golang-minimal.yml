@@ -4,7 +4,7 @@
 # This configuration handles the common tasks required for most projects:
 #   * build one or more binaries
 #   * run unit tests
-#   * run integration tests against a service dependency
+#   * run integration tests against a service dependency (todo)
 #   * run linting and style checks
 #   * build a docker image for publishing the application
 #
@@ -67,9 +67,26 @@ dist-image:
 #
 test-unit:
   container: "project-test-unit"
+  extends: "project-build-binary"
   command: "go test -v ./..."
+
+#
+# An `image` resource for running linting and style checks
+#
+style-image:
+  image: "project-style"
+  tags: ["latest"]
+  dockerfile: Dockerfile.style
+  context: .
+  depends: ["project-dev"]
+
+#
+# A `container` resource
+#
+lint:
+  container: "project-dev-lint"
   image:
-    resource: "builder-image"
+  resource: "project-style"
   depends:
     - resource: "source"
       path: "/go/src/github.com/org/project"
