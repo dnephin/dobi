@@ -4,7 +4,7 @@
 # This configuration handles the common tasks required for most projects:
 #   * build one or more binaries
 #   * run unit tests
-#   * run integration tests against a service dependency (todo)
+#   * run integration tests against a service dependency
 #   * run linting and style checks
 #   * build a docker image for publishing the application
 #
@@ -48,8 +48,8 @@ build-binary:
   image: {resource: "builder-image"}
   artifact: "./dist/binary-name"
   depends:
-    - "dist"
-    - "source"
+    - source
+    - dist
 
 #
 # An `image` resource for publishing the project as a minimal docker image
@@ -69,6 +69,27 @@ test-unit:
   image: {resource: "builder-image"}
   command: "go test -v ./..."
   depends: ["source"]
+
+
+#
+# A `container` resource for running end-to-end tests
+#
+test-acceptance:
+  container: "project-test-aceptance"
+  image: {resource: "builder-image"}
+  commands: "tests/acceptance/run.sh"
+  net: {resource: "dev-env"}
+  depends:
+    - source
+    - dist
+    - build-binary
+
+#
+# An `environment` resource for running end-to-end test
+#
+dev-env:
+  compose_file: "docker-compose.yml"
+  project_name: "test-${UNIQUE_ID}"
 
 #
 # An `image` resource for running linting and style checks

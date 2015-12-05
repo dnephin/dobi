@@ -52,6 +52,10 @@ See `Dependencies` for options to control the state of the dependency container.
 If a container depends on a volume, the volume will be created (if it doesn't
 already exist).
 
+If a container uses an ``environment`` resource as the network, the environment
+will be started first, and the container will join the default network for the
+environment.
+
 
 Volume
 ~~~~~~
@@ -59,6 +63,13 @@ A volume resource creates a host or named volume. If the volume already exists
 the resource is a no-op.
 
 A volume can not depend on anything.
+
+
+Environment
+~~~~~~~~~~~
+An environment resource runs multiple containers as defined by a Compose file.
+
+An environment may depend on images, volumes, or containers.
 
 
 Dependencies
@@ -69,7 +80,7 @@ definition. The list of dependencies may be the name of other resources
 (when the dependency is an image), or a resource definition (when the
 dependency is a container or volume).
 
-Container dependencies must specify the expected state of the container,
+Container dependencies may specify the expected ``state`` of the container,
 either ``running`` or ``exited`` (the default).
 
 Volume dependencies must specify the container path used to mount the volume
@@ -82,7 +93,7 @@ Commands
 Each resource can be run as a command. Running a resource will run all
 out-of-date dependency resources first.
 
-With the `--rm` flag, the resource is removed instead of run.
+With the ``--rm`` flag, the resource is removed instead of run.
 
 
 

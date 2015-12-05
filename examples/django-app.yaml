@@ -59,9 +59,9 @@ database-export:
   image:
     resource: "app"
   command: "export-db.sh --host database-empty-${UNIQUE_ID} /target/export.sql"
-  state_file: "./target/export.sql"
+  artifact: "./target/export.sql"
   depends:
     - resource: "database-empty"
-      status: "running"
+      state: "running"
     - resource: "database-sql"
       path: "/target"
