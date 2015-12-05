@@ -26,7 +26,7 @@ first (if it is not up-to-date).
 If an image depends on a container the container will be run first. The
 container must exit before the image resource will be run.
 
-An image resource can not depend on a named volume.
+An image resource can not depend on a volume.
 
 
 Container
@@ -35,10 +35,10 @@ A container resource runs a container.
 
 The container may use an image created by an image resource, or an already
 existing image. By default, a container is never considered up-to-date, it will
-always run.  If a container resource has a ``state_file`` property, which is a
+always run.  If a container resource has a ``artifact`` property, which is a
 path to a local file, the last modified time of that file will be used. A
 container resource is considered up-to-date if the modified time of the
-``state_file`` is more recent then:
+``artifact`` is more recent then:
  * the created time of the image it uses
  * the last modified time of all files in any volumes used by the resource
 
@@ -72,7 +72,8 @@ dependency is a container or volume).
 Container dependencies must specify the expected state of the container,
 either ``running`` or ``exited`` (the default).
 
-Volume dependencies must specify the container path used to mount the volume.
+Volume dependencies must specify the container path used to mount the volume
+if a container path is not defined as part of the volume resource.
 
 
 Commands

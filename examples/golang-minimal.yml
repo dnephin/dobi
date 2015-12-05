@@ -29,6 +29,7 @@ dist:
   volume: "project-dist"
   type: "host"
   path: "./dist"
+  container_path: "/target"
 
 #
 # A `volume` resource for the project source
@@ -37,20 +38,18 @@ source:
   volume: "project-src"
   type: "host"
   path: "."
+  container_path: "/go/src/github.com/org/project"
 
 #
 # A `container` resource for building the binaries
 #
 build-binary:
   container: "project-build-binary"
-  image:
-    resource: "builder-image"
-  state_file: "./dist/binary-name"
+  image: {resource: "builder-image"}
+  artifact: "./dist/binary-name"
   depends:
-    - resource: "dist"
-      path: "/target"
-    - resource: "source"
-      path: "/go/src/github.com/org/project"
+    - "dist"
+    - "source"
 
 #
 # An `image` resource for publishing the project as a minimal docker image
@@ -67,13 +66,14 @@ dist-image:
 #
 test-unit:
   container: "project-test-unit"
-  extends: "project-build-binary"
+  image: {resource: "builder-image"}
   command: "go test -v ./..."
+  depends: ["source"]
 
 #
 # An `image` resource for running linting and style checks
 #
-style-image:
+lint-image:
   image: "project-style"
   tags: ["latest"]
   dockerfile: Dockerfile.style
@@ -85,8 +85,5 @@ style-image:
 #
 lint:
   container: "project-dev-lint"
-  image:
-  resource: "project-style"
-  depends:
-    - resource: "source"
-      path: "/go/src/github.com/org/project"
+  image: {resource: "project-style"}
+  depends: ["source"]
