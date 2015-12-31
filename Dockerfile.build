@@ -1,15 +1,17 @@
 
 FROM    golang:1.5
 
-RUN     curl -sL -o /usr/bin/glide https://dl.bintray.com/dnephin/glide/glide-0.6.1 && \
+ARG     GLIDE_VERSION=0.8.2
+RUN     curl -sL \ 
+            https://github.com/Masterminds/glide/releases/download/${GLIDE_VERSION}/glide-${GLIDE_VERSION}-linux-amd64.tar.gz | \
+        tar -xz linux-amd64/glide && \
+        mv linux-amd64/glide /usr/bin/glide && \
         chmod +x /usr/bin/glide
 
-RUN     apt-get update && \
-        apt-get install -y libreadline-dev && \
-        mkdir -p /tmp/looper && \
-        GOPATH=/tmp/looper go get github.com/nathany/looper && \
-        cp /tmp/looper/bin/looper /usr/local/bin/ && \
-        rm -rf /tmp/looper
+RUN     go get github.com/dnephin/filewatcher  && \
+        cp /go/bin/filewatcher /usr/local/bin/filewatcher && \
+        rm -rf /go/src/github.com/dnephin/filewatcher \
+            /go/pkg/*/github.com/dnephin/filewatcher
 
 WORKDIR /go/src/github.com/dnephin/buildpipe
 
