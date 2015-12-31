@@ -3,10 +3,10 @@
   hooks:
     - id: check-merge-conflict
     - id: end-of-file-fixer
-      files: '\.(go|md|sh|yml|yaml|Dockerfile|json|ini)$'
+      files: '\.(go|md|sh|yml|yaml|Dockerfile|json|ini|rst)$'
       exclude: '^vendor/'
     - id: trailing-whitespace
-      files: '\.(go|sh|yml|yaml|Dockerfile|json|ini)$'
+      files: '\.(go|sh|yml|yaml|Dockerfile|json|ini|rst)$'
       exclude: '^vendor/'
     - id: check-yaml
       exclude: '^vendor/'

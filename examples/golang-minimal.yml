@@ -16,18 +16,12 @@
 #
 builder-image:
   image: "project-dev"
-  tags: ["latest"]
   dockerfile: Dockerfile.build
-  context: .
-  args:
-    GO_VERSION: 1.5
 
 #
 # A `volume` resource for the binaries
 #
 dist:
-  volume: "project-dist"
-  type: "host"
   path: "./dist"
   container_path: "/target"
 
@@ -35,8 +29,6 @@ dist:
 # A `volume` resource for the project source
 #
 source:
-  volume: "project-src"
-  type: "host"
   path: "."
   container_path: "/go/src/github.com/org/project"
 
@@ -45,9 +37,9 @@ source:
 #
 build-binary:
   container: "project-build-binary"
-  image: {resource: "builder-image"}
+  image: builder-image
   artifact: "./dist/binary-name"
-  depends:
+  volumes:
     - source
     - dist
 
@@ -57,18 +49,19 @@ build-binary:
 dist-image:
   image: "project-name"
   dockerfile: Dockerfile.run
-  context: .
-  tags: ["latest", "${VERSION}"]
-  depends: ["build-binary"]
+  tags:
+    - latest
+    - ${VERSION}
+  depends: [build-binary]
 
 #
 # A `container` resource for running unit tests
 #
 test-unit:
   container: "project-test-unit"
-  image: {resource: "builder-image"}
-  command: "go test -v ./..."
-  depends: ["source"]
+  image: builder-image
+  command: "go test -v -cover ./..."
+  volumes: [source]
 
 
 #
@@ -76,13 +69,12 @@ test-unit:
 #
 test-acceptance:
   container: "project-test-aceptance"
-  image: {resource: "builder-image"}
-  commands: "tests/acceptance/run.sh"
-  net: {resource: "dev-env"}
-  depends:
+  image: builder-image
+  command: "tests/acceptance/run.sh"
+  environment: "dev-env"
+  volumes:
     - source
     - dist
-    - build-binary
 
 #
 # An `environment` resource for running end-to-end test
@@ -90,21 +82,20 @@ test-acceptance:
 dev-env:
   compose_file: "docker-compose.yml"
   project_name: "test-${UNIQUE_ID}"
+  depends: [dist-image]
 
 #
 # An `image` resource for running linting and style checks
 #
 lint-image:
   image: "project-style"
-  tags: ["latest"]
-  dockerfile: Dockerfile.style
-  context: .
-  depends: ["project-dev"]
+  tags: [latest]
+  depends: [project-dev]
 
 #
 # A `container` resource
 #
 lint:
   container: "project-dev-lint"
-  image: {resource: "project-style"}
-  depends: ["source"]
+  image: lint-image
+  volumes: [source]
