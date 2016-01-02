@@ -1,30 +1,45 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
 	"github.com/dnephin/buildpipe/steps"
-	"gopkg.in/alecthomas/kingpin.v2"
+	flag "github.com/spf13/pflag"
 )
 
 var (
-	filename = kingpin.Flag("filename", "Path to config file").String()
-	verbose  = kingpin.Flag("verbose", "Verbose logging").Bool()
+	filename = flag.StringP("filename", "f", "buildpipe.yaml", "Path to config file")
+	verbose  = flag.BoolP("verbose", "v", false, "Verbose")
+	quiet    = flag.BoolP("quiet", "q", false, "Quiet")
 )
 
-func initLogging(level log.Level) {
+func initLogging(verbose, quiet bool) {
+	if verbose {
+		log.SetLevel(log.DebugLevel)
+	}
+	if quiet {
+		log.SetLevel(log.WarnLevel)
+	}
 	log.SetOutput(os.Stderr)
-	log.SetLevel(level)
 }
 
 func main() {
-	kingpin.Version("0.0.1")
-	kingpin.Parse()
+	cmd := flag.CommandLine
+	cmd.Init(os.Args[0], flag.ExitOnError)
+	cmd.SetInterspersed(false)
+	flag.Usage = func() {
+		out := os.Stderr
+		fmt.Fprintf(out, "Usage:\n  %s [OPTIONS] PIPELINE... \n\n", os.Args[0])
+		fmt.Fprintf(out, "Options:\n")
+		cmd.PrintDefaults()
+	}
+	flag.Parse()
+	initLogging(*verbose, *quiet)
 
-	// TODO: verbose flag
-	initLogging(log.InfoLevel)
+	// pipelines := flag.Args()
 
 	conf, err := config.Load(*filename)
 	if err != nil {

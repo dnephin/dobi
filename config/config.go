@@ -2,10 +2,8 @@ package config
 
 import (
 	"io/ioutil"
-	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/fsouza/go-dockerclient"
 	"gopkg.in/yaml.v2"
 )
 
