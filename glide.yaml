@@ -1,7 +1,9 @@
 package: github.com/dnephin/buildpipe
 import:
-  - package: gopkg.in/yaml.v2
-  - package: github.com/fsouza/go-dockerclient
-  - package: github.com/spf13/pflag
-  - package: github.com/Sirupsen/logrus
-  - package: github.com/hashicorp/errwrap
+- package: gopkg.in/yaml.v2
+- package: github.com/fsouza/go-dockerclient
+- package: github.com/spf13/pflag
+- package: github.com/Sirupsen/logrus
+- package: github.com/hashicorp/errwrap
+- package: github.com/stretchr/testify
+- package: github.com/renstrom/dedent

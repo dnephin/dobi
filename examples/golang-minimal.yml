@@ -14,7 +14,7 @@
 #
 # Produces an image with a single tag
 #
-builder-image:
+builder:
   image: "project-dev"
   dockerfile: Dockerfile.build
 
@@ -23,22 +23,21 @@ builder-image:
 #
 dist:
   path: "./dist"
-  container_path: "/target"
+  mount: "/target"
 
 #
 # A `volume` resource for the project source
 #
 source:
   path: "."
-  container_path: "/go/src/github.com/org/project"
+  mount: "/go/src/github.com/org/project"
 
 #
 # A `container` resource for building the binaries
 #
-build-binary:
-  container: "project-build-binary"
-  image: builder-image
-  artifact: "./dist/binary-name"
+build-binary-task:
+  use: builder
+  artifact: ./dist/binary-name
   volumes:
     - source
     - dist
@@ -52,14 +51,14 @@ dist-image:
   tags:
     - latest
     - ${VERSION}
-  depends: [build-binary]
+  depends: [build-binary-task]
 
 #
 # A `container` resource for running unit tests
 #
 test-unit:
   container: "project-test-unit"
-  image: builder-image
+  image: builder
   command: "go test -v -cover ./..."
   volumes: [source]
 
@@ -69,7 +68,7 @@ test-unit:
 #
 test-acceptance:
   container: "project-test-aceptance"
-  image: builder-image
+  image: builder
   command: "tests/acceptance/run.sh"
   environment: "dev-env"
   volumes:

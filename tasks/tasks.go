@@ -1,4 +1,4 @@
-package steps
+package tasks
 
 import (
 	"os"
@@ -12,8 +12,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Action stub
 type Action func() error
 
+// Step stub
 type Step struct {
 	client *docker.Client
 	config *cf.StepConfig
@@ -159,7 +161,8 @@ func (step *Step) runCompose() error {
 	return cmd.Wait()
 }
 
-func Run(config *cf.Config) error {
+// Run stub
+func Run(config *cf.Config, pipelines []string) error {
 	// TODO: args for client
 	client, err := docker.NewClientFromEnv()
 	if err != nil {

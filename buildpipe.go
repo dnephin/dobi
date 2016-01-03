@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
-	"github.com/dnephin/buildpipe/steps"
+	"github.com/dnephin/buildpipe/tasks"
 	flag "github.com/spf13/pflag"
 )
 
@@ -39,13 +39,13 @@ func main() {
 	flag.Parse()
 	initLogging(*verbose, *quiet)
 
-	// pipelines := flag.Args()
+	pipelines := flag.Args()
 
 	conf, err := config.Load(*filename)
 	if err != nil {
 		log.Fatalf("Failed to load config: %s", err)
 	}
-	if err := steps.Run(conf); err != nil {
+	if err := tasks.Run(conf, pipelines); err != nil {
 		log.Fatalf("%s", err)
 	}
 }
