@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
 	"github.com/dnephin/buildpipe/tasks"
+	"github.com/fsouza/go-dockerclient"
 	flag "github.com/spf13/pflag"
 )
 
@@ -26,6 +27,16 @@ func initLogging(verbose, quiet bool) {
 	log.SetOutput(os.Stderr)
 }
 
+func buildClient() (*docker.Client, error) {
+	// TODO: args for client
+	client, err := docker.NewClientFromEnv()
+	if err != nil {
+		return err
+	}
+	log.Info("Docker client created")
+	return client, nil
+}
+
 func main() {
 	cmd := flag.CommandLine
 	cmd.Init(os.Args[0], flag.ExitOnError)
@@ -39,13 +50,22 @@ func main() {
 	flag.Parse()
 	initLogging(*verbose, *quiet)
 
-	pipelines := flag.Args()
-
 	conf, err := config.Load(*filename)
 	if err != nil {
 		log.Fatalf("Failed to load config: %s", err)
 	}
-	if err := tasks.Run(conf, pipelines); err != nil {
-		log.Fatalf("%s", err)
+
+	client, err := buildClient()
+	if err != nil {
+		log.Fatalf("Failed to create client: %s", err)
+	}
+
+	// TODO: error on no Pipelines, or set a default pipeline?
+	if err := tasks.Run(tasks.RunOptions{
+		Client:    client,
+		Config:    conf,
+		Pipelines: flag.Args(),
+	}); err != nil {
+		log.Fatalf(err)
 	}
 }

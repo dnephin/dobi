@@ -1,9 +1,9 @@
 package config
 
 var (
-	volumeKeys = []string{"path", "mount"}
-	imageKeys  = []string{"image"}
-	taskKeys   = []string{"use"}
+	volumeKeys  = []string{"path", "mount"}
+	imageKeys   = []string{"image"}
+	commandKeys = []string{"use"}
 )
 
 type stringKeyMap struct {
@@ -35,8 +35,8 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		conf = &VolumeConfig{}
 	case m.hasKeys(imageKeys):
 		conf = &ImageConfig{}
-	case m.hasKeys(taskKeys):
-		conf = &TaskConfig{}
+	case m.hasKeys(commandKeys):
+		conf = &CommandConfig{}
 	default:
 		// TODO: error on unknown resource type
 	}

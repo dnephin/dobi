@@ -17,8 +17,8 @@ type ImageConfig struct {
 	Tags       []string
 }
 
-// TaskConfig is a data object for a task resource
-type TaskConfig struct {
+// CommandConfig is a data object for a command resource
+type CommandConfig struct {
 	Use        string
 	Artifact   string
 	Command    string

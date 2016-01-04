@@ -15,7 +15,7 @@ func TestLoadFromBytes(t *testing.T) {
 		  path: dist/
 		  mount: /target
 
-		task-def:
+		cmd-def:
 		  use: image-dev
 		  volumes: [vol-def]
 
@@ -26,5 +26,5 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.Equal(t, len(config.Resources), 3)
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &VolumeConfig{}, config.Resources["vol-def"])
-	assert.IsType(t, &TaskConfig{}, config.Resources["task-def"])
+	assert.IsType(t, &CommandConfig{}, config.Resources["cmd-def"])
 }
