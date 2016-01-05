@@ -4,10 +4,10 @@
 
 A build tool for Docker applications.
 
-Build Pipe allows you define the images, environments, and proceses you use to
+Build Pipe allows you define the images, environments, and processes you use to
 develop, build, test, and deploy your application. Each resource and its
 dependencies are defined in a Buildpipe file. Groups of resources can be combined
-to form pipelines, which can be run using ``buildpipe <pipeline>``.
+to form pipelines, which can be run using ``dopi run <pipeline>``.
 
 
 Resources
@@ -15,7 +15,8 @@ Resources
 
 Image
 ~~~~~
-An image resource builds an image from a Dockerfile.
+An image resource builds an image from a Dockerfile, or pulls an image from a
+registry.
 
 An image is considered up-to-date if all files in the build context have a
 modified time older than the created time of the current image.
@@ -23,38 +24,34 @@ modified time older than the created time of the current image.
 If an image depends on another image resource, the dependency will be built
 first (if it is not up-to-date).
 
-If an image depends on a container the container will be run first. The
-container must exit before the image resource will be run.
+If an image depends on a command, the command will be run first. The
+command resource must exit before the image resource will be run.
 
 An image resource can not depend on a volume.
 
 
-Container
-~~~~~~~~~
-A container resource runs a container.
+Command
+~~~~~~~
+A command resource runs a process in a container.
 
-The container may use an image created by an image resource, or an already
-existing image. By default, a container is never considered up-to-date, it will
-always run.  If a container resource has a ``artifact`` property, which is a
-path to a local file, the last modified time of that file will be used. A
-container resource is considered up-to-date if the modified time of the
-``artifact`` is more recent then:
+Each command uses an image defined by an image resource.  By default, a command
+is never considered up-to-date, it will always run.  If a container resource has
+an ``artifact`` property, which is a path to a local file, the last modified
+time of that file will be used. A command resource is considered up-to-date if
+the modified time of the ``artifact`` is more recent then:
  * the created time of the image it uses
  * the last modified time of all files in any volumes used by the resource
 
 
-If a container uses an image resource, it is automatically added
-as an implicit dependency.
+The image resource used by a command resource is automatically added
+as an implicit dependency of the command.
 
 If a container depends on another container, the container will be run first.
-See `Dependencies` for options to control the state of the dependency container.
 
-If a container depends on a volume, the volume will be created (if it doesn't
-already exist).
+If a uses ``volumes``, the volumes resources will be run first.
 
-If a container uses an ``environment`` resource as the network, the environment
-will be started first, and the container will join the default network for the
-environment.
+If a container uses a ``network`` resource it will be run first and the container
+will join the default network for the environment.
 
 
 Volume
@@ -62,38 +59,34 @@ Volume
 A volume resource creates a host or named volume. If the volume already exists
 the resource is a no-op.
 
-A volume can not depend on anything.
+A volume can not depend on any resource.
 
 
 Environment
 ~~~~~~~~~~~
 An environment resource runs multiple containers as defined by a Compose file.
 
-An environment may depend on images, volumes, or containers.
-
-
-Dependencies
-------------
-
-Resources dependencies are defined using the ``depends`` key in a resource
-definition. The list of dependencies may be the name of other resources
-(when the dependency is an image), or a resource definition (when the
-dependency is a container or volume).
-
-Container dependencies may specify the expected ``state`` of the container,
-either ``running`` or ``exited`` (the default).
-
-Volume dependencies must specify the container path used to mount the volume
-if a container path is not defined as part of the volume resource.
+An environment may depend on images, volumes, or commands.
 
 
 Commands
 --------
 
-Each resource can be run as a command. Running a resource will run all
-out-of-date dependency resources first.
+run
+~~~
 
-With the ``--rm`` flag, the resource is removed instead of run.
+Each resource can be run by using the resource name. Running a resource will
+run all out-of-date dependency resources first.
+
+.. code::
+
+    dopi run <pipeline>
+
+
+rm
+~~
+
+The resource is removed.
 
 
 
