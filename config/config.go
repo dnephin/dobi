@@ -18,6 +18,11 @@ type ImageConfig struct {
 	Depends    []string
 }
 
+// Dependencies returns the list of implicit and explicit dependencies
+func (c *ImageConfig) Dependencies() []string {
+	return c.Depends
+}
+
 // CommandConfig is a data object for a command resource
 type CommandConfig struct {
 	Use        string
@@ -28,6 +33,11 @@ type CommandConfig struct {
 	Depends    []string
 }
 
+// Dependencies returns the list of implicit and explicit dependencies
+func (c *CommandConfig) Dependencies() []string {
+	return append([]string{c.Use}, append(c.Volumes, c.Depends...)...)
+}
+
 // VolumeConfig is a data object for a volume resource
 type VolumeConfig struct {
 	Path  string
@@ -35,8 +45,15 @@ type VolumeConfig struct {
 	Mode  string
 }
 
+// Dependencies returns an empty list, Volume resources have no dependencies
+func (c *VolumeConfig) Dependencies() []string {
+	return []string{}
+}
+
 // Resource is an interface for each configurable type
-type Resource interface{}
+type Resource interface {
+	Dependencies() []string
+}
 
 // Config is a data object for a full config file
 type Config struct {

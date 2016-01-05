@@ -3,7 +3,7 @@ package tasks
 import (
 	"fmt"
 
-	//	log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
 	"github.com/fsouza/go-dockerclient"
 	//	"github.com/hashicorp/errwrap"
@@ -12,13 +12,13 @@ import (
 // Task is an interface implemented by all tasks
 type Task interface {
 	Run() error
-	Dependencies() []string
 	Name() string
 }
 
 // Task
 type baseTask struct {
-	name   string
+	name string
+	// TODO: move client to an argument of Run() ?
 	client *docker.Client
 }
 
@@ -30,6 +30,7 @@ func (t *baseTask) Name() string {
 type TaskCollection struct {
 	allTasks []Task
 	volumes  map[string]*VolumeTask
+	images   map[string]*ImageTask
 }
 
 func (c *TaskCollection) add(task Task) {
@@ -37,6 +38,8 @@ func (c *TaskCollection) add(task Task) {
 	switch typedTask := task.(type) {
 	case *VolumeTask:
 		c.volumes[task.Name()] = typedTask
+	case *ImageTask:
+		c.images[task.Name()] = typedTask
 	}
 }
 
@@ -52,30 +55,43 @@ func (c *TaskCollection) contains(name string) bool {
 func newTaskCollection() *TaskCollection {
 	return &TaskCollection{
 		volumes: make(map[string]*VolumeTask),
+		images:  make(map[string]*ImageTask),
 	}
 }
 
 func prepareTasks(options RunOptions) (*TaskCollection, error) {
 	tasks := newTaskCollection()
 
-	for _, name := range options.Pipelines {
-		if tasks.contains(name) {
-			continue
+	var prepare func(resourceNames []string) error
+	// TODO: detect cyclic dependencies
+	prepare = func(resourceNames []string) error {
+		for _, name := range resourceNames {
+			if tasks.contains(name) {
+				continue
+			}
+
+			// TODO: validate this in the config package so that dry-run is
+			// possible
+			resource, ok := options.Config.Resources[name]
+			if !ok {
+				return fmt.Errorf("Resource not defined: %s", name)
+			}
+
+			task := buildTaskFromResource(taskOptions{
+				name:     name,
+				client:   options.Client,
+				resource: resource,
+				tasks:    tasks,
+			})
+
+			prepare(resource.Dependencies())
+			tasks.add(task)
 		}
+		return nil
+	}
 
-		resource, ok := options.Config.Resources[name]
-		if !ok {
-			return nil, fmt.Errorf("Resource not defined: %s", name)
-		}
-
-		task := buildTaskFromResource(taskOptions{
-			name:     name,
-			client:   options.Client,
-			resource: &resource,
-		})
-
-		// TODO: recursively build tasks for dependencies first
-		tasks.add(task)
+	if err := prepare(options.Pipelines); err != nil {
+		return nil, err
 	}
 	return tasks, nil
 }
@@ -84,23 +100,29 @@ type taskOptions struct {
 	name     string
 	client   *docker.Client
 	resource config.Resource
+	tasks    *TaskCollection
 }
 
 func buildTaskFromResource(options taskOptions) Task {
 	switch conf := options.resource.(type) {
-	case config.ImageConfig:
-
-	case config.CommandConfig:
-
-	case config.VolumeConfig:
+	case *config.ImageConfig:
+		return NewImageTask(options, conf)
+	case *config.CommandConfig:
+		return NewCommandTask(options, conf)
+	case *config.VolumeConfig:
 		return NewVolumeTask(options, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
-	return nil
 }
 
 func executeTasks(tasks *TaskCollection) error {
+	log.Debug("executing tasks")
+	for _, task := range tasks.allTasks {
+		if err := task.Run(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

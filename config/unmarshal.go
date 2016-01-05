@@ -29,7 +29,7 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	var conf interface{}
+	var conf Resource
 	switch {
 	case m.hasKeys(volumeKeys):
 		conf = &VolumeConfig{}

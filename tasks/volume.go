@@ -1,17 +1,21 @@
 package tasks
 
 import (
+	"fmt"
+	"os"
+
+	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
 )
 
 // VolumeTask
 type VolumeTask struct {
 	baseTask
-	config config.VolumeConfig
+	config *config.VolumeConfig
 }
 
 // NewVolumeTask creates a new VolumeTask object
-func NewVolumeTask(options taskOptions, conf config.VolumeConfig) *VolumeTask {
+func NewVolumeTask(options taskOptions, conf *config.VolumeConfig) *VolumeTask {
 	return &VolumeTask{
 		baseTask: baseTask{
 			name:   options.name,
@@ -21,12 +25,41 @@ func NewVolumeTask(options taskOptions, conf config.VolumeConfig) *VolumeTask {
 	}
 }
 
-// Run creates the host path if it doesn't already exist
-func (t *VolumeTask) Run() error {
-	return nil
+func (t *VolumeTask) String() string {
+	return fmt.Sprintf("VolumeTask(name=%s, config=%s)", t.name, t.config)
 }
 
-// Dependencies returns an empty list, VolumeTasks have no dependencies
-func (t *VolumeTask) Dependencies() []string {
-	return []string{}
+func (t *VolumeTask) logger() *log.Entry {
+	return log.WithFields(log.Fields{
+		"task":  "Volume",
+		"name":  t.name,
+		"path":  t.config.Path,
+		"mount": t.config.Mount,
+		"mode":  t.config.Mode,
+	})
+}
+
+// Run creates the host path if it doesn't already exist
+func (t *VolumeTask) Run() error {
+	t.logger().Debug("run")
+
+	if t.exists() {
+		t.logger().Debug("exists")
+		return nil
+	}
+
+	err := os.MkdirAll(t.config.Path, 0777)
+	if err == nil {
+		t.logger().Info("created")
+	}
+	return err
+}
+
+func (t *VolumeTask) exists() bool {
+	info, err := os.Stat(t.config.Path)
+	if err != nil {
+		return false
+	}
+
+	return info.IsDir()
 }
