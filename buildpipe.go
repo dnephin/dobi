@@ -31,7 +31,7 @@ func buildClient() (*docker.Client, error) {
 	// TODO: args for client
 	client, err := docker.NewClientFromEnv()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	log.Info("Docker client created")
 	return client, nil
@@ -66,6 +66,6 @@ func main() {
 		Config:    conf,
 		Pipelines: flag.Args(),
 	}); err != nil {
-		log.Fatalf(err)
+		log.Fatalf(err.Error())
 	}
 }

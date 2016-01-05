@@ -13,6 +13,7 @@ import (
 type Task interface {
 	Run() error
 	Dependencies() []string
+	Name() string
 }
 
 // Task
@@ -21,12 +22,44 @@ type baseTask struct {
 	client *docker.Client
 }
 
-func prepareTasks(options RunOptions) (*[]Task, error) {
-	tasks := []Task{}
-	prepared := make(map[string]bool)
+func (t *baseTask) Name() string {
+	return t.name
+}
+
+// TaskCollection is a collection of Task objects
+type TaskCollection struct {
+	allTasks []Task
+	volumes  map[string]*VolumeTask
+}
+
+func (c *TaskCollection) add(task Task) {
+	c.allTasks = append(c.allTasks, task)
+	switch typedTask := task.(type) {
+	case *VolumeTask:
+		c.volumes[task.Name()] = typedTask
+	}
+}
+
+func (c *TaskCollection) contains(name string) bool {
+	for _, task := range c.allTasks {
+		if task.Name() == name {
+			return true
+		}
+	}
+	return false
+}
+
+func newTaskCollection() *TaskCollection {
+	return &TaskCollection{
+		volumes: make(map[string]*VolumeTask),
+	}
+}
+
+func prepareTasks(options RunOptions) (*TaskCollection, error) {
+	tasks := newTaskCollection()
 
 	for _, name := range options.Pipelines {
-		if _, ok := prepared[name]; ok {
+		if tasks.contains(name) {
 			continue
 		}
 
@@ -42,11 +75,9 @@ func prepareTasks(options RunOptions) (*[]Task, error) {
 		})
 
 		// TODO: recursively build tasks for dependencies first
-
-		tasks = append(tasks, task)
-		prepared[name] = true
+		tasks.add(task)
 	}
-	return &tasks, nil
+	return tasks, nil
 }
 
 type taskOptions struct {
@@ -69,7 +100,7 @@ func buildTaskFromResource(options taskOptions) Task {
 	return nil
 }
 
-func executeTasks(tasks *[]Task) error {
+func executeTasks(tasks *TaskCollection) error {
 	return nil
 }
 

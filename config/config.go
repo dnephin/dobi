@@ -15,6 +15,7 @@ type ImageConfig struct {
 	Args       map[string]string
 	Pull       bool
 	Tags       []string
+	Depends    []string
 }
 
 // CommandConfig is a data object for a command resource
@@ -24,6 +25,7 @@ type CommandConfig struct {
 	Command    string
 	Volumes    []string
 	Privileged bool
+	Depends    []string
 }
 
 // VolumeConfig is a data object for a volume resource
