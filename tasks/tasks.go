@@ -11,14 +11,14 @@ import (
 
 // Task is an interface implemented by all tasks
 type Task interface {
-	Run() error
+	Run(ctx *ExecuteContext) error
 	Name() string
 }
 
 // Task
 type baseTask struct {
 	name string
-	// TODO: move client to an argument of Run() ?
+	// TODO: move client to ExecuteContext
 	client *docker.Client
 }
 
@@ -59,6 +59,31 @@ func newTaskCollection() *TaskCollection {
 	}
 }
 
+// ExecuteContext contains all the context for task execution
+type ExecuteContext struct {
+	modified map[string]bool
+}
+
+func (ctx *ExecuteContext) isModified(names ...string) bool {
+	for _, name := range names {
+		if modified, _ := ctx.modified[name]; modified {
+			return true
+		}
+	}
+	return false
+}
+
+func (ctx *ExecuteContext) setModified(name string) {
+	ctx.modified[name] = true
+}
+
+// NewExecuteContext craetes a new empty ExecuteContext
+func NewExecuteContext() *ExecuteContext {
+	return &ExecuteContext{
+		modified: make(map[string]bool),
+	}
+}
+
 func prepareTasks(options RunOptions) (*TaskCollection, error) {
 	tasks := newTaskCollection()
 
@@ -78,10 +103,10 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 			}
 
 			task := buildTaskFromResource(taskOptions{
-				name:     name,
-				client:   options.Client,
-				resource: resource,
-				tasks:    tasks,
+				name:      name,
+				client:    options.Client,
+				resource:  resource,
+				resources: options.Config.Resources,
 			})
 
 			prepare(resource.Dependencies())
@@ -97,10 +122,10 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 }
 
 type taskOptions struct {
-	name     string
-	client   *docker.Client
-	resource config.Resource
-	tasks    *TaskCollection
+	name      string
+	client    *docker.Client
+	resource  config.Resource
+	resources map[string]config.Resource
 }
 
 func buildTaskFromResource(options taskOptions) Task {
@@ -118,8 +143,9 @@ func buildTaskFromResource(options taskOptions) Task {
 
 func executeTasks(tasks *TaskCollection) error {
 	log.Debug("executing tasks")
+	ctx := NewExecuteContext()
 	for _, task := range tasks.allTasks {
-		if err := task.Run(); err != nil {
+		if err := task.Run(ctx); err != nil {
 			return err
 		}
 	}

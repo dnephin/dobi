@@ -41,10 +41,10 @@ func (t *ImageTask) logger() *log.Entry {
 }
 
 // Run builds or pulls an image if it is out of date
-func (t *ImageTask) Run() error {
+func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	t.logger().Info("run")
 
-	stale, err := t.isStale()
+	stale, err := t.isStale(ctx)
 	if err != nil {
 		return err
 	}
@@ -52,10 +52,19 @@ func (t *ImageTask) Run() error {
 		return nil
 	}
 
-	return t.build()
+	err = t.build()
+	if err != nil {
+		return err
+	}
+	ctx.setModified(t.name)
+	return nil
 }
 
-func (t *ImageTask) isStale() (bool, error) {
+func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
+	if ctx.isModified(t.config.Dependencies()...) {
+		return true, nil
+	}
+
 	// TODO: this should use the unique run id for the tag
 	image, err := t.client.InspectImage(t.config.Image + ":todo-unique")
 	switch err {

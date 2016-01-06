@@ -14,6 +14,7 @@ type VolumeTaskSuite struct {
 	suite.Suite
 	task *VolumeTask
 	path string
+	ctx  *ExecuteContext
 }
 
 func TestVolumeTaskSuite(t *testing.T) {
@@ -32,6 +33,8 @@ func (s *VolumeTaskSuite) SetupTest() {
 			Mount: "/target",
 			Mode:  "rw",
 		})
+
+	s.ctx = NewExecuteContext()
 }
 
 func (s *VolumeTaskSuite) TearDownTest() {
@@ -43,11 +46,13 @@ func (s *VolumeTaskSuite) TestRunPathExists() {
 	s.Require().Nil(os.MkdirAll(s.task.config.Path, 0777))
 	s.True(s.task.exists())
 
-	s.Nil(s.task.Run())
+	s.Nil(s.task.Run(s.ctx))
+	s.False(s.ctx.isModified("volume-task-def"))
 }
 
 func (s *VolumeTaskSuite) TestRunPathIsNew() {
-	s.Nil(s.task.Run())
+	s.Nil(s.task.Run(s.ctx))
 
 	s.True(s.task.exists())
+	s.True(s.ctx.isModified("volume-task-def"))
 }

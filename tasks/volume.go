@@ -8,7 +8,7 @@ import (
 	"github.com/dnephin/buildpipe/config"
 )
 
-// VolumeTask
+// VolumeTask is a task which creates a directory on the host
 type VolumeTask struct {
 	baseTask
 	config *config.VolumeConfig
@@ -40,7 +40,7 @@ func (t *VolumeTask) logger() *log.Entry {
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *VolumeTask) Run() error {
+func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 	t.logger().Debug("run")
 
 	if t.exists() {
@@ -49,10 +49,12 @@ func (t *VolumeTask) Run() error {
 	}
 
 	err := os.MkdirAll(t.config.Path, 0777)
-	if err == nil {
-		t.logger().Info("created")
+	if err != nil {
+		return err
 	}
-	return err
+	t.logger().Info("created")
+	ctx.setModified(t.name)
+	return nil
 }
 
 func (t *VolumeTask) exists() bool {
