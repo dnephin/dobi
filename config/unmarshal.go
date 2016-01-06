@@ -32,15 +32,18 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var conf Resource
 	switch {
 	case m.hasKeys(volumeKeys):
-		conf = &VolumeConfig{}
+		conf = NewVolumeConfig()
 	case m.hasKeys(imageKeys):
-		conf = &ImageConfig{}
+		conf = NewImageConfig()
 	case m.hasKeys(commandKeys):
 		conf = &CommandConfig{}
 	default:
 		// TODO: error on unknown resource type
 	}
 
+	if err = conf.Validate(); err != nil {
+		return err
+	}
 	err = unmarshal(conf)
 	m.resource = conf
 	return err

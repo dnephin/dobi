@@ -23,6 +23,24 @@ func (c *ImageConfig) Dependencies() []string {
 	return c.Depends
 }
 
+// Validate checks that all fields have acceptable values
+func (c *ImageConfig) Validate() error {
+	// TODO: better way to generate consistent config errors
+	// TODO: check context directory exists
+	// TODO: check dockerfile exists
+	// TODO: validate required fields are set
+	return nil
+}
+
+// NewImageConfig creates an ImageConfig with default values
+func NewImageConfig() *ImageConfig {
+	return &ImageConfig{
+		Context:    ".",
+		Dockerfile: "Dockerfile",
+		Tags:       []string{"latest"},
+	}
+}
+
 // CommandConfig is a data object for a command resource
 type CommandConfig struct {
 	Use        string
@@ -38,6 +56,12 @@ func (c *CommandConfig) Dependencies() []string {
 	return append([]string{c.Use}, append(c.Volumes, c.Depends...)...)
 }
 
+// Validate checks that all fields have acceptable values
+func (c *CommandConfig) Validate() error {
+	// TODO: validate required fields are set
+	return nil
+}
+
 // VolumeConfig is a data object for a volume resource
 type VolumeConfig struct {
 	Path  string
@@ -50,9 +74,23 @@ func (c *VolumeConfig) Dependencies() []string {
 	return []string{}
 }
 
+// Validate checks that all fields have acceptable values
+func (c *VolumeConfig) Validate() error {
+	// TODO: validate required fields are set
+	return nil
+}
+
+// NewVolumeConfig creates a VolumeConfig with default values
+func NewVolumeConfig() *VolumeConfig {
+	return &VolumeConfig{
+		Mode: "rw",
+	}
+}
+
 // Resource is an interface for each configurable type
 type Resource interface {
 	Dependencies() []string
+	Validate() error
 }
 
 // Config is a data object for a full config file

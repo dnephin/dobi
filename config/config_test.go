@@ -10,6 +10,7 @@ func TestLoadFromBytes(t *testing.T) {
 	conf := dedent.Dedent(`
 		image-def:
 		  image: imagename
+		  tags: ['one']
 
 		vol-def:
 		  path: dist/
@@ -27,4 +28,9 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &VolumeConfig{}, config.Resources["vol-def"])
 	assert.IsType(t, &CommandConfig{}, config.Resources["cmd-def"])
+
+	// Test default value and override
+	imageConf := config.Resources["image-def"].(*ImageConfig)
+	assert.Equal(t, ".", imageConf.Context)
+	assert.Equal(t, []string{"one"}, imageConf.Tags)
 }
