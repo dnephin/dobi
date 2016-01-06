@@ -7,7 +7,6 @@ import (
 )
 
 // TODO: use go routines to speed this up
-// TODO: move this
 // lastModified returns the latest modified time for all the files in all of
 // the directories
 func lastModified(dirs ...string) (time.Time, error) {

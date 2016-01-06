@@ -14,7 +14,6 @@ type ImageConfig struct {
 	Context    string
 	Args       map[string]string
 	Pull       bool
-	Tags       []string
 	Depends    []string
 }
 
@@ -29,6 +28,7 @@ func (c *ImageConfig) Validate() error {
 	// TODO: check context directory exists
 	// TODO: check dockerfile exists
 	// TODO: validate required fields are set
+	// TODO: validate no tag on image name
 	return nil
 }
 
@@ -37,7 +37,6 @@ func NewImageConfig() *ImageConfig {
 	return &ImageConfig{
 		Context:    ".",
 		Dockerfile: "Dockerfile",
-		Tags:       []string{"latest"},
 	}
 }
 

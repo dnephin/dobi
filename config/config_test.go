@@ -10,7 +10,7 @@ func TestLoadFromBytes(t *testing.T) {
 	conf := dedent.Dedent(`
 		image-def:
 		  image: imagename
-		  tags: ['one']
+		  dockerfile: what
 
 		vol-def:
 		  path: dist/
@@ -32,5 +32,5 @@ func TestLoadFromBytes(t *testing.T) {
 	// Test default value and override
 	imageConf := config.Resources["image-def"].(*ImageConfig)
 	assert.Equal(t, ".", imageConf.Context)
-	assert.Equal(t, []string{"one"}, imageConf.Tags)
+	assert.Equal(t, "what", imageConf.Dockerfile)
 }
