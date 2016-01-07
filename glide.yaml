@@ -6,3 +6,4 @@ import:
 - package: github.com/Sirupsen/logrus
 - package: github.com/stretchr/testify
 - package: github.com/renstrom/dedent
+- package: github.com/kballard/go-shellquote

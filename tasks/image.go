@@ -87,8 +87,12 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 }
 
 func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
+	return t.client.InspectImage(t.getImageName(ctx))
+}
+
+func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
 	// TODO: this should use the unique run id for the tag
-	return t.client.InspectImage(t.config.Image + ":todo-unique")
+	return t.config.Image + ":todo-unique"
 }
 
 func (t *ImageTask) build() error {

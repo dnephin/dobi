@@ -7,7 +7,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
-	//"github.com/fsouza/go-dockerclient"
+	"github.com/fsouza/go-dockerclient"
+	"github.com/kballard/go-shellquote"
 )
 
 // CommandTask is a task which runs a command in a container to produce a
@@ -50,6 +51,10 @@ func (t *CommandTask) Run(ctx *ExecuteContext) error {
 		return err
 	}
 
+	err = t.runContainer(ctx)
+	if err != nil {
+		return err
+	}
 	ctx.setModified(t.name)
 	t.logger().Info("created")
 	return nil
@@ -96,4 +101,62 @@ func (t *CommandTask) volumeFilesLastModified(ctx *ExecuteContext) (time.Time, e
 		volumePaths = append(volumePaths, volume.config.Path)
 	}
 	return lastModified(volumePaths...)
+}
+
+func (t *CommandTask) volumeBinds(ctx *ExecuteContext) []string {
+	// TODO
+	return []string{}
+}
+
+func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
+	// TODO: move this to config resource validation?
+	command, err := shellquote.Split(t.config.Command)
+	if err != nil {
+		return err
+	}
+
+	// TODO: support other run options
+	container, err := t.client.CreateContainer(docker.CreateContainerOptions{
+		// TODO: give the container a unique name based on UNIQUE_ID and step
+		// name
+		Config: &docker.Config{
+			Cmd:   command,
+			Image: ctx.tasks.images[t.config.Use].getImageName(ctx),
+		},
+		HostConfig: &docker.HostConfig{
+			// TODO: support relative paths or {{PWD}}
+			Binds:      t.volumeBinds(ctx),
+			Privileged: t.config.Privileged,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := t.client.StartContainer(container.ID, nil); err != nil {
+		return err
+	}
+
+	if err := t.client.AttachToContainer(docker.AttachToContainerOptions{
+		Container: container.ID,
+		// TODO: send this to a buffer for --quiet
+		OutputStream: os.Stdout,
+		ErrorStream:  os.Stderr,
+		Logs:         false,
+		Stream:       true,
+		Stdout:       true,
+		Stderr:       true,
+	}); err != nil {
+		return err
+	}
+	if err := t.client.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            container.ID,
+		RemoveVolumes: true,
+	}); err != nil {
+		t.logger().WithFields(log.Fields{
+			"container": container.ID,
+			"error":     err.Error(),
+		}).Warn("Failed to remove container.")
+	}
+	return nil
 }
