@@ -6,7 +6,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
 	"github.com/fsouza/go-dockerclient"
-	//	"github.com/hashicorp/errwrap"
 )
 
 // Task is an interface implemented by all tasks

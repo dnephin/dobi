@@ -4,6 +4,5 @@ import:
 - package: github.com/fsouza/go-dockerclient
 - package: github.com/spf13/pflag
 - package: github.com/Sirupsen/logrus
-- package: github.com/hashicorp/errwrap
 - package: github.com/stretchr/testify
 - package: github.com/renstrom/dedent

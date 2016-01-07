@@ -54,6 +54,7 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 		return err
 	}
 	ctx.setModified(t.name)
+	t.logger().Info("created")
 	return nil
 }
 

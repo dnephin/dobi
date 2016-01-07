@@ -5,8 +5,6 @@ imports:
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
 - name: github.com/fsouza/go-dockerclient
   version: e0d22d30691bcc996eca51f729a4777b8c7dc2a8
-- name: github.com/hashicorp/errwrap
-  version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
 - name: github.com/pmezard/go-difflib
   version: e8554b8641db39598be7f6342874b958f12ae1d4
 - name: github.com/renstrom/dedent

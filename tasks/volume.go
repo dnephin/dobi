@@ -52,8 +52,8 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 	if err != nil {
 		return err
 	}
-	t.logger().Info("created")
 	ctx.setModified(t.name)
+	t.logger().Info("created")
 	return nil
 }
 

@@ -44,10 +44,14 @@ func (t *CommandTask) logger() *log.Entry {
 
 // Run creates the host path if it doesn't already exist
 func (t *CommandTask) Run(ctx *ExecuteContext) error {
+	t.logger().Info("run")
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
 		return err
 	}
+
+	ctx.setModified(t.name)
+	t.logger().Info("created")
 	return nil
 }
 
