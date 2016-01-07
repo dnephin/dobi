@@ -50,13 +50,14 @@ func (t *CommandTask) Run(ctx *ExecuteContext) error {
 	if !stale || err != nil {
 		return err
 	}
+	t.logger().Debug("artifact is stale")
 
 	err = t.runContainer(ctx)
 	if err != nil {
 		return err
 	}
 	ctx.setModified(t.name)
-	t.logger().Info("created")
+	t.logger().Info("done")
 	return nil
 }
 
@@ -81,6 +82,7 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 	}
 
 	if info.ModTime().Before(volumeFilesLastModified) {
+		t.logger().Debug("artifact older than volume files")
 		return true, nil
 	}
 
@@ -88,7 +90,11 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 	if err != nil {
 		return true, err
 	}
-	return info.ModTime().Before(image.Created), nil
+	if info.ModTime().Before(image.Created) {
+		t.logger().Debug("artifact older than image")
+		return true, nil
+	}
+	return false, nil
 }
 
 // TODO: support a .volumeignore file?

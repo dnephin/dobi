@@ -48,8 +48,9 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	if !stale || err != nil {
 		return err
 	}
+	t.logger().Debug("image is stale")
 
-	err = t.build()
+	err = t.build(ctx)
 	if err != nil {
 		return err
 	}
@@ -66,15 +67,11 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 	image, err := t.getImage(ctx)
 	switch err {
 	case docker.ErrNoSuchImage:
+		t.logger().Debug("image does not exist")
 		return true, nil
 	case nil:
 	default:
 		return true, err
-	}
-
-	// Images without a context can never be stale
-	if t.config.Context == "" {
-		return false, nil
 	}
 
 	// TODO: support .dockerignore
@@ -83,7 +80,11 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
 	}
-	return image.Created.Before(mtime), nil
+	if image.Created.Before(mtime) {
+		t.logger().Debug("image older than context")
+		return true, nil
+	}
+	return false, nil
 }
 
 func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
@@ -95,9 +96,9 @@ func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
 	return t.config.Image + ":todo-unique"
 }
 
-func (t *ImageTask) build() error {
+func (t *ImageTask) build(ctx *ExecuteContext) error {
 	return t.client.BuildImage(docker.BuildImageOptions{
-		Name:           t.config.Image,
+		Name:           t.getImageName(ctx),
 		Dockerfile:     t.config.Dockerfile,
 		Pull:           t.config.Pull,
 		RmTmpContainer: true,

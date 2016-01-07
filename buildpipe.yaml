@@ -1,0 +1,39 @@
+#
+#
+#
+
+#
+# Volumes
+#
+
+source:
+    path: .
+    mount: /go/src/github.com/dnephin/buildpipe
+
+dist:
+    path: ./dist/bin/
+    mount: /go/bin/
+
+#
+# Images
+#
+
+builder:
+    image: buildpipe-dev
+    context: ./dockerfiles/
+    dockerfile: Dockerfile.build
+
+
+#
+# Commands
+#
+
+binary:
+    use: builder
+    artifact: ./dist/bin/buildpipe
+    volumes: [source, dist]
+
+watch:
+    use: builder
+    volumes: [source, dist]
+    command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"

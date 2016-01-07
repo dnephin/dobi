@@ -44,6 +44,8 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err = conf.Validate(); err != nil {
 		return err
 	}
+
+	// TODO: error on unexpected fields
 	err = unmarshal(conf)
 	m.resource = conf
 	return err
