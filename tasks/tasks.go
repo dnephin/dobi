@@ -62,6 +62,7 @@ func newTaskCollection() *TaskCollection {
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
 	modified map[string]bool
+	tasks    *TaskCollection
 }
 
 func (ctx *ExecuteContext) isModified(names ...string) bool {
@@ -78,9 +79,10 @@ func (ctx *ExecuteContext) setModified(name string) {
 }
 
 // NewExecuteContext craetes a new empty ExecuteContext
-func NewExecuteContext() *ExecuteContext {
+func NewExecuteContext(tasks *TaskCollection) *ExecuteContext {
 	return &ExecuteContext{
 		modified: make(map[string]bool),
+		tasks:    tasks,
 	}
 }
 
@@ -103,10 +105,9 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 			}
 
 			task := buildTaskFromResource(taskOptions{
-				name:      name,
-				client:    options.Client,
-				resource:  resource,
-				resources: options.Config.Resources,
+				name:     name,
+				client:   options.Client,
+				resource: resource,
 			})
 
 			prepare(resource.Dependencies())
@@ -122,10 +123,9 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 }
 
 type taskOptions struct {
-	name      string
-	client    *docker.Client
-	resource  config.Resource
-	resources map[string]config.Resource
+	name     string
+	client   *docker.Client
+	resource config.Resource
 }
 
 func buildTaskFromResource(options taskOptions) Task {
@@ -143,7 +143,7 @@ func buildTaskFromResource(options taskOptions) Task {
 
 func executeTasks(tasks *TaskCollection) error {
 	log.Debug("executing tasks")
-	ctx := NewExecuteContext()
+	ctx := NewExecuteContext(tasks)
 	for _, task := range tasks.allTasks {
 		if err := task.Run(ctx); err != nil {
 			return err

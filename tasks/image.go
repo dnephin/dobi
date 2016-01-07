@@ -45,11 +45,8 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	t.logger().Info("run")
 
 	stale, err := t.isStale(ctx)
-	if err != nil {
+	if !stale || err != nil {
 		return err
-	}
-	if !stale {
-		return nil
 	}
 
 	err = t.build()
@@ -65,8 +62,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	// TODO: this should use the unique run id for the tag
-	image, err := t.client.InspectImage(t.config.Image + ":todo-unique")
+	image, err := t.getImage(ctx)
 	switch err {
 	case docker.ErrNoSuchImage:
 		return true, nil
@@ -87,6 +83,11 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, err
 	}
 	return image.Created.Before(mtime), nil
+}
+
+func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
+	// TODO: this should use the unique run id for the tag
+	return t.client.InspectImage(t.config.Image + ":todo-unique")
 }
 
 func (t *ImageTask) build() error {
