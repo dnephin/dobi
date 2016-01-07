@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/buildpipe/config"
@@ -11,7 +12,8 @@ import (
 // VolumeTask is a task which creates a directory on the host
 type VolumeTask struct {
 	baseTask
-	config *config.VolumeConfig
+	config     *config.VolumeConfig
+	workingDir string
 }
 
 // NewVolumeTask creates a new VolumeTask object
@@ -21,7 +23,8 @@ func NewVolumeTask(options taskOptions, conf *config.VolumeConfig) *VolumeTask {
 			name:   options.name,
 			client: options.client,
 		},
-		config: conf,
+		config:     conf,
+		workingDir: options.config.WorkingDir,
 	}
 }
 
@@ -48,7 +51,7 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 		return nil
 	}
 
-	err := os.MkdirAll(t.config.Path, 0777)
+	err := os.MkdirAll(t.absPath(), 0777)
 	if err != nil {
 		return err
 	}
@@ -57,11 +60,19 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 	return nil
 }
 
+func (t *VolumeTask) absPath() string {
+	return filepath.Join(t.workingDir, t.config.Path)
+}
+
 func (t *VolumeTask) exists() bool {
-	info, err := os.Stat(t.config.Path)
+	info, err := os.Stat(t.absPath())
 	if err != nil {
 		return false
 	}
 
 	return info.IsDir()
+}
+
+func (t *VolumeTask) asBind() string {
+	return fmt.Sprintf("%s:%s:%s", t.absPath(), t.config.Mount, t.config.Mode)
 }

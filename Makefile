@@ -12,7 +12,7 @@ VOLUMES := \
 all: binary
 
 build:
-	docker build -t $(DOCKER_IMAGE) -f Dockerfile.build .
+	docker build -t $(DOCKER_IMAGE) -f dockerfiles/Dockerfile.build .
 
 dist:
 	mkdir dist/

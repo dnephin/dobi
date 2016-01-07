@@ -110,8 +110,12 @@ func (t *CommandTask) volumeFilesLastModified(ctx *ExecuteContext) (time.Time, e
 }
 
 func (t *CommandTask) volumeBinds(ctx *ExecuteContext) []string {
-	// TODO
-	return []string{}
+	binds := []string{}
+	for _, volume := range t.config.Volumes {
+		volume, _ := ctx.tasks.volumes[volume]
+		binds = append(binds, volume.asBind())
+	}
+	return binds
 }
 
 func (t *CommandTask) runContainer(ctx *ExecuteContext) error {

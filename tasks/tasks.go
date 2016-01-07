@@ -107,6 +107,7 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 				name:     name,
 				client:   options.Client,
 				resource: resource,
+				config:   options.Config,
 			})
 
 			prepare(resource.Dependencies())
@@ -125,6 +126,7 @@ type taskOptions struct {
 	name     string
 	client   *docker.Client
 	resource config.Resource
+	config   *config.Config
 }
 
 func buildTaskFromResource(options taskOptions) Task {

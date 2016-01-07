@@ -41,10 +41,6 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		// TODO: error on unknown resource type
 	}
 
-	if err = conf.Validate(); err != nil {
-		return err
-	}
-
 	// TODO: error on unexpected fields
 	err = unmarshal(conf)
 	m.resource = conf

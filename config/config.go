@@ -2,6 +2,7 @@ package config
 
 import (
 	"io/ioutil"
+	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -94,7 +95,8 @@ type Resource interface {
 
 // Config is a data object for a full config file
 type Config struct {
-	Resources map[string]Resource
+	Resources  map[string]Resource
+	WorkingDir string
 }
 
 // NewConfig returns a new Config object
@@ -127,6 +129,13 @@ func Load(filename string) (*Config, error) {
 		return nil, err
 	}
 	log.WithFields(log.Fields{"filename": filename}).Info("Configuration loaded")
+
+	absPath, err := filepath.Abs(filename)
+	if err != nil {
+		return nil, err
+	}
+	config.WorkingDir = filepath.Dir(absPath)
+
 	if err = validate(config); err != nil {
 		return nil, err
 	}
@@ -144,8 +153,12 @@ func LoadFromBytes(data []byte) (*Config, error) {
 }
 
 func validate(config *Config) error {
-	// TODO: if pull is true, image must be set
-	// TODO: run and compose actions are mutually exclusive
-	// TODO: compose config and filename are mutually exclusive
+	for _, resource := range config.Resources {
+		if err := resource.Validate(); err != nil {
+			return err
+		}
+	}
+
+	// TODO: validate references between resources
 	return nil
 }

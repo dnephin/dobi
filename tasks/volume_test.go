@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -27,9 +28,12 @@ func (s *VolumeTaskSuite) SetupTest() {
 	s.Require().Nil(err)
 
 	s.task = NewVolumeTask(
-		taskOptions{name: "volume-task-def"},
+		taskOptions{
+			name:   "volume-task-def",
+			config: &config.Config{WorkingDir: s.path},
+		},
 		&config.VolumeConfig{
-			Path:  filepath.Join(s.path, "a", "b", "c"),
+			Path:  filepath.Join("a", "b", "c"),
 			Mount: "/target",
 			Mode:  "rw",
 		})
@@ -43,7 +47,7 @@ func (s *VolumeTaskSuite) TearDownTest() {
 
 func (s *VolumeTaskSuite) TestRunPathExists() {
 	s.False(s.task.exists())
-	s.Require().Nil(os.MkdirAll(s.task.config.Path, 0777))
+	s.Require().Nil(os.MkdirAll(s.task.absPath(), 0777))
 	s.True(s.task.exists())
 
 	s.Nil(s.task.Run(s.ctx))
@@ -55,4 +59,8 @@ func (s *VolumeTaskSuite) TestRunPathIsNew() {
 
 	s.True(s.task.exists())
 	s.True(s.ctx.isModified("volume-task-def"))
+}
+
+func (s *VolumeTaskSuite) TestAsBind() {
+	s.Equal(fmt.Sprintf("%s:/target:rw", s.task.absPath()), s.task.asBind())
 }
