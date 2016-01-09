@@ -37,3 +37,13 @@ watch:
     use: builder
     volumes: [source, dist]
     command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"
+
+shell:
+    use: builder
+    volumes: [source, dist]
+    command: bash
+
+test-unit:
+    use: builder
+    volumes: [source, dist]
+    command: "bash -c 'go test -v $(glide novendor)'"

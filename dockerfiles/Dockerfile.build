@@ -1,0 +1,21 @@
+
+FROM    golang:1.5
+
+ARG     GLIDE_VERSION=0.8.2
+RUN     curl -sL \ 
+            https://github.com/Masterminds/glide/releases/download/${GLIDE_VERSION}/glide-${GLIDE_VERSION}-linux-amd64.tar.gz | \
+        tar -xz linux-amd64/glide && \
+        mv linux-amd64/glide /usr/bin/glide && \
+        chmod +x /usr/bin/glide
+
+RUN     go get github.com/dnephin/filewatcher  && \
+        cp /go/bin/filewatcher /usr/local/bin/filewatcher && \
+        rm -rf /go/src/github.com/dnephin/filewatcher \
+            /go/pkg/*/github.com/dnephin/filewatcher
+
+WORKDIR /go/src/github.com/dnephin/dobi
+
+ENV     CGO_ENABLED=0
+ENV     GO15VENDOREXPERIMENT=1
+
+CMD     go install

@@ -70,6 +70,7 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
+	// TODO: support artifact directories, not just single files
 	info, err := os.Stat(t.config.Artifact)
 	// File or directory doesn't exist
 	if err != nil {
