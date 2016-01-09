@@ -116,7 +116,7 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 		return nil
 	}
 
-	if err := prepare(options.Pipelines); err != nil {
+	if err := prepare(options.Tasks); err != nil {
 		return nil, err
 	}
 	return tasks, nil
@@ -155,13 +155,15 @@ func executeTasks(tasks *TaskCollection) error {
 
 // RunOptions are the options supported by Run
 type RunOptions struct {
-	Client    *docker.Client
-	Config    *config.Config
-	Pipelines []string
+	Client *docker.Client
+	Config *config.Config
+	Tasks  []string
 }
 
-// Run one or more pipelines
+// Run one or more tasks
 func Run(options RunOptions) error {
+	// TODO: handle empty options.Tasks, run default, or err on no default
+
 	tasks, err := prepareTasks(options)
 	if err != nil {
 		return err

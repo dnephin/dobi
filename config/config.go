@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"path/filepath"
+	"sort"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -39,6 +40,16 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+// Sorted returns the list of resource names in alphabetical sort order
+func (c *Config) Sorted() []string {
+	names := []string{}
+	for name := range c.Resources {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 // Load a configuration from a filename
 func Load(filename string) (*Config, error) {
 	data, err := ioutil.ReadFile(filename)
@@ -49,7 +60,7 @@ func Load(filename string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{"filename": filename}).Info("Configuration loaded")
+	log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
 
 	absPath, err := filepath.Abs(filename)
 	if err != nil {

@@ -1,5 +1,10 @@
 package config
 
+import (
+	"fmt"
+	"path/filepath"
+)
+
 // ImageConfig ia a data object for image resource
 type ImageConfig struct {
 	Image      string
@@ -23,6 +28,11 @@ func (c *ImageConfig) Validate() error {
 	// TODO: validate required fields are set
 	// TODO: validate no tag on image name
 	return nil
+}
+
+func (c *ImageConfig) String() string {
+	dir := filepath.Join(c.Context, c.Dockerfile)
+	return fmt.Sprintf("Build image '%s' from '%s'", c.Image, dir)
 }
 
 // NewImageConfig creates an ImageConfig with default values
@@ -56,6 +66,17 @@ func (c *CommandConfig) Validate() error {
 	return nil
 }
 
+func (c *CommandConfig) String() string {
+	artifact, command := "", ""
+	if c.Artifact != "" {
+		artifact = fmt.Sprintf(" to create '%s'", c.Artifact)
+	}
+	if c.Command != "" {
+		command = fmt.Sprintf("'%s' using '", c.Command)
+	}
+	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
+}
+
 // VolumeConfig is a data object for a volume resource
 type VolumeConfig struct {
 	Path  string
@@ -72,6 +93,10 @@ func (c *VolumeConfig) Dependencies() []string {
 func (c *VolumeConfig) Validate() error {
 	// TODO: validate required fields are set
 	return nil
+}
+
+func (c *VolumeConfig) String() string {
+	return fmt.Sprintf("Create volume '%s' to be mounted at '%s'", c.Path, c.Mount)
 }
 
 // NewVolumeConfig creates a VolumeConfig with default values
