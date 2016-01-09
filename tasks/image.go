@@ -5,7 +5,7 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/buildpipe/config"
+	"github.com/dnephin/dobi/config"
 	"github.com/fsouza/go-dockerclient"
 )
 

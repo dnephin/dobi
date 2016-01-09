@@ -6,7 +6,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/buildpipe/config"
+	"github.com/dnephin/dobi/config"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/kballard/go-shellquote"
 )

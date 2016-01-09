@@ -8,7 +8,7 @@
 
 source:
     path: .
-    mount: /go/src/github.com/dnephin/buildpipe
+    mount: /go/src/github.com/dnephin/dobi
 
 dist:
     path: ./dist/bin/
@@ -19,7 +19,7 @@ dist:
 #
 
 builder:
-    image: buildpipe-dev
+    image: dobi-dev
     context: ./dockerfiles/
     dockerfile: Dockerfile.build
 
@@ -30,7 +30,7 @@ builder:
 
 binary:
     use: builder
-    artifact: ./dist/bin/buildpipe
+    artifact: ./dist/bin/dobi
     volumes: [source, dist]
 
 watch:

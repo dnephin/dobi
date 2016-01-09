@@ -5,14 +5,14 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/buildpipe/config"
-	"github.com/dnephin/buildpipe/tasks"
+	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/tasks"
 	"github.com/fsouza/go-dockerclient"
 	flag "github.com/spf13/pflag"
 )
 
 var (
-	filename = flag.StringP("filename", "f", "buildpipe.yaml", "Path to config file")
+	filename = flag.StringP("filename", "f", "dobi.yaml", "Path to config file")
 	verbose  = flag.BoolP("verbose", "v", false, "Verbose")
 	quiet    = flag.BoolP("quiet", "q", false, "Quiet")
 )

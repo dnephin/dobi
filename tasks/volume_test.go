@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/dnephin/buildpipe/config"
+	"github.com/dnephin/dobi/config"
 	"github.com/stretchr/testify/suite"
 )
 

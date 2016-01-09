@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/buildpipe/config"
+	"github.com/dnephin/dobi/config"
 )
 
 // VolumeTask is a task which creates a directory on the host
