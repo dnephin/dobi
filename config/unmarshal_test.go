@@ -34,3 +34,19 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.Equal(t, ".", imageConf.Context)
 	assert.Equal(t, "what", imageConf.Dockerfile)
 }
+
+func TestLoadFromBytesWithReservedName(t *testing.T) {
+	conf := dedent.Dedent(`
+		image-def:
+		  image: imagename
+		  dockerfile: what
+
+		meta:
+		  path: dist/
+		  mount: /target
+	`)
+
+	_, err := LoadFromBytes([]byte(conf))
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Name 'meta' is reserved")
+}
