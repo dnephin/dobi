@@ -29,12 +29,23 @@ func NewConfig() *Config {
 
 // Sorted returns the list of resource names in alphabetical sort order
 func (c *Config) Sorted() []string {
-	names := []string{}
+	size := len(c.Resources)
+	names := make([]string, size, size)
 	for name := range c.Resources {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 	return names
+}
+
+func (c *Config) missingResources(names []string) []string {
+	missing := []string{}
+	for _, name := range names {
+		if _, ok := c.Resources[name]; !ok {
+			missing = append(missing, name)
+		}
+	}
+	return missing
 }
 
 // Load a configuration from a filename
@@ -67,7 +78,5 @@ func validate(config *Config) error {
 			return err
 		}
 	}
-
-	// TODO: validate references between resources
 	return nil
 }

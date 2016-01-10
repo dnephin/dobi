@@ -96,11 +96,9 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 				continue
 			}
 
-			// TODO: validate this in the config package so that dry-run is
-			// possible
 			resource, ok := options.Config.Resources[name]
 			if !ok {
-				return fmt.Errorf("Resource not defined: %s", name)
+				panic(fmt.Sprintf("Resource not defined: %s", name))
 			}
 
 			task := buildTaskFromResource(taskOptions{
