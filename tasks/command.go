@@ -131,8 +131,10 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		// TODO: give the container a unique name based on UNIQUE_ID and step
 		// name
 		Config: &docker.Config{
-			Cmd:   command,
-			Image: ctx.tasks.images[t.config.Use].getImageName(ctx),
+			Cmd:       command,
+			Image:     ctx.tasks.images[t.config.Use].getImageName(ctx),
+			OpenStdin: t.config.Interactive,
+			Tty:       t.config.Interactive,
 		},
 		HostConfig: &docker.HostConfig{
 			// TODO: support relative paths or {{PWD}}
@@ -153,13 +155,18 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		// TODO: send this to a buffer for --quiet
 		OutputStream: os.Stdout,
 		ErrorStream:  os.Stderr,
+		InputStream:  os.Stdin,
 		Logs:         false,
 		Stream:       true,
+		Stdin:        t.config.Interactive,
+		RawTerminal:  t.config.Interactive,
 		Stdout:       true,
 		Stderr:       true,
 	}); err != nil {
 		return err
 	}
+
+	// TODO: stop container first if interactive?
 	if err := t.client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            container.ID,
 		RemoveVolumes: true,
@@ -167,7 +174,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		t.logger().WithFields(log.Fields{
 			"container": container.ID,
 			"error":     err.Error(),
-		}).Warn("Failed to remove container.")
+		}).Warn("Failed to remove container")
 	}
 	return nil
 }

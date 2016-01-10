@@ -40,6 +40,7 @@ watch:
 shell:
     use: builder
     volumes: [source, dist]
+    interactive: true
     command: bash
 
 test-unit:

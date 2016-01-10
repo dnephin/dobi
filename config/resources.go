@@ -21,7 +21,7 @@ func (c *ImageConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *ImageConfig) Validate() error {
+func (c *ImageConfig) Validate(config *Config) error {
 	// TODO: better way to generate consistent config errors
 	// TODO: check context directory exists
 	// TODO: check dockerfile exists
@@ -45,12 +45,13 @@ func NewImageConfig() *ImageConfig {
 
 // CommandConfig is a data object for a command resource
 type CommandConfig struct {
-	Use        string
-	Artifact   string
-	Command    string
-	Volumes    []string
-	Privileged bool
-	Depends    []string
+	Use         string
+	Artifact    string
+	Command     string
+	Volumes     []string
+	Privileged  bool
+	Interactive bool
+	Depends     []string
 }
 
 // TODO: support interactive/tty
@@ -61,7 +62,7 @@ func (c *CommandConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *CommandConfig) Validate() error {
+func (c *CommandConfig) Validate(config *Config) error {
 	// TODO: validate required fields are set
 	return nil
 }
@@ -90,7 +91,7 @@ func (c *VolumeConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *VolumeConfig) Validate() error {
+func (c *VolumeConfig) Validate(config *Config) error {
 	// TODO: validate required fields are set
 	return nil
 }

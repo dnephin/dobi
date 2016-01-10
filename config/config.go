@@ -12,7 +12,7 @@ import (
 // Resource is an interface for each configurable type
 type Resource interface {
 	Dependencies() []string
-	Validate() error
+	Validate(config *Config) error
 }
 
 // Config is a data object for a full config file
@@ -86,7 +86,7 @@ func LoadFromBytes(data []byte) (*Config, error) {
 
 func validate(config *Config) error {
 	for _, resource := range config.Resources {
-		if err := resource.Validate(); err != nil {
+		if err := resource.Validate(config); err != nil {
 			return err
 		}
 	}
