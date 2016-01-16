@@ -155,7 +155,7 @@ func executeTasks(ctx *ExecuteContext) error {
 	log.Debug("executing tasks")
 	for _, task := range ctx.tasks.allTasks {
 		if err := task.Run(ctx); err != nil {
-			return err
+			return fmt.Errorf("Failed to execute task '%s': %s", task.Name(), err)
 		}
 	}
 	return nil

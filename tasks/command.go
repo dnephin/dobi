@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -128,7 +129,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 	// TODO: move this to config resource validation?
 	command, err := shellquote.Split(t.config.Command)
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to parse command: %s", err)
 	}
 
 	// TODO: support other run options
@@ -147,11 +148,11 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed creating container: %s", err)
 	}
 
 	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
-		return err
+		return fmt.Errorf("Failed starting container: %s", err)
 	}
 
 	if err := ctx.client.AttachToContainer(docker.AttachToContainerOptions{
@@ -159,7 +160,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		// TODO: send this to a buffer for --quiet
 		OutputStream: os.Stdout,
 		ErrorStream:  os.Stderr,
-		InputStream:  os.Stdin,
+		InputStream:  ioutil.NopCloser(os.Stdin),
 		Logs:         false,
 		Stream:       true,
 		Stdin:        t.config.Interactive,
@@ -167,7 +168,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		Stdout:       true,
 		Stderr:       true,
 	}); err != nil {
-		return err
+		return fmt.Errorf("Failed attaching to container: %s", err)
 	}
 
 	// TODO: stop container first if interactive?
