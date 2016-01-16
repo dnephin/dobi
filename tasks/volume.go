@@ -19,10 +19,7 @@ type VolumeTask struct {
 // NewVolumeTask creates a new VolumeTask object
 func NewVolumeTask(options taskOptions, conf *config.VolumeConfig) *VolumeTask {
 	return &VolumeTask{
-		baseTask: baseTask{
-			name:   options.name,
-			client: options.client,
-		},
+		baseTask:   baseTask{name: options.name},
 		config:     conf,
 		workingDir: options.config.WorkingDir,
 	}

@@ -38,7 +38,7 @@ func (s *VolumeTaskSuite) SetupTest() {
 			Mode:  "rw",
 		})
 
-	s.ctx = NewExecuteContext(nil)
+	s.ctx = NewExecuteContext(nil, nil)
 }
 
 func (s *VolumeTaskSuite) TearDownTest() {

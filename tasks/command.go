@@ -21,11 +21,8 @@ type CommandTask struct {
 // NewCommandTask creates a new CommandTask object
 func NewCommandTask(options taskOptions, conf *config.CommandConfig) *CommandTask {
 	return &CommandTask{
-		baseTask: baseTask{
-			name:   options.name,
-			client: options.client,
-		},
-		config: conf,
+		baseTask: baseTask{name: options.name},
+		config:   conf,
 	}
 }
 
@@ -135,7 +132,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 	}
 
 	// TODO: support other run options
-	container, err := t.client.CreateContainer(docker.CreateContainerOptions{
+	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
 		// TODO: give the container a unique name based on UNIQUE_ID and step
 		// name
 		Config: &docker.Config{
@@ -153,11 +150,11 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		return err
 	}
 
-	if err := t.client.StartContainer(container.ID, nil); err != nil {
+	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
 		return err
 	}
 
-	if err := t.client.AttachToContainer(docker.AttachToContainerOptions{
+	if err := ctx.client.AttachToContainer(docker.AttachToContainerOptions{
 		Container: container.ID,
 		// TODO: send this to a buffer for --quiet
 		OutputStream: os.Stdout,
@@ -174,7 +171,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 	}
 
 	// TODO: stop container first if interactive?
-	if err := t.client.RemoveContainer(docker.RemoveContainerOptions{
+	if err := ctx.client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            container.ID,
 		RemoveVolumes: true,
 	}); err != nil {

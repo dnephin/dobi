@@ -18,11 +18,8 @@ type ImageTask struct {
 // NewImageTask creates a new ImageTask object
 func NewImageTask(options taskOptions, conf *config.ImageConfig) *ImageTask {
 	return &ImageTask{
-		baseTask: baseTask{
-			name:   options.name,
-			client: options.client,
-		},
-		config: conf,
+		baseTask: baseTask{name: options.name},
+		config:   conf,
 	}
 }
 
@@ -88,7 +85,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 }
 
 func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
-	return t.client.InspectImage(t.getImageName(ctx))
+	return ctx.client.InspectImage(t.getImageName(ctx))
 }
 
 func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
@@ -97,7 +94,7 @@ func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {
-	return t.client.BuildImage(docker.BuildImageOptions{
+	return ctx.client.BuildImage(docker.BuildImageOptions{
 		Name:           t.getImageName(ctx),
 		Dockerfile:     t.config.Dockerfile,
 		Pull:           t.config.Pull,

@@ -17,8 +17,6 @@ type Task interface {
 // Task
 type baseTask struct {
 	name string
-	// TODO: move client to ExecuteContext
-	client *docker.Client
 }
 
 func (t *baseTask) Name() string {
@@ -72,6 +70,7 @@ func newTaskCollection() *TaskCollection {
 type ExecuteContext struct {
 	modified map[string]bool
 	tasks    *TaskCollection
+	client   *docker.Client
 }
 
 func (ctx *ExecuteContext) isModified(names ...string) bool {
@@ -88,10 +87,11 @@ func (ctx *ExecuteContext) setModified(name string) {
 }
 
 // NewExecuteContext craetes a new empty ExecuteContext
-func NewExecuteContext(tasks *TaskCollection) *ExecuteContext {
+func NewExecuteContext(tasks *TaskCollection, client *docker.Client) *ExecuteContext {
 	return &ExecuteContext{
 		modified: make(map[string]bool),
 		tasks:    tasks,
+		client:   client,
 	}
 }
 
@@ -113,7 +113,6 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 
 			task := buildTaskFromResource(taskOptions{
 				name:     name,
-				client:   options.Client,
 				resource: resource,
 				config:   options.Config,
 			})
@@ -150,10 +149,9 @@ func buildTaskFromResource(options taskOptions) Task {
 	}
 }
 
-func executeTasks(tasks *TaskCollection) error {
+func executeTasks(ctx *ExecuteContext) error {
 	log.Debug("executing tasks")
-	ctx := NewExecuteContext(tasks)
-	for _, task := range tasks.allTasks {
+	for _, task := range ctx.tasks.allTasks {
 		if err := task.Run(ctx); err != nil {
 			return err
 		}
@@ -176,5 +174,7 @@ func Run(options RunOptions) error {
 	if err != nil {
 		return err
 	}
-	return executeTasks(tasks)
+
+	ctx := NewExecuteContext(tasks, options.Client)
+	return executeTasks(ctx)
 }
