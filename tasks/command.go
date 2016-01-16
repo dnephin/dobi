@@ -112,22 +112,18 @@ func (t *CommandTask) artifactLastModified() (time.Time, error) {
 
 // TODO: support a .volumeignore file?
 func (t *CommandTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
-	// TODO: move this iteration to a more appropriate place
 	volumePaths := []string{}
-	for _, volumeName := range t.config.Volumes {
-		// TODO: where does this name get validated that it is a volume?
-		volume, _ := ctx.tasks.volumes[volumeName]
+	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
 		volumePaths = append(volumePaths, volume.config.Path)
-	}
+	})
 	return lastModified(volumePaths...)
 }
 
 func (t *CommandTask) volumeBinds(ctx *ExecuteContext) []string {
 	binds := []string{}
-	for _, volume := range t.config.Volumes {
-		volume, _ := ctx.tasks.volumes[volume]
+	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
 		binds = append(binds, volume.asBind())
-	}
+	})
 	return binds
 }
 
@@ -138,7 +134,6 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		return err
 	}
 
-	// TODO: set a unique container name
 	// TODO: support other run options
 	container, err := t.client.CreateContainer(docker.CreateContainerOptions{
 		// TODO: give the container a unique name based on UNIQUE_ID and step
@@ -150,7 +145,6 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 			Tty:       t.config.Interactive,
 		},
 		HostConfig: &docker.HostConfig{
-			// TODO: support relative paths or {{PWD}}
 			Binds:      t.volumeBinds(ctx),
 			Privileged: t.config.Privileged,
 		},

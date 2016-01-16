@@ -51,6 +51,16 @@ func (c *TaskCollection) contains(name string) bool {
 	return false
 }
 
+type eachVolumeFunc func(name string, vol *VolumeTask)
+
+// EachVolume iterates all the volumes in names and calls f for each
+func (c *TaskCollection) EachVolume(names []string, f eachVolumeFunc) {
+	for _, name := range names {
+		volume, _ := c.volumes[name]
+		f(name, volume)
+	}
+}
+
 func newTaskCollection() *TaskCollection {
 	return &TaskCollection{
 		volumes: make(map[string]*VolumeTask),
