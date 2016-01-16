@@ -7,10 +7,6 @@ import (
 )
 
 var (
-	volumeKeys  = []string{"path", "mount"}
-	imageKeys   = []string{"image"}
-	commandKeys = []string{"use"}
-
 	reservedNames = map[string]bool{
 		"meta":      true,
 		"autoclean": true,
@@ -64,12 +60,14 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var conf Resource
 	switch {
-	case m.hasKeys(volumeKeys):
+	case m.hasKeys("path", "mount"):
 		conf = NewVolumeConfig()
-	case m.hasKeys(imageKeys):
+	case m.hasKeys("image"):
 		conf = NewImageConfig()
-	case m.hasKeys(commandKeys):
+	case m.hasKeys("use"):
 		conf = &CommandConfig{}
+	case m.hasKeys("tasks"):
+		conf = &AliasConfig{}
 	default:
 		// TODO: error on unknown resource type
 	}
@@ -80,7 +78,7 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return err
 }
 
-func (m *stringKeyMap) hasKeys(keys []string) bool {
+func (m *stringKeyMap) hasKeys(keys ...string) bool {
 	for _, key := range keys {
 		if _, ok := m.value[key]; ok {
 			return true

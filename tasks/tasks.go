@@ -144,6 +144,8 @@ func buildTaskFromResource(options taskOptions) Task {
 		return NewCommandTask(options, conf)
 	case *config.VolumeConfig:
 		return NewVolumeTask(options, conf)
+	case *config.AliasConfig:
+		return NewAliasTask(options, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}

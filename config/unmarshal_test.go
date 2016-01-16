@@ -20,14 +20,17 @@ func TestLoadFromBytes(t *testing.T) {
 		  use: image-dev
 		  volumes: [vol-def]
 
+		alias-def:
+		  tasks: [vol-def, cmd-def]
 	`)
 
 	config, err := LoadFromBytes([]byte(conf))
 	assert.Nil(t, err)
-	assert.Equal(t, len(config.Resources), 3)
+	assert.Equal(t, len(config.Resources), 4)
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &VolumeConfig{}, config.Resources["vol-def"])
 	assert.IsType(t, &CommandConfig{}, config.Resources["cmd-def"])
+	assert.IsType(t, &AliasConfig{}, config.Resources["alias-def"])
 
 	// Test default value and override
 	imageConf := config.Resources["image-def"].(*ImageConfig)
