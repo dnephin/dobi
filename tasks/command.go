@@ -70,19 +70,17 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	// TODO: support artifact directories, not just single files
-	info, err := os.Stat(t.config.Artifact)
-	// File or directory doesn't exist
-	if err != nil {
-		return true, nil
-	}
-
-	volumeFilesLastModified, err := t.volumeFilesLastModified(ctx)
+	artifactLastModified, err := t.artifactLastModified()
 	if err != nil {
 		return true, err
 	}
 
-	if info.ModTime().Before(volumeFilesLastModified) {
+	volumesLastModified, err := t.volumesLastModified(ctx)
+	if err != nil {
+		return true, err
+	}
+
+	if artifactLastModified.Before(volumesLastModified) {
 		t.logger().Debug("artifact older than volume files")
 		return true, nil
 	}
@@ -91,15 +89,29 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 	if err != nil {
 		return true, err
 	}
-	if info.ModTime().Before(image.Created) {
+	if artifactLastModified.Before(image.Created) {
 		t.logger().Debug("artifact older than image")
 		return true, nil
 	}
 	return false, nil
 }
 
+func (t *CommandTask) artifactLastModified() (time.Time, error) {
+	info, err := os.Stat(t.config.Artifact)
+	// File or directory doesn't exist
+	if err != nil {
+		return time.Time{}, nil
+	}
+
+	if !info.IsDir() {
+		return info.ModTime(), nil
+	}
+
+	return lastModified(t.config.Artifact)
+}
+
 // TODO: support a .volumeignore file?
-func (t *CommandTask) volumeFilesLastModified(ctx *ExecuteContext) (time.Time, error) {
+func (t *CommandTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
 	// TODO: move this iteration to a more appropriate place
 	volumePaths := []string{}
 	for _, volumeName := range t.config.Volumes {
@@ -126,6 +138,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		return err
 	}
 
+	// TODO: set a unique container name
 	// TODO: support other run options
 	container, err := t.client.CreateContainer(docker.CreateContainerOptions{
 		// TODO: give the container a unique name based on UNIQUE_ID and step
