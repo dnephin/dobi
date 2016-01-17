@@ -8,6 +8,9 @@ import (
 
 func TestLoadFromBytes(t *testing.T) {
 	conf := dedent.Dedent(`
+		meta:
+		  default: alias-def
+
 		image-def:
 		  image: imagename
 		  dockerfile: what
@@ -26,7 +29,7 @@ func TestLoadFromBytes(t *testing.T) {
 
 	config, err := LoadFromBytes([]byte(conf))
 	assert.Nil(t, err)
-	assert.Equal(t, len(config.Resources), 4)
+	assert.Equal(t, 4, len(config.Resources))
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &VolumeConfig{}, config.Resources["vol-def"])
 	assert.IsType(t, &CommandConfig{}, config.Resources["cmd-def"])
@@ -36,6 +39,8 @@ func TestLoadFromBytes(t *testing.T) {
 	imageConf := config.Resources["image-def"].(*ImageConfig)
 	assert.Equal(t, ".", imageConf.Context)
 	assert.Equal(t, "what", imageConf.Dockerfile)
+
+	assert.Equal(t, &MetaConfig{Default: "alias-def"}, config.Meta)
 }
 
 func TestLoadFromBytesWithReservedName(t *testing.T) {
@@ -44,12 +49,12 @@ func TestLoadFromBytesWithReservedName(t *testing.T) {
 		  image: imagename
 		  dockerfile: what
 
-		meta:
+		autoclean:
 		  path: dist/
 		  mount: /target
 	`)
 
 	_, err := LoadFromBytes([]byte(conf))
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Name 'meta' is reserved")
+	assert.Contains(t, err.Error(), "Name 'autoclean' is reserved")
 }

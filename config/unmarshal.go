@@ -8,13 +8,22 @@ import (
 
 var (
 	reservedNames = map[string]bool{
-		"meta":      true,
 		"autoclean": true,
 	}
 )
 
 type rawMap struct {
 	values map[string]stringKeyMap
+	meta   *MetaConfig
+}
+
+type stringKeyMap struct {
+	value    map[string]interface{}
+	resource Resource
+}
+
+type rawMeta struct {
+	Meta *MetaConfig
 }
 
 func (m *rawMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -31,6 +40,15 @@ func (m *rawMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 				name)
 		}
 	}
+
+	metaMap := &rawMeta{}
+	if err := unmarshal(metaMap); err != nil {
+		return err
+	}
+	m.meta = metaMap.Meta
+
+	// TODO: there must be a better way to do this without re-parsing the config
+	// multiple times.
 	return unmarshal(m.values)
 }
 
@@ -43,11 +61,6 @@ func newRawMap() *rawMap {
 func isReservedName(name string) bool {
 	_, reserved := reservedNames[name]
 	return reserved
-}
-
-type stringKeyMap struct {
-	value    map[string]interface{}
-	resource Resource
 }
 
 // UnmarshalYAML unmarshals a raw config resource
@@ -69,7 +82,8 @@ func (m *stringKeyMap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	case m.hasKeys("tasks"):
 		conf = &AliasConfig{}
 	default:
-		// TODO: error on unknown resource type
+		// TODO: error on unknown resource type unless it's the MetaConfig
+		return nil
 	}
 
 	// TODO: error on unexpected fields
@@ -96,7 +110,16 @@ func LoadFromBytes(data []byte) (*Config, error) {
 
 	config := NewConfig()
 	for name, raw := range rawMap.values {
+		// TODO: this is only necessary because of meta
+		if raw.resource == nil {
+			continue
+		}
 		config.Resources[name] = raw.resource
+	}
+	if rawMap.meta != nil {
+		config.Meta = rawMap.meta
+	} else {
+		config.Meta = &MetaConfig{}
 	}
 	return config, nil
 }

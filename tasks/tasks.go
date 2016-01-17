@@ -168,9 +168,24 @@ type RunOptions struct {
 	Tasks  []string
 }
 
+func getTaskNames(options RunOptions) []string {
+	if len(options.Tasks) > 0 {
+		return options.Tasks
+	}
+
+	if options.Config.Meta.Default != "" {
+		return []string{options.Config.Meta.Default}
+	}
+
+	return options.Tasks
+}
+
 // Run one or more tasks
 func Run(options RunOptions) error {
-	// TODO: handle empty options.Tasks, run default, or err on no default
+	options.Tasks = getTaskNames(options)
+	if len(options.Tasks) == 0 {
+		return fmt.Errorf("No task to run, and no default task defined.")
+	}
 
 	tasks, err := prepareTasks(options)
 	if err != nil {

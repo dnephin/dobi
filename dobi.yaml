@@ -2,6 +2,9 @@
 # dobi.yaml - task definitions for the project
 #
 
+meta:
+    default: all
+
 #
 # Volumes
 #
