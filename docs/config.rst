@@ -1,5 +1,5 @@
-Resources
-=========
+Configuration File
+==================
 
 Every section in a ``dobi.yaml`` configuration file defines a resource. Each
 resource must be one of the following types.
@@ -59,6 +59,12 @@ the resource is a no-op.
 A volume can not depend on any resource.
 
 
+Task Aliases
+------------
+A task alias is a list of other resource names. It will run each resource in the
+order they are listed.
+
+
 Environment
 -----------
 
@@ -69,3 +75,12 @@ Environment
 An environment resource runs multiple containers as defined by a Compose file.
 
 An environment may depend on images, volumes, or commands.
+
+
+Meta
+----
+The meta section is the only section in the configuration that does not describe
+a resource. It contains meta configuration details:
+
+ * ``default`` - the default resource to run when no names are given on the
+   command line

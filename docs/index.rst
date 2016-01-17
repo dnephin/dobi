@@ -3,5 +3,5 @@ dobi Documentation
 ==================
 
 * `Command Line <./commandline.rst>`_
-* `Resource <./resources.rst>`_
+* `Configuration File <./config.rst>`_
 * `Variables <./variables.rst>`_
