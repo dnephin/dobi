@@ -2,10 +2,13 @@ package tasks
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	docker "github.com/fsouza/go-dockerclient"
+
 	"github.com/dnephin/dobi/config"
-	"github.com/fsouza/go-dockerclient"
+	"github.com/dnephin/dobi/utils/stack"
 )
 
 // Task is an interface implemented by all tasks
@@ -25,13 +28,13 @@ func (t *baseTask) Name() string {
 
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	allTasks []Task
-	volumes  map[string]*VolumeTask
-	images   map[string]*ImageTask
+	tasks   []Task
+	volumes map[string]*VolumeTask
+	images  map[string]*ImageTask
 }
 
 func (c *TaskCollection) add(task Task) {
-	c.allTasks = append(c.allTasks, task)
+	c.tasks = append(c.tasks, task)
 	switch typedTask := task.(type) {
 	case *VolumeTask:
 		c.volumes[task.Name()] = typedTask
@@ -41,7 +44,7 @@ func (c *TaskCollection) add(task Task) {
 }
 
 func (c *TaskCollection) contains(name string) bool {
-	for _, task := range c.allTasks {
+	for _, task := range c.tasks {
 		if task.Name() == name {
 			return true
 		}
@@ -97,13 +100,19 @@ func NewExecuteContext(tasks *TaskCollection, client *docker.Client) *ExecuteCon
 
 func prepareTasks(options RunOptions) (*TaskCollection, error) {
 	tasks := newTaskCollection()
+	taskStack := stack.NewStringStack()
 
 	var prepare func(resourceNames []string) error
-	// TODO: detect cyclic dependencies
 	prepare = func(resourceNames []string) error {
 		for _, name := range resourceNames {
 			if tasks.contains(name) {
 				continue
+			}
+
+			if taskStack.Contains(name) {
+				return fmt.Errorf(
+					"Invalid dependency cycle: %s",
+					strings.Join(taskStack.Items(), ", "))
 			}
 
 			resource, ok := options.Config.Resources[name]
@@ -117,8 +126,12 @@ func prepareTasks(options RunOptions) (*TaskCollection, error) {
 				config:   options.Config,
 			})
 
-			prepare(resource.Dependencies())
+			taskStack.Push(name)
+			if err := prepare(resource.Dependencies()); err != nil {
+				return err
+			}
 			tasks.add(task)
+			taskStack.Pop()
 		}
 		return nil
 	}
@@ -153,7 +166,7 @@ func buildTaskFromResource(options taskOptions) Task {
 
 func executeTasks(ctx *ExecuteContext) error {
 	log.Debug("executing tasks")
-	for _, task := range ctx.tasks.allTasks {
+	for _, task := range ctx.tasks.tasks {
 		if err := task.Run(ctx); err != nil {
 			return fmt.Errorf("Failed to execute task '%s': %s", task.Name(), err)
 		}
