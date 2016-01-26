@@ -47,6 +47,7 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	}
 	t.logger().Debug("image is stale")
 
+	// TODO: good error messages for missing context dir or Dockerfile
 	err = t.build(ctx)
 	if err != nil {
 		return err

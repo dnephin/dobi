@@ -28,8 +28,6 @@ func (c *ImageConfig) Validate(config *Config) error {
 		return NewResourceError(c, reason)
 	}
 
-	// TODO: check context directory exists
-	// TODO: check dockerfile exists
 	// TODO: validate required fields are set
 	// TODO: validate no tag on image name
 	return nil

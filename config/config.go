@@ -44,8 +44,7 @@ func NewConfig() *Config {
 
 // Sorted returns the list of resource names in alphabetical sort order
 func (c *Config) Sorted() []string {
-	size := len(c.Resources)
-	names := make([]string, size, size)
+	names := []string{}
 	for name := range c.Resources {
 		names = append(names, name)
 	}

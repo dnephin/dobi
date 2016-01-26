@@ -108,7 +108,7 @@ func (t *CommandTask) artifactLastModified() (time.Time, error) {
 	return lastModified(t.config.Artifact)
 }
 
-// TODO: support a .volumeignore file?
+// TODO: support a .volumeignore file used to ignore mtime of files
 func (t *CommandTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
 	volumePaths := []string{}
 	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
