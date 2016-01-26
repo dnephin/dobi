@@ -18,6 +18,7 @@ type Resource interface {
 // MetaConfig is a data object for non-resource configuration
 type MetaConfig struct {
 	Default string
+	UniqueExecId string
 }
 
 // Validate the MetaConfig

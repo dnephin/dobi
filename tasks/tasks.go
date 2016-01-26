@@ -71,9 +71,10 @@ func newTaskCollection() *TaskCollection {
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified map[string]bool
-	tasks    *TaskCollection
-	client   *docker.Client
+	modified    map[string]bool
+	tasks       *TaskCollection
+	client      *docker.Client
+	environment *ExecEnv
 }
 
 func (ctx *ExecuteContext) isModified(names ...string) bool {
@@ -90,11 +91,16 @@ func (ctx *ExecuteContext) setModified(name string) {
 }
 
 // NewExecuteContext craetes a new empty ExecuteContext
-func NewExecuteContext(tasks *TaskCollection, client *docker.Client) *ExecuteContext {
+func NewExecuteContext(
+	tasks *TaskCollection,
+	client *docker.Client,
+	execEnv *ExecEnv,
+) *ExecuteContext {
 	return &ExecuteContext{
-		modified: make(map[string]bool),
-		tasks:    tasks,
-		client:   client,
+		modified:    make(map[string]bool),
+		tasks:       tasks,
+		client:      client,
+		environment: execEnv,
 	}
 }
 
@@ -205,6 +211,11 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	ctx := NewExecuteContext(tasks, options.Client)
+	execEnv, err := NewExecEnv(options.Config)
+	if err != nil {
+		return err
+	}
+
+	ctx := NewExecuteContext(tasks, options.Client, execEnv)
 	return executeTasks(ctx)
 }
