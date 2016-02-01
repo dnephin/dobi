@@ -134,8 +134,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 
 	// TODO: support other run options
 	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
-		// TODO: give the container a unique name based on UNIQUE_ID and step
-		// name
+		Name: fmt.Sprintf("%s-%s", ctx.environment.ExecID, t.name),
 		Config: &docker.Config{
 			Cmd:       command,
 			Image:     ctx.tasks.images[t.config.Use].getImageName(ctx),

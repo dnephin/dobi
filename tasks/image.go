@@ -90,8 +90,7 @@ func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
 }
 
 func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
-	// TODO: this should use the unique run id for the tag
-	return t.config.Image + ":todo-unique"
+	return fmt.Sprintf("%s:%s", t.config.Image, ctx.environment.ExecID)
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {
