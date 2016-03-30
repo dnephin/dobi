@@ -1,0 +1,37 @@
+package config
+
+import (
+	"fmt"
+	"strings"
+)
+
+// ComposeConfig is a data object for a task compose
+type ComposeConfig struct {
+	Files   []string
+	Project string `config:"required"`
+	Depends []string
+}
+
+// Dependencies returns the list of tasks
+func (c *ComposeConfig) Dependencies() []string {
+	return c.Depends
+}
+
+// Validate the resource
+func (c *ComposeConfig) Validate(path Path, config *Config) *PathError {
+	return nil
+}
+
+func (c *ComposeConfig) String() string {
+	return fmt.Sprintf("Run Compose project %q from: %v",
+		c.Project, strings.Join(c.Files, ", "))
+}
+
+func composeFromConfig(name string, values map[string]interface{}) (Resource, error) {
+	compose := &ComposeConfig{Project: "{unique}"}
+	return compose, Transform(name, values, compose)
+}
+
+func init() {
+	RegisterResource("compose", composeFromConfig)
+}

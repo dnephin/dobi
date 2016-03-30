@@ -28,11 +28,14 @@ func TestLoadFromBytes(t *testing.T) {
 
 		alias=alias-def:
 		  tasks: [vol-def, cmd-def]
+
+		compose=compose-def:
+		  files: ['foo.yml']
 	`)
 
 	config, err := LoadFromBytes([]byte(conf))
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(config.Resources))
+	assert.Equal(t, 5, len(config.Resources))
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &MountConfig{}, config.Resources["vol-def"])
 	assert.IsType(t, &RunConfig{}, config.Resources["cmd-def"])

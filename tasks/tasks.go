@@ -7,6 +7,7 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
+	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
@@ -104,6 +105,8 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 		return mount.NewCreateTask(name, conf), nil
 	case *config.AliasConfig:
 		return alias.NewTask(name, conf), nil
+	case *config.ComposeConfig:
+		return compose.GetTask(name, action, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
