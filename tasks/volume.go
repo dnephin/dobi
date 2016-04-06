@@ -58,16 +58,19 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 }
 
 func (t *VolumeTask) absPath() string {
+	if filepath.IsAbs(t.config.Path) {
+		return t.config.Path
+	}
 	return filepath.Join(t.workingDir, t.config.Path)
 }
 
 func (t *VolumeTask) exists() bool {
-	info, err := os.Stat(t.absPath())
+	_, err := os.Stat(t.absPath())
 	if err != nil {
 		return false
 	}
 
-	return info.IsDir()
+	return true
 }
 
 func (t *VolumeTask) asBind() string {
