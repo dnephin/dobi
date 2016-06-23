@@ -7,3 +7,4 @@ import:
 - package: github.com/stretchr/testify
 - package: github.com/renstrom/dedent
 - package: github.com/kballard/go-shellquote
+- package: github.com/spf13/cobra
