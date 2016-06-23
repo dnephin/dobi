@@ -16,13 +16,13 @@ func TestImageConfigSuite(t *testing.T) {
 }
 
 func (s *ImageConfigSuite) SetupTest() {
-	s.image = NewImageConfig()
+	s.image, _ = NewImageConfig(make(map[string]interface{}))
 	s.image.Image = "example"
 }
 
 func (s *ImageConfigSuite) TestString() {
 	s.image.Context = "./files"
-	s.Equal(s.image.String(), "Build image 'example' from 'files/Dockerfile'")
+	s.Equal("Build image 'example' from 'files/Dockerfile'", s.image.String())
 }
 
 func (s *ImageConfigSuite) TestValidateMissingDependencies() {
@@ -66,7 +66,7 @@ func (s *CommandConfigSuite) TestValidateMissingVolume() {
 	s.command.Use = "example"
 	s.command.Volumes = []string{"one", "two"}
 
-	s.conf.Resources["example"] = NewImageConfig()
+	s.conf.Resources["example"] = &ImageConfig{}
 
 	err := s.command.Validate(s.conf)
 	s.Error(err)

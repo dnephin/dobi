@@ -47,7 +47,7 @@ func (s *ExecEnvSuite) TestNewExecEnvDefault() {
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvWithCommand() {
-	s.cfg.Meta.UniqueExecId = "echo Use-This"
+	s.cfg.Meta.UniqueExecID = "echo Use-This"
 
 	execEnv, err := NewExecEnv(s.cfg)
 	s.Nil(err)
@@ -55,7 +55,7 @@ func (s *ExecEnvSuite) TestNewExecEnvWithCommand() {
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvWithInvalidCommand() {
-	s.cfg.Meta.UniqueExecId = "bogus Use-This"
+	s.cfg.Meta.UniqueExecID = "bogus Use-This"
 
 	_, err := NewExecEnv(s.cfg)
 	s.Error(err)

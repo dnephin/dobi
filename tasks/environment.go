@@ -19,7 +19,7 @@ type ExecEnv struct {
 
 // NewExecEnv returns a new ExecEnv from a Config
 func NewExecEnv(cfg *config.Config) (*ExecEnv, error) {
-	execID, err := getExecID(cfg.Meta.UniqueExecId, cfg.WorkingDir)
+	execID, err := getExecID(cfg.Meta.UniqueExecID, cfg.WorkingDir)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
 	}

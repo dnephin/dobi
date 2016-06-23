@@ -9,11 +9,11 @@ meta:
 # Volumes
 #
 
-source:
+volume=source:
     path: .
     mount: /go/src/github.com/dnephin/dobi
 
-dist:
+volume=dist:
     path: ./dist/bin/
     mount: /go/bin/
 
@@ -21,7 +21,7 @@ dist:
 # Images
 #
 
-builder:
+image=builder:
     image: dobi-dev
     context: ./dockerfiles/
     dockerfile: Dockerfile.build
@@ -30,23 +30,23 @@ builder:
 # Commands
 #
 
-binary:
+command=binary:
     use: builder
     artifact: ./dist/bin/dobi
     volumes: [source, dist]
 
-watch:
+command=watch:
     use: builder
     volumes: [source, dist]
     command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"
 
-shell:
+command=shell:
     use: builder
     volumes: [source, dist]
     interactive: true
     command: bash
 
-test-unit:
+command=test-unit:
     use: builder
     volumes: [source, dist]
     command: "bash -c 'go test -v $(glide novendor)'"
@@ -55,8 +55,8 @@ test-unit:
 # Aliases
 #
 
-test:
+alias=test:
     tasks: [test-unit]
 
-all:
+alias=all:
     tasks: [binary, test]

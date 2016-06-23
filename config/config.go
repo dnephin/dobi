@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -15,20 +14,6 @@ type Resource interface {
 	Validate(config *Config) error
 }
 
-// MetaConfig is a data object for non-resource configuration
-type MetaConfig struct {
-	Default string
-	UniqueExecId string
-}
-
-// Validate the MetaConfig
-func (m *MetaConfig) Validate(config *Config) error {
-	if _, ok := config.Resources[m.Default]; m.Default != "" && !ok {
-		return fmt.Errorf("Undefined default resource: %s", m.Default)
-	}
-	return nil
-}
-
 // Config is a data object for a full config file
 type Config struct {
 	Meta       *MetaConfig
@@ -38,9 +23,7 @@ type Config struct {
 
 // NewConfig returns a new Config object
 func NewConfig() *Config {
-	return &Config{
-		Resources: make(map[string]Resource),
-	}
+	return &Config{Resources: make(map[string]Resource), Meta: &MetaConfig{}}
 }
 
 // Sorted returns the list of resource names in alphabetical sort order

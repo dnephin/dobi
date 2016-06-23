@@ -11,19 +11,19 @@ func TestLoadFromBytes(t *testing.T) {
 		meta:
 		  default: alias-def
 
-		image-def:
+		image=image-def:
 		  image: imagename
 		  dockerfile: what
 
-		vol-def:
+		volume=vol-def:
 		  path: dist/
 		  mount: /target
 
-		cmd-def:
+		command=cmd-def:
 		  use: image-dev
 		  volumes: [vol-def]
 
-		alias-def:
+		alias=alias-def:
 		  tasks: [vol-def, cmd-def]
 	`)
 
@@ -40,21 +40,29 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.Equal(t, ".", imageConf.Context)
 	assert.Equal(t, "what", imageConf.Dockerfile)
 
+	volumeConf := config.Resources["vol-def"].(*VolumeConfig)
+	assert.Equal(t, "dist/", volumeConf.Path)
+	assert.Equal(t, "/target", volumeConf.Mount)
+	assert.Equal(t, "rw", volumeConf.Mode)
+
+	aliasConf := config.Resources["alias-def"].(*AliasConfig)
+	assert.Equal(t, []string{"vol-def", "cmd-def"}, aliasConf.Tasks)
+
 	assert.Equal(t, &MetaConfig{Default: "alias-def"}, config.Meta)
 }
 
 func TestLoadFromBytesWithReservedName(t *testing.T) {
 	conf := dedent.Dedent(`
-		image-def:
+		image=image-def:
 		  image: imagename
 		  dockerfile: what
 
-		autoclean:
+		volume=autoclean:
 		  path: dist/
 		  mount: /target
 	`)
 
 	_, err := LoadFromBytes([]byte(conf))
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Name 'autoclean' is reserved")
+	assert.Contains(t, err.Error(), "Name \"autoclean\" is reserved")
 }
