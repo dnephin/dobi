@@ -1,8 +1,8 @@
 hash: ff2ce307863f158c244076bcdbe91a449f8f10152817911e41d0ce73fe38d5fc
-updated: 2016-06-23T18:38:36.013226709Z
+updated: 2016-06-23T18:54:13.363207803Z
 imports:
 - name: github.com/docker/docker
-  version: 18398b2933577d9704e69b0b8312b495e487eeb5
+  version: 487931902c1177352e4eceec1b5ef558a5ba24cc
   subpackages:
   - opts
   - pkg/archive
@@ -26,6 +26,8 @@ imports:
   version: 107dc3807d24e581e874212dd9a7ba35599b893d
 - name: github.com/hashicorp/go-cleanhttp
   version: ad28ea4487f05916463e2423a55166280e8254b5
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
 - name: github.com/opencontainers/runc
