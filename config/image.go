@@ -38,8 +38,16 @@ func (c *ImageConfig) String() string {
 	return fmt.Sprintf("Build image '%s' from '%s'", c.Image, dir)
 }
 
-// NewImageConfig creates an ImageConfig from a raw config map
-func NewImageConfig(values map[string]interface{}) (*ImageConfig, error) {
-	image := &ImageConfig{Dockerfile: "Dockerfile", Context: "."}
+// NewImageConfig creates a new ImageConfig with default values
+func NewImageConfig() *ImageConfig {
+	return &ImageConfig{Dockerfile: "Dockerfile", Context: "."}
+}
+
+func imageFromConfig(values map[string]interface{}) (Resource, error) {
+	image := NewImageConfig()
 	return image, Transform(values, image)
+}
+
+func init() {
+	RegisterType("image", imageFromConfig)
 }

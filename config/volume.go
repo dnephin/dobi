@@ -26,8 +26,11 @@ func (c *VolumeConfig) String() string {
 	return fmt.Sprintf("Create volume '%s' to be mounted at '%s'", c.Path, c.Mount)
 }
 
-// NewVolumeConfig creates a VolumeConfig from a raw config map
-func NewVolumeConfig(values map[string]interface{}) (*VolumeConfig, error) {
+func volumeFromConfig(values map[string]interface{}) (Resource, error) {
 	volume := &VolumeConfig{Mode: "rw"}
 	return volume, Transform(values, volume)
+}
+
+func init() {
+	RegisterType("volume", volumeFromConfig)
 }

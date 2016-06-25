@@ -23,8 +23,11 @@ func (c *AliasConfig) String() string {
 	return strings.Join(c.Tasks, ", ")
 }
 
-// NewAliasConfig returns a new AliasConfig from a raw config map
-func NewAliasConfig(values map[string]interface{}) (*AliasConfig, error) {
+func aliasFromConfig(values map[string]interface{}) (Resource, error) {
 	alias := &AliasConfig{}
 	return alias, Transform(values, alias)
+}
+
+func init() {
+	RegisterType("alias", aliasFromConfig)
 }

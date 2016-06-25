@@ -7,19 +7,16 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const (
-	typeImage   = "image"
-	typeVolume  = "volume"
-	typeCommand = "command"
-	typeAlias   = "alias"
-)
-
 var (
 	reservedNames = map[string]bool{
 		"autoclean": true,
 		"list":      true,
 	}
+
+	unmarshaller = map[string]unmarshalFunc{}
 )
+
+type unmarshalFunc func(value map[string]interface{}) (Resource, error)
 
 func isReservedName(name string) bool {
 	_, reserved := reservedNames[name]
@@ -73,19 +70,18 @@ func parseResourceName(value string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
+// RegisterType registers a config type with a function to unmarshal it from
+// config values.
+func RegisterType(name string, typeFunc unmarshalFunc) {
+	unmarshaller[name] = typeFunc
+}
+
 func unmarshalResource(resType string, value map[string]interface{}) (Resource, error) {
-	switch resType {
-	case typeImage:
-		return NewImageConfig(value)
-	case typeVolume:
-		return NewVolumeConfig(value)
-	case typeCommand:
-		return NewCommandConfig(value)
-	case typeAlias:
-		return NewAliasConfig(value)
-	default:
+	fromConfigFunc, ok := unmarshaller[resType]
+	if !ok {
 		return nil, fmt.Errorf("invalid resource type %q", resType)
 	}
+	return fromConfigFunc(value)
 }
 
 // LoadFromBytes loads a configuration from a bytes slice

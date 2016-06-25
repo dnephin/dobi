@@ -16,7 +16,7 @@ func TestImageConfigSuite(t *testing.T) {
 }
 
 func (s *ImageConfigSuite) SetupTest() {
-	s.image, _ = NewImageConfig(make(map[string]interface{}))
+	s.image = NewImageConfig()
 	s.image.Image = "example"
 }
 

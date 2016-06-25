@@ -84,8 +84,11 @@ func (c *CommandConfig) String() string {
 	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
 }
 
-// NewCommandConfig creates an CommandConfig from a raw config map
-func NewCommandConfig(values map[string]interface{}) (*CommandConfig, error) {
+func commandFromConfig(values map[string]interface{}) (Resource, error) {
 	cmd := &CommandConfig{}
 	return cmd, Transform(values, cmd)
+}
+
+func init() {
+	RegisterType("command", commandFromConfig)
 }
