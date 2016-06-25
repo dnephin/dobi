@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
-	"github.com/fsouza/go-dockerclient"
-	"github.com/kballard/go-shellquote"
+	docker "github.com/fsouza/go-dockerclient"
+	shellquote "github.com/kballard/go-shellquote"
 )
 
 // CommandTask is a task which runs a command in a container to produce a
@@ -150,6 +152,9 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		return fmt.Errorf("Failed creating container: %s", err)
 	}
 
+	chanSig := t.forwardSignals(ctx.client, container.ID)
+	defer signal.Stop(chanSig)
+
 	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
 		return fmt.Errorf("Failed starting container: %s", err)
 	}
@@ -170,15 +175,55 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 		return fmt.Errorf("Failed attaching to container: %s", err)
 	}
 
-	// TODO: stop container first if interactive?
+	// TODO: blocks here on interactive
+	status, err := ctx.client.WaitContainer(container.ID)
+	if err != nil {
+		t.logger().Warnf("Failed to wait on container exit: %s", err)
+	}
+	if status != 0 {
+		t.logger().WithFields(log.Fields{"status": status}).Warn(
+			"Container exited with non-zero status code")
+	}
+
 	if err := ctx.client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            container.ID,
 		RemoveVolumes: true,
 	}); err != nil {
-		t.logger().WithFields(log.Fields{
-			"container": container.ID,
-			"error":     err.Error(),
-		}).Warn("Failed to remove container")
+		t.logger().WithFields(log.Fields{"container": container.ID}).Warnf(
+			"Failed to remove container: %s", err)
 	}
 	return nil
+}
+
+func (t *CommandTask) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
+	chanSig := make(chan os.Signal, 128)
+
+	// TODO: not all of these exist on windows?
+	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM)
+
+	kill := func(sig os.Signal) {
+		t.logger().WithFields(log.Fields{"signal": sig}).Debug("Received signal")
+
+		intSig, ok := sig.(syscall.Signal)
+		if !ok {
+			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
+				"Failed to convert signal from %T", sig)
+			return
+		}
+
+		if err := client.KillContainer(docker.KillContainerOptions{
+			ID:     containerID,
+			Signal: docker.Signal(intSig),
+		}); err != nil {
+			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
+				"Failed to send signal: %s", err)
+		}
+	}
+
+	go func() {
+		for sig := range chanSig {
+			kill(sig)
+		}
+	}()
+	return chanSig
 }
