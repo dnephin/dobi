@@ -105,45 +105,43 @@ func NewExecuteContext(
 }
 
 func prepareTasks(options RunOptions) (*TaskCollection, error) {
-	tasks := newTaskCollection()
-	taskStack := stack.NewStringStack()
+	return prepare(options, newTaskCollection(), stack.NewStringStack())
+}
 
-	var prepare func(resourceNames []string) error
-	prepare = func(resourceNames []string) error {
-		for _, name := range resourceNames {
-			if tasks.contains(name) {
-				continue
-			}
-
-			if taskStack.Contains(name) {
-				return fmt.Errorf(
-					"Invalid dependency cycle: %s",
-					strings.Join(taskStack.Items(), ", "))
-			}
-
-			resource, ok := options.Config.Resources[name]
-			if !ok {
-				panic(fmt.Sprintf("Resource not defined: %s", name))
-			}
-
-			task := buildTaskFromResource(taskOptions{
-				name:     name,
-				resource: resource,
-				config:   options.Config,
-			})
-
-			taskStack.Push(name)
-			if err := prepare(resource.Dependencies()); err != nil {
-				return err
-			}
-			tasks.add(task)
-			taskStack.Pop()
+func prepare(
+	options RunOptions,
+	tasks *TaskCollection,
+	taskStack *stack.StringStack,
+) (*TaskCollection, error) {
+	for _, name := range options.Tasks {
+		if tasks.contains(name) {
+			continue
 		}
-		return nil
-	}
 
-	if err := prepare(options.Tasks); err != nil {
-		return nil, err
+		if taskStack.Contains(name) {
+			return nil, fmt.Errorf(
+				"Invalid dependency cycle: %s",
+				strings.Join(taskStack.Items(), ", "))
+		}
+
+		resource, ok := options.Config.Resources[name]
+		if !ok {
+			return nil, fmt.Errorf("Resource %q does not exist", name)
+		}
+
+		task := buildTaskFromResource(taskOptions{
+			name:     name,
+			resource: resource,
+			config:   options.Config,
+		})
+
+		taskStack.Push(name)
+		options.Tasks = resource.Dependencies()
+		if _, err := prepare(options, tasks, taskStack); err != nil {
+			return nil, err
+		}
+		tasks.add(task)
+		taskStack.Pop()
 	}
 	return tasks, nil
 }
