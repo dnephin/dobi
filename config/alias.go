@@ -29,5 +29,5 @@ func aliasFromConfig(values map[string]interface{}) (Resource, error) {
 }
 
 func init() {
-	RegisterType("alias", aliasFromConfig)
+	RegisterResource("alias", aliasFromConfig)
 }

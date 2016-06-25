@@ -32,5 +32,5 @@ func volumeFromConfig(values map[string]interface{}) (Resource, error) {
 }
 
 func init() {
-	RegisterType("volume", volumeFromConfig)
+	RegisterResource("volume", volumeFromConfig)
 }

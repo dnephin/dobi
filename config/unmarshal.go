@@ -13,10 +13,10 @@ var (
 		"list":      true,
 	}
 
-	unmarshaller = map[string]unmarshalFunc{}
+	resourceTypeRegistry = map[string]resourceFactory{}
 )
 
-type unmarshalFunc func(value map[string]interface{}) (Resource, error)
+type resourceFactory func(value map[string]interface{}) (Resource, error)
 
 func isReservedName(name string) bool {
 	_, reserved := reservedNames[name]
@@ -70,14 +70,14 @@ func parseResourceName(value string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-// RegisterType registers a config type with a function to unmarshal it from
+// RegisterResource registers a config type with a function to unmarshal it from
 // config values.
-func RegisterType(name string, typeFunc unmarshalFunc) {
-	unmarshaller[name] = typeFunc
+func RegisterResource(name string, typeFunc resourceFactory) {
+	resourceTypeRegistry[name] = typeFunc
 }
 
 func unmarshalResource(resType string, value map[string]interface{}) (Resource, error) {
-	fromConfigFunc, ok := unmarshaller[resType]
+	fromConfigFunc, ok := resourceTypeRegistry[resType]
 	if !ok {
 		return nil, fmt.Errorf("invalid resource type %q", resType)
 	}

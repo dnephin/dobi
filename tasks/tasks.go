@@ -155,6 +155,7 @@ type taskOptions struct {
 	config   *config.Config
 }
 
+// TODO: some way to make this a registry
 func buildTaskFromResource(options taskOptions) Task {
 	switch conf := options.resource.(type) {
 	case *config.ImageConfig:

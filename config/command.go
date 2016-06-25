@@ -90,5 +90,5 @@ func commandFromConfig(values map[string]interface{}) (Resource, error) {
 }
 
 func init() {
-	RegisterType("command", commandFromConfig)
+	RegisterResource("command", commandFromConfig)
 }

@@ -49,5 +49,5 @@ func imageFromConfig(values map[string]interface{}) (Resource, error) {
 }
 
 func init() {
-	RegisterType("image", imageFromConfig)
+	RegisterResource("image", imageFromConfig)
 }
