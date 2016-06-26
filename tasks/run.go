@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,6 +9,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -127,14 +127,19 @@ func (t *RunTask) volumeBinds(ctx *ExecuteContext) []string {
 }
 
 func (t *RunTask) runContainer(ctx *ExecuteContext) error {
+	interactive := t.config.Interactive
 	// TODO: support other run options
 	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
 		Name: fmt.Sprintf("%s-%s", ctx.environment.ExecID, t.name),
 		Config: &docker.Config{
-			Cmd:       t.config.ParsedCommand(),
-			Image:     ctx.tasks.images[t.config.Use].getImageName(ctx),
-			OpenStdin: t.config.Interactive,
-			Tty:       t.config.Interactive,
+			Cmd:          t.config.ParsedCommand(),
+			Image:        ctx.tasks.images[t.config.Use].getImageName(ctx),
+			OpenStdin:    interactive,
+			Tty:          interactive,
+			AttachStdin:  interactive,
+			StdinOnce:    interactive,
+			AttachStderr: true,
+			AttachStdout: true,
 		},
 		HostConfig: &docker.HostConfig{
 			Binds:      t.volumeBinds(ctx),
@@ -148,28 +153,45 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	chanSig := t.forwardSignals(ctx.client, container.ID)
 	defer signal.Stop(chanSig)
 
-	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
-		return fmt.Errorf("Failed starting container: %s", err)
-	}
-
-	if err := ctx.client.AttachToContainer(docker.AttachToContainerOptions{
-		Container: container.ID,
-		// TODO: send this to a buffer for --quiet
+	_, err = ctx.client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+		Container:    container.ID,
 		OutputStream: os.Stdout,
 		ErrorStream:  os.Stderr,
-		InputStream:  ioutil.NopCloser(os.Stdin),
-		Logs:         false,
+		InputStream:  os.Stdin,
 		Stream:       true,
 		Stdin:        t.config.Interactive,
 		RawTerminal:  t.config.Interactive,
 		Stdout:       true,
 		Stderr:       true,
-	}); err != nil {
+	})
+	if err != nil {
 		return fmt.Errorf("Failed attaching to container: %s", err)
 	}
 
-	// TODO: blocks here on interactive
-	status, err := ctx.client.WaitContainer(container.ID)
+	if interactive {
+		inFd, _ := term.GetFdInfo(os.Stdin)
+		state, err := term.SetRawTerminal(inFd)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			// TODO: why is this failing with "bad file descriptor" ?
+			if err := term.RestoreTerminal(inFd, state); err != nil {
+				t.logger().Warnf("Failed to restore fd %v: %s", inFd, err)
+			}
+		}()
+	}
+
+	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
+		return fmt.Errorf("Failed starting container: %s", err)
+	}
+
+	t.waitAndRemove(ctx.client, container.ID)
+	return nil
+}
+
+func (t *RunTask) waitAndRemove(client *docker.Client, containerID string) {
+	status, err := client.WaitContainer(containerID)
 	if err != nil {
 		t.logger().Warnf("Failed to wait on container exit: %s", err)
 	}
@@ -178,14 +200,13 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 			"Container exited with non-zero status code")
 	}
 
-	if err := ctx.client.RemoveContainer(docker.RemoveContainerOptions{
-		ID:            container.ID,
+	if err := client.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            containerID,
 		RemoveVolumes: true,
 	}); err != nil {
-		t.logger().WithFields(log.Fields{"container": container.ID}).Warnf(
+		t.logger().WithFields(log.Fields{"container": containerID}).Warnf(
 			"Failed to remove container: %s", err)
 	}
-	return nil
 }
 
 func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {

@@ -11,6 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	// DockerAPIVersion is the version of the docker API to use
+	DockerAPIVersion = "1.23"
+)
+
 type dobiOptions struct {
 	filename string
 	list     bool
@@ -78,7 +83,7 @@ func initLogging(verbose, quiet bool) {
 
 func buildClient() (*docker.Client, error) {
 	// TODO: args for client
-	client, err := docker.NewClientFromEnv()
+	client, err := docker.NewVersionedClientFromEnv(DockerAPIVersion)
 	if err != nil {
 		return nil, err
 	}
