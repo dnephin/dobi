@@ -158,8 +158,8 @@ func buildTaskFromResource(options taskOptions) Task {
 	switch conf := options.resource.(type) {
 	case *config.ImageConfig:
 		return NewImageTask(options, conf)
-	case *config.CommandConfig:
-		return NewCommandTask(options, conf)
+	case *config.RunConfig:
+		return NewRunTask(options, conf)
 	case *config.VolumeConfig:
 		return NewVolumeTask(options, conf)
 	case *config.AliasConfig:

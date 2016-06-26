@@ -10,7 +10,7 @@
 #
 # Produces a docker image with one or more tags.
 #
-app:
+image=app:
   image: "django-app-name"
   context: .
   tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
@@ -21,7 +21,7 @@ app:
 # Produces a docker image with one or more tags.
 # This resource depends on a container task.
 #
-database:
+image=database:
   image: "app-name-database"
   context: dockerfiles/database
   tags: ["${UNIQUE_ID}", "${GIT.SHA}", "dev"]
@@ -34,7 +34,7 @@ database:
 #
 # Runs a docker container from an existing image.
 #
-database-empty:
+run=database-empty:
   container: "database-empty-${UNIQUE_ID}"
   image: "postgres:9.4"
 
@@ -43,7 +43,7 @@ database-empty:
 #
 # Manages a named volume
 #
-database-sql:
+volume=database-sql:
   volume: "app-name-sql"
   type: "host"
   path: "./target"
@@ -54,7 +54,7 @@ database-sql:
 # Runs a docker container with an image from an image resource and a custom
 # command.
 #
-database-export:
+run=database-export:
   container: "database-export-${UNIQUE_ID}"
   image:
     resource: "app"

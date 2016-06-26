@@ -14,26 +14,26 @@ import (
 	shellquote "github.com/kballard/go-shellquote"
 )
 
-// CommandTask is a task which runs a command in a container to produce a
+// RunTask is a task which runs a command in a container to produce a
 // file or set of files.
-type CommandTask struct {
+type RunTask struct {
 	baseTask
-	config *config.CommandConfig
+	config *config.RunConfig
 }
 
-// NewCommandTask creates a new CommandTask object
-func NewCommandTask(options taskOptions, conf *config.CommandConfig) *CommandTask {
-	return &CommandTask{
+// NewRunTask creates a new RunTask object
+func NewRunTask(options taskOptions, conf *config.RunConfig) *RunTask {
+	return &RunTask{
 		baseTask: baseTask{name: options.name},
 		config:   conf,
 	}
 }
 
-func (t *CommandTask) String() string {
-	return fmt.Sprintf("CommandTask(name=%s, config=%s)", t.name, t.config)
+func (t *RunTask) String() string {
+	return fmt.Sprintf("RunTask(name=%s, config=%s)", t.name, t.config)
 }
 
-func (t *CommandTask) logger() *log.Entry {
+func (t *RunTask) logger() *log.Entry {
 	return log.WithFields(log.Fields{
 		"task":     "Command",
 		"name":     t.name,
@@ -44,7 +44,7 @@ func (t *CommandTask) logger() *log.Entry {
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *CommandTask) Run(ctx *ExecuteContext) error {
+func (t *RunTask) Run(ctx *ExecuteContext) error {
 	t.logger().Info("run")
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
@@ -61,7 +61,7 @@ func (t *CommandTask) Run(ctx *ExecuteContext) error {
 	return nil
 }
 
-func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
+func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
 	if ctx.isModified(t.config.Dependencies()...) {
 		return true, nil
 	}
@@ -96,7 +96,7 @@ func (t *CommandTask) isStale(ctx *ExecuteContext) (bool, error) {
 	return false, nil
 }
 
-func (t *CommandTask) artifactLastModified() (time.Time, error) {
+func (t *RunTask) artifactLastModified() (time.Time, error) {
 	info, err := os.Stat(t.config.Artifact)
 	// File or directory doesn't exist
 	if err != nil {
@@ -111,7 +111,7 @@ func (t *CommandTask) artifactLastModified() (time.Time, error) {
 }
 
 // TODO: support a .volumeignore file used to ignore mtime of files
-func (t *CommandTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
+func (t *RunTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
 	volumePaths := []string{}
 	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
 		volumePaths = append(volumePaths, volume.config.Path)
@@ -119,7 +119,7 @@ func (t *CommandTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error
 	return lastModified(volumePaths...)
 }
 
-func (t *CommandTask) volumeBinds(ctx *ExecuteContext) []string {
+func (t *RunTask) volumeBinds(ctx *ExecuteContext) []string {
 	binds := []string{}
 	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
 		binds = append(binds, volume.asBind())
@@ -127,7 +127,7 @@ func (t *CommandTask) volumeBinds(ctx *ExecuteContext) []string {
 	return binds
 }
 
-func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
+func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	// TODO: move this to config resource validation?
 	command, err := shellquote.Split(t.config.Command)
 	if err != nil {
@@ -195,7 +195,7 @@ func (t *CommandTask) runContainer(ctx *ExecuteContext) error {
 	return nil
 }
 
-func (t *CommandTask) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
+func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
 	// TODO: not all of these exist on windows?

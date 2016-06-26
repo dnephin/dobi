@@ -20,35 +20,35 @@ modified time older than the created time of the current image.
 If an image depends on another image resource, the dependency will be built
 first (if it is not up-to-date).
 
-If an image depends on a command, the command will be run first. The
-command resource must exit before the image resource will be run.
+If an image depends on a run resource, the run resource will be executed first.
+The run resource must exit before the image resource will be run.
 
 An image resource can not depend on a volume.
 
 
-Command
--------
-A command resource runs a process in a container.
+Run
+---
+A run resource runs a process in a container.
 
-Each command uses an image defined by an image resource.  By default, a command
-is never considered up-to-date, it will always run.  If a container resource has
-an ``artifact`` property, which is a path to a local file, the last modified
-time of that file will be used. A command resource is considered up-to-date if
-the modified time of the ``artifact`` is more recent then:
+Each run resource uses an image defined by an image resource.  By default, a
+run resource is never considered up-to-date, it will always run.  If a run
+resource has an ``artifact`` property, which is a path to a local file, the
+last modified time of that file will be used. A run resource is considered
+up-to-date if the modified time of the ``artifact`` is more recent then:
 
 * the created time of the image it uses
 * the last modified time of all files in any volumes used by the resource
 
 
-The image resource used by a command resource is automatically added
-as an implicit dependency of the command.
+The image resource used by a run resource is automatically added
+as an implicit dependency.
 
-If a container depends on another container, the container will be run first.
+If a run resource depends on another run resource, the dependency will be run first.
 
 If a uses ``volumes``, the volumes resources will be run first.
 
-If a container uses a ``network`` resource it will be run first and the container
-will join the default network for the environment.
+If a run resource uses a ``network`` resource it will be run first and the run
+resource will join the default network for the environment.
 
 
 Volume
@@ -65,16 +65,18 @@ A task alias is a list of other resource names. It will run each resource in the
 order they are listed.
 
 
-Environment
------------
+Service
+-------
 
 .. note::
 
     This resource hasn't been implemented yet.
 
-An environment resource runs multiple containers as defined by a Compose file.
+A service resource runs a service using an image. The service is kept running
+for the duration of the execution, and is shutdown when all other resources
+are complete.
 
-An environment may depend on images, volumes, or commands.
+A service resource may depend on images, volumes, or run resources.
 
 
 Meta

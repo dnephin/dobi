@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// CommandConfig is a data object for a command resource
-type CommandConfig struct {
+// RunConfig is a data object for a command resource
+type RunConfig struct {
 	Use         string
 	Artifact    string
 	Command     string
@@ -17,12 +17,12 @@ type CommandConfig struct {
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
-func (c *CommandConfig) Dependencies() []string {
+func (c *RunConfig) Dependencies() []string {
 	return append([]string{c.Use}, append(c.Volumes, c.Depends...)...)
 }
 
 // Validate checks that all fields have acceptable values
-func (c *CommandConfig) Validate(config *Config) error {
+func (c *RunConfig) Validate(config *Config) error {
 	if missing := config.missingResources(c.Depends); len(missing) != 0 {
 		reason := fmt.Sprintf("missing dependencies: %s", strings.Join(missing, ", "))
 		return NewResourceError(c, reason)
@@ -38,7 +38,7 @@ func (c *CommandConfig) Validate(config *Config) error {
 	return nil
 }
 
-func (c *CommandConfig) validateUse(config *Config) error {
+func (c *RunConfig) validateUse(config *Config) error {
 	reason := fmt.Sprintf("%s is not an image resource", c.Use)
 
 	res, ok := config.Resources[c.Use]
@@ -55,7 +55,7 @@ func (c *CommandConfig) validateUse(config *Config) error {
 	return nil
 }
 
-func (c *CommandConfig) validateVolumes(config *Config) error {
+func (c *RunConfig) validateVolumes(config *Config) error {
 	for _, volume := range c.Volumes {
 		reason := fmt.Sprintf("%s is not a volume resource", volume)
 
@@ -73,7 +73,7 @@ func (c *CommandConfig) validateVolumes(config *Config) error {
 	return nil
 }
 
-func (c *CommandConfig) String() string {
+func (c *RunConfig) String() string {
 	artifact, command := "", ""
 	if c.Artifact != "" {
 		artifact = fmt.Sprintf(" to create '%s'", c.Artifact)
@@ -84,11 +84,11 @@ func (c *CommandConfig) String() string {
 	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
 }
 
-func commandFromConfig(values map[string]interface{}) (Resource, error) {
-	cmd := &CommandConfig{}
+func runFromConfig(values map[string]interface{}) (Resource, error) {
+	cmd := &RunConfig{}
 	return cmd, Transform(values, cmd)
 }
 
 func init() {
-	RegisterResource("command", commandFromConfig)
+	RegisterResource("run", runFromConfig)
 }

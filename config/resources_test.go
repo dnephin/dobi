@@ -33,42 +33,42 @@ func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }
 
-type CommandConfigSuite struct {
+type RunConfigSuite struct {
 	suite.Suite
-	command *CommandConfig
-	conf    *Config
+	run  *RunConfig
+	conf *Config
 }
 
-func TestCommandConfigSuite(t *testing.T) {
-	suite.Run(t, new(CommandConfigSuite))
+func TestRunConfigSuite(t *testing.T) {
+	suite.Run(t, new(RunConfigSuite))
 }
 
-func (s *CommandConfigSuite) SetupTest() {
-	s.command = &CommandConfig{}
+func (s *RunConfigSuite) SetupTest() {
+	s.run = &RunConfig{}
 	s.conf = NewConfig()
 }
 
-func (s *CommandConfigSuite) TestString() {
-	s.command.Use = "builder"
-	s.command.Command = "run"
-	s.command.Artifact = "foo"
-	s.Equal(s.command.String(), "Run 'run' using the 'builder' image to create 'foo'")
+func (s *RunConfigSuite) TestString() {
+	s.run.Use = "builder"
+	s.run.Command = "run"
+	s.run.Artifact = "foo"
+	s.Equal(s.run.String(), "Run 'run' using the 'builder' image to create 'foo'")
 }
 
-func (s *CommandConfigSuite) TestValidateMissingUse() {
-	s.command.Use = "example"
-	err := s.command.Validate(s.conf)
+func (s *RunConfigSuite) TestValidateMissingUse() {
+	s.run.Use = "example"
+	err := s.run.Validate(s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "example is not an image resource")
 }
 
-func (s *CommandConfigSuite) TestValidateMissingVolume() {
-	s.command.Use = "example"
-	s.command.Volumes = []string{"one", "two"}
+func (s *RunConfigSuite) TestValidateMissingVolume() {
+	s.run.Use = "example"
+	s.run.Volumes = []string{"one", "two"}
 
 	s.conf.Resources["example"] = &ImageConfig{}
 
-	err := s.command.Validate(s.conf)
+	err := s.run.Validate(s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "one is not a volume resource")
 }

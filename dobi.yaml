@@ -27,26 +27,26 @@ image=builder:
     dockerfile: Dockerfile.build
 
 #
-# Commands
+# Run
 #
 
-command=binary:
+run=binary:
     use: builder
     artifact: ./dist/bin/dobi
     volumes: [source, dist]
 
-command=watch:
+run=watch:
     use: builder
     volumes: [source, dist]
     command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"
 
-command=shell:
+run=shell:
     use: builder
     volumes: [source, dist]
     interactive: true
     command: bash
 
-command=test-unit:
+run=test-unit:
     use: builder
     volumes: [source, dist]
     command: "bash -c 'go test -v $(glide novendor)'"
