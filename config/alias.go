@@ -23,9 +23,9 @@ func (c *AliasConfig) String() string {
 	return strings.Join(c.Tasks, ", ")
 }
 
-func aliasFromConfig(values map[string]interface{}) (Resource, error) {
+func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	alias := &AliasConfig{}
-	return alias, Transform(values, alias)
+	return alias, Transform(name, values, alias)
 }
 
 func init() {

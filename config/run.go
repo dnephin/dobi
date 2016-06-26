@@ -105,9 +105,9 @@ func (c *RunConfig) String() string {
 	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
 }
 
-func runFromConfig(values map[string]interface{}) (Resource, error) {
+func runFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	cmd := &RunConfig{}
-	return cmd, Transform(values, cmd)
+	return cmd, Transform(name, values, cmd)
 }
 
 func init() {

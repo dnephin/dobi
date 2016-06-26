@@ -7,16 +7,22 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const (
+	// META is the key used for meta config
+	META = "meta"
+)
+
 var (
 	reservedNames = map[string]bool{
 		"autoclean": true,
 		"list":      true,
+		META:        true,
 	}
 
 	resourceTypeRegistry = map[string]resourceFactory{}
 )
 
-type resourceFactory func(value map[string]interface{}) (Resource, error)
+type resourceFactory func(string, map[string]interface{}) (Resource, error)
 
 func isReservedName(name string) bool {
 	_, reserved := reservedNames[name]
@@ -34,8 +40,8 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var err error
 	for name, value := range values {
-		if name == "meta" {
-			c.Meta, err = NewMetaConfig(value)
+		if name == META {
+			c.Meta, err = NewMetaConfig(name, value)
 			if err != nil {
 				return fmt.Errorf("Invalid \"meta\" config: %s", err)
 			}
@@ -52,9 +58,9 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 				"Name %q is reserved, please use a different resource name.", resName)
 		}
 
-		resource, err := unmarshalResource(resType, value)
+		resource, err := unmarshalResource(name, resType, value)
 		if err != nil {
-			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err.Error())
+			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err)
 		}
 		c.Resources[resName] = resource
 	}
@@ -76,12 +82,12 @@ func RegisterResource(name string, typeFunc resourceFactory) {
 	resourceTypeRegistry[name] = typeFunc
 }
 
-func unmarshalResource(resType string, value map[string]interface{}) (Resource, error) {
+func unmarshalResource(name, resType string, value map[string]interface{}) (Resource, error) {
 	fromConfigFunc, ok := resourceTypeRegistry[resType]
 	if !ok {
 		return nil, fmt.Errorf("invalid resource type %q", resType)
 	}
-	return fromConfigFunc(value)
+	return fromConfigFunc(name, value)
 }
 
 // LoadFromBytes loads a configuration from a bytes slice

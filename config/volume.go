@@ -26,9 +26,9 @@ func (c *VolumeConfig) String() string {
 	return fmt.Sprintf("Create volume '%s' to be mounted at '%s'", c.Path, c.Mount)
 }
 
-func volumeFromConfig(values map[string]interface{}) (Resource, error) {
+func volumeFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	volume := &VolumeConfig{Mode: "rw"}
-	return volume, Transform(values, volume)
+	return volume, Transform(name, values, volume)
 }
 
 func init() {

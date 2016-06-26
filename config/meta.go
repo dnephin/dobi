@@ -18,8 +18,8 @@ func (m *MetaConfig) Validate(config *Config) error {
 	return nil
 }
 
-// NewMetaConfig returns a new MetaConfig from a raw config map
-func NewMetaConfig(values map[string]interface{}) (*MetaConfig, error) {
+// NewMetaConfig returns a new MetaConfig from config values
+func NewMetaConfig(name string, values map[string]interface{}) (*MetaConfig, error) {
 	meta := &MetaConfig{}
-	return meta, Transform(values, meta)
+	return meta, Transform(name, values, meta)
 }

@@ -43,9 +43,9 @@ func NewImageConfig() *ImageConfig {
 	return &ImageConfig{Dockerfile: "Dockerfile", Context: "."}
 }
 
-func imageFromConfig(values map[string]interface{}) (Resource, error) {
+func imageFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	image := NewImageConfig()
-	return image, Transform(values, image)
+	return image, Transform(name, values, image)
 }
 
 func init() {

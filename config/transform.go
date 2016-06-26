@@ -50,21 +50,21 @@ func (p *Path) String() string {
 }
 
 // NewPath returns a new root Path
-func NewPath() Path {
-	return Path{path: []string{""}}
+func NewPath(root string) Path {
+	return Path{path: []string{root}}
 }
 
 // Transform recursively copies values from a raw map of values into the
 // target structure. A TransformError is returned if the raw type has a field
 // with an incorrect type, or has extra fields.
-func Transform(raw map[string]interface{}, target interface{}) error {
+func Transform(root string, raw map[string]interface{}, target interface{}) error {
 	targetValue := reflect.ValueOf(target)
 
 	if kind := targetValue.Kind(); kind != reflect.Ptr {
 		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
 	}
 
-	return transformAtPath(NewPath(), raw, targetValue.Elem())
+	return transformAtPath(NewPath(root), raw, targetValue.Elem())
 }
 
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
