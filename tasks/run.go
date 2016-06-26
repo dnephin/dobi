@@ -11,7 +11,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	docker "github.com/fsouza/go-dockerclient"
-	shellquote "github.com/kballard/go-shellquote"
 )
 
 // RunTask is a task which runs a command in a container to produce a
@@ -128,17 +127,11 @@ func (t *RunTask) volumeBinds(ctx *ExecuteContext) []string {
 }
 
 func (t *RunTask) runContainer(ctx *ExecuteContext) error {
-	// TODO: move this to config resource validation?
-	command, err := shellquote.Split(t.config.Command)
-	if err != nil {
-		return fmt.Errorf("Failed to parse command: %s", err)
-	}
-
 	// TODO: support other run options
 	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
 		Name: fmt.Sprintf("%s-%s", ctx.environment.ExecID, t.name),
 		Config: &docker.Config{
-			Cmd:       command,
+			Cmd:       t.config.ParsedCommand(),
 			Image:     ctx.tasks.images[t.config.Use].getImageName(ctx),
 			OpenStdin: t.config.Interactive,
 			Tty:       t.config.Interactive,

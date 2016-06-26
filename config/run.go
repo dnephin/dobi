@@ -3,17 +3,20 @@ package config
 import (
 	"fmt"
 	"strings"
+
+	shellquote "github.com/kballard/go-shellquote"
 )
 
 // RunConfig is a data object for a command resource
 type RunConfig struct {
-	Use         string
-	Artifact    string
-	Command     string
-	Volumes     []string
-	Privileged  bool
-	Interactive bool
-	Depends     []string
+	Use           string
+	Artifact      string
+	Command       string
+	Volumes       []string
+	Privileged    bool
+	Interactive   bool
+	Depends       []string
+	parsedCommand []string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
@@ -23,6 +26,7 @@ func (c *RunConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *RunConfig) Validate(config *Config) error {
+	// TODO: return err directly
 	if missing := config.missingResources(c.Depends); len(missing) != 0 {
 		reason := fmt.Sprintf("missing dependencies: %s", strings.Join(missing, ", "))
 		return NewResourceError(c, reason)
@@ -34,12 +38,29 @@ func (c *RunConfig) Validate(config *Config) error {
 		return err
 	}
 
+	if c.Command != "" {
+		command, err := shellquote.Split(c.Command)
+		if err != nil {
+			return NewResourceError(c, "Failed to parse command: %s", err)
+		}
+		c.parsedCommand = command
+
+	}
 	// TODO: validate required fields are set
 	return nil
 }
 
+// ParsedCommand returns the shlex parsed command
+func (c *RunConfig) ParsedCommand() []string {
+	return c.parsedCommand
+}
+
 func (c *RunConfig) validateUse(config *Config) error {
 	reason := fmt.Sprintf("%s is not an image resource", c.Use)
+
+	if c.Use == "" {
+		return NewResourceError(c, "\"use\" is required")
+	}
 
 	res, ok := config.Resources[c.Use]
 	if !ok {
