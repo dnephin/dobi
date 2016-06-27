@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// DockerAPIVersion is the version of the docker API to use
-	DockerAPIVersion = "1.23"
+	// DefaultDockerAPIVersion is the default version of the docker API to use
+	DefaultDockerAPIVersion = "1.23"
 )
 
 type dobiOptions struct {
@@ -81,8 +81,12 @@ func initLogging(verbose, quiet bool) {
 }
 
 func buildClient() (*docker.Client, error) {
+	apiVersion := os.Getenv("DOCKER_API_VERSION")
+	if apiVersion == "" {
+		apiVersion = DefaultDockerAPIVersion
+	}
 	// TODO: args for client
-	client, err := docker.NewVersionedClientFromEnv(DockerAPIVersion)
+	client, err := docker.NewVersionedClientFromEnv(apiVersion)
 	if err != nil {
 		return nil, err
 	}

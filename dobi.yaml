@@ -39,6 +39,7 @@ run=watch:
     use: builder
     volumes: [source, dist]
     command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"
+    interactive: true
 
 run=shell:
     use: builder

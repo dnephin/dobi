@@ -1,0 +1,18 @@
+
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker version
+    - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
+    - docker build -t dobi-dev -f dockerfiles/Dockerfile.build .
+    - mkdir -p ~/docker; docker save dobi-dev > ~/docker/image.tar
+  cache_directories:
+    - vendor
+    - ~/docker
+
+test:
+  override:
+    - ./script/ci

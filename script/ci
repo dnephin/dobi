@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -eu
+
+docker run \
+    -v $PWD:/go/src/github.com/dnephin/dobi \
+    -v $PWD/dist/bin:/go/bin \
+    dobi-dev \
+    bash -ec "glide install; go install"
+
+DOCKER_API_VERSION=1.20 ./dist/bin/dobi
