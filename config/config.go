@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -48,24 +49,28 @@ func (c *Config) missingResources(names []string) []string {
 
 // Load a configuration from a filename
 func Load(filename string) (*Config, error) {
+	fmtError := func(err error) error {
+		return fmt.Errorf("Failed to load config from %q: %s", filename, err)
+	}
+
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, fmtError(err)
 	}
 	config, err := LoadFromBytes(data)
 	if err != nil {
-		return nil, err
+		return nil, fmtError(err)
 	}
 	log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
 
 	absPath, err := filepath.Abs(filename)
 	if err != nil {
-		return nil, err
+		return nil, fmtError(err)
 	}
 	config.WorkingDir = filepath.Dir(absPath)
 
 	if err = validate(config); err != nil {
-		return nil, err
+		return nil, fmtError(err)
 	}
 	return config, nil
 }

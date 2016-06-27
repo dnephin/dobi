@@ -1,19 +1,25 @@
-hash: ff2ce307863f158c244076bcdbe91a449f8f10152817911e41d0ce73fe38d5fc
-updated: 2016-06-23T18:54:13.363207803Z
+hash: 25ae77e92e0204ded6634091c85afa58b2cebed7f7dd647d8a47ff9d3c3d2422
+updated: 2016-06-27T19:16:37.86738164Z
 imports:
+- name: github.com/Azure/go-ansiterm
+  version: fa152c58bc15761d0200cb75fe958b89a9d4888e
+  subpackages:
+  - winterm
 - name: github.com/docker/docker
   version: 487931902c1177352e4eceec1b5ef558a5ba24cc
   subpackages:
+  - pkg/term
   - opts
   - pkg/archive
   - pkg/fileutils
   - pkg/homedir
   - pkg/stdcopy
+  - pkg/system
+  - pkg/term/windows
   - pkg/idtools
   - pkg/ioutils
   - pkg/pools
   - pkg/promise
-  - pkg/system
   - pkg/longpath
 - name: github.com/docker/engine-api
   version: f90ecdb1e989f834dabbd91807e891094aa069fe
@@ -39,7 +45,8 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: f3cfb454f4c209e6668c95216c4744b8fddb2356
 - name: github.com/spf13/cobra
-  version: 6a8bd97bdb1fc0d08a83459940498ea49d3e8c93
+  version: ec02ead39fbb63b2280d612f8ec0a4029c5a8e70
+  repo: https://github.com/dnephin/cobra
 - name: github.com/spf13/pflag
   version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
 - name: github.com/stretchr/testify

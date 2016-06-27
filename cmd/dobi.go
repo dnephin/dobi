@@ -7,7 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks"
-	"github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,6 @@ const (
 
 type dobiOptions struct {
 	filename string
-	list     bool
 	verbose  bool
 	quiet    bool
 	tasks    []string
@@ -29,38 +28,38 @@ func NewRootCommand() *cobra.Command {
 	var opts dobiOptions
 
 	cmd := &cobra.Command{
-		Use:           "dobi TASK [TASK...]",
-		Short:         "A build tool for Docker application.",
-		SilenceUsage:  true,
-		SilenceErrors: true,
+		Use:                   "dobi [flags] TASK [TASK...]",
+		Short:                 "A build tool for Docker application.",
+		SilenceUsage:          true,
+		SilenceErrors:         true,
+		TraverseChildCommands: true,
+		Args: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.tasks = args
 			return runDobi(opts)
+		},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			initLogging(opts.verbose, opts.quiet)
+			return nil
 		},
 	}
 
 	flags := cmd.Flags()
 	flags.StringVarP(&opts.filename, "filename", "f", "dobi.yaml", "Path to config file")
-	flags.BoolVar(&opts.list, "list", false, "List all available tasks")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "Verbose")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "Quiet")
 
 	flags.SetInterspersed(false)
+	cmd.AddCommand(newListCommand(&opts))
 	return cmd
 }
 
 func runDobi(opts dobiOptions) error {
-	initLogging(opts.verbose, opts.quiet)
-
 	conf, err := config.Load(opts.filename)
 	if err != nil {
-		return fmt.Errorf("Failed to load config from %q: %s", opts.filename, err)
-	}
-
-	// TODO: make this a Command instead of a flag
-	if opts.list {
-		listTasks(conf)
-		return nil
+		return err
 	}
 
 	client, err := buildClient()
@@ -89,10 +88,4 @@ func buildClient() (*docker.Client, error) {
 	}
 	log.Info("Docker client created")
 	return client, nil
-}
-
-func listTasks(config *config.Config) {
-	for _, name := range config.Sorted() {
-		fmt.Printf("  %-20s %s\n", name, config.Resources[name])
-	}
 }
