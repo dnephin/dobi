@@ -14,6 +14,9 @@ func TestLoadFromBytes(t *testing.T) {
 		image=image-def:
 		  image: imagename
 		  dockerfile: what
+		  args:
+		    VERSION: "3.3.3"
+		    DEBUG: 'true'
 
 		volume=vol-def:
 		  path: dist/
@@ -39,6 +42,10 @@ func TestLoadFromBytes(t *testing.T) {
 	imageConf := config.Resources["image-def"].(*ImageConfig)
 	assert.Equal(t, ".", imageConf.Context)
 	assert.Equal(t, "what", imageConf.Dockerfile)
+	assert.Equal(t, map[string]string{
+		"VERSION": "3.3.3",
+		"DEBUG":   "true",
+	}, imageConf.Args)
 
 	volumeConf := config.Resources["vol-def"].(*VolumeConfig)
 	assert.Equal(t, "dist/", volumeConf.Path)
