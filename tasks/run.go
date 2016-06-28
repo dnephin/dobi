@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -157,7 +158,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 		Container:    container.ID,
 		OutputStream: os.Stdout,
 		ErrorStream:  os.Stderr,
-		InputStream:  os.Stdin,
+		InputStream:  ioutil.NopCloser(os.Stdin),
 		Stream:       true,
 		Stdin:        t.config.Interactive,
 		RawTerminal:  t.config.Interactive,
@@ -175,7 +176,6 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 			return err
 		}
 		defer func() {
-			// TODO: why is this failing with "bad file descriptor" ?
 			if err := term.RestoreTerminal(inFd, state); err != nil {
 				t.logger().Warnf("Failed to restore fd %v: %s", inFd, err)
 			}
