@@ -1,5 +1,5 @@
-hash: 25ae77e92e0204ded6634091c85afa58b2cebed7f7dd647d8a47ff9d3c3d2422
-updated: 2016-06-27T19:16:37.86738164Z
+hash: 55cadf04fade8520c8c25c46e3e8424680effd6b177286660fb405e02a712692
+updated: 2016-06-28T01:42:38.167063776Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -51,6 +51,8 @@ imports:
   version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
+- name: github.com/valyala/fasttemplate
+  version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/net
   version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
   subpackages:

@@ -36,28 +36,28 @@ func (s *ExecEnvSuite) TearDownTest() {
 	s.Nil(os.RemoveAll(s.tmpDir))
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvDefault() {
+func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
 	defer os.Setenv("USER", os.Getenv("USER"))
 	os.Setenv("USER", "testuser")
 
-	execEnv, err := NewExecEnv(s.cfg)
+	execEnv, err := NewExecEnvFromConfig(s.cfg)
 	s.Nil(err)
 	expected := fmt.Sprintf("%s-testuser", filepath.Base(s.tmpDir))
 	s.Equal(expected, execEnv.Unique())
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvWithCommand() {
+func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithCommand() {
 	s.cfg.Meta.UniqueExecID = "echo Use-This"
 
-	execEnv, err := NewExecEnv(s.cfg)
+	execEnv, err := NewExecEnvFromConfig(s.cfg)
 	s.Nil(err)
 	s.Equal("Use-This", execEnv.ExecID)
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvWithInvalidCommand() {
+func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidCommand() {
 	s.cfg.Meta.UniqueExecID = "bogus Use-This"
 
-	_, err := NewExecEnv(s.cfg)
+	_, err := NewExecEnvFromConfig(s.cfg)
 	s.Error(err)
 	s.Contains(err.Error(), "\"bogus\": executable file not found")
 }
@@ -85,4 +85,53 @@ func (s *ExecEnvSuite) TestValidateExecIDValid() {
 	output, err = validateExecID("one")
 	s.Nil(err)
 	s.Equal("one", output)
+}
+
+func (s *ExecEnvSuite) TestResolveUnique() {
+	execEnv := NewExecEnv("exec", "project")
+	tmpl := "ok-{unique}"
+	expected := "ok-" + execEnv.Unique()
+	value, err := execEnv.Resolve(tmpl)
+
+	s.Nil(err)
+	s.Equal(value, expected)
+	s.Equal(execEnv.tmplCache[tmpl], expected)
+}
+
+func (s *ExecEnvSuite) TestResolveUnknown() {
+	execEnv := NewExecEnv("exec", "project")
+	_, err := execEnv.Resolve("{bogus}")
+
+	s.Error(err)
+	s.Contains(err.Error(), "Unknown variable \"bogus\"")
+}
+
+func (s *ExecEnvSuite) TestResolveBadTemplate() {
+	execEnv := NewExecEnv("exec", "project")
+	_, err := execEnv.Resolve("{bogus{")
+
+	s.Error(err)
+	s.Contains(err.Error(), "Cannot find end tag")
+}
+
+func (s *ExecEnvSuite) TestResolveEnvironmentNoDefault() {
+	execEnv := NewExecEnv("exec", "project")
+	_, err := execEnv.Resolve("thing-{env.foo}")
+
+	s.Error(err)
+	s.Contains(err.Error(), "required for variable \"env.foo\"")
+}
+
+func (s *ExecEnvSuite) TestResolveEnvironment() {
+	defer os.Unsetenv("FOO")
+	os.Setenv("FOO", "stars")
+	tmpl := "thing-{env.FOO}"
+	expected := "thing-stars"
+
+	execEnv := NewExecEnv("exec", "project")
+	value, err := execEnv.Resolve(tmpl)
+
+	s.Nil(err)
+	s.Equal(value, expected)
+	s.Equal(execEnv.tmplCache[tmpl], expected)
 }

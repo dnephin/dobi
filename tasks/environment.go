@@ -3,6 +3,7 @@ package tasks
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,12 +11,19 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	shlex "github.com/kballard/go-shellquote"
+	fasttmpl "github.com/valyala/fasttemplate"
+)
+
+const (
+	startTag = "{"
+	endTag   = "}"
 )
 
 // ExecEnv is a data object which contains variables for an ExecuteContext
 type ExecEnv struct {
-	ExecID  string
-	Project string
+	ExecID    string
+	Project   string
+	tmplCache map[string]string
 }
 
 // Unique returns a unique id for this execution
@@ -23,14 +31,82 @@ func (e *ExecEnv) Unique() string {
 	return e.Project + "-" + e.ExecID
 }
 
-// NewExecEnv returns a new ExecEnv from a Config
-func NewExecEnv(cfg *config.Config) (*ExecEnv, error) {
+// Resolve template variables to a string value and cache the value
+func (e *ExecEnv) Resolve(tmpl string) (string, error) {
+	if val, ok := e.tmplCache[tmpl]; ok {
+		return val, nil
+	}
+
+	template, err := fasttmpl.NewTemplate(tmpl, startTag, endTag)
+	if err != nil {
+		return "", err
+	}
+
+	buff := &bytes.Buffer{}
+	_, err = template.ExecuteFunc(buff, e.templateContext)
+	if err == nil {
+		e.tmplCache[tmpl] = buff.String()
+	}
+	return buff.String(), err
+}
+
+func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
+	tag, defValue := splitDefault(tag)
+
+	write := func(val string) (int, error) {
+		if val == "" {
+			val = defValue
+		}
+		if val == "" {
+			return 0, fmt.Errorf("A value is required for variable %q", tag)
+		}
+		return out.Write(bytes.NewBufferString(val).Bytes())
+	}
+
+	if strings.HasPrefix(tag, "env.") {
+		return write(os.Getenv(strings.TrimPrefix(tag, "env.")))
+	}
+
+	// TODO: git variables
+	// TODO: time and date variables?
+
+	switch tag {
+	case "unique":
+		return write(e.Unique())
+	case "project":
+		return write(e.Project)
+	case "exec-id":
+		return write(e.ExecID)
+	default:
+		return 0, fmt.Errorf("Unknown variable %q", tag)
+	}
+}
+
+func splitDefault(tag string) (string, string) {
+	parts := strings.SplitN(tag, ":", 2)
+	if len(parts) == 1 {
+		return tag, ""
+	}
+	return parts[0], parts[1]
+}
+
+// NewExecEnvFromConfig returns a new ExecEnv from a Config
+func NewExecEnvFromConfig(cfg *config.Config) (*ExecEnv, error) {
 	execID, err := getExecID(cfg.Meta.UniqueExecID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
 	}
 	project := getProjectName(cfg.Meta.Project, cfg.WorkingDir)
-	return &ExecEnv{ExecID: execID, Project: project}, nil
+	return NewExecEnv(execID, project), nil
+}
+
+// NewExecEnv returns a new ExecEnv from values
+func NewExecEnv(execID, project string) *ExecEnv {
+	return &ExecEnv{
+		ExecID:    execID,
+		Project:   project,
+		tmplCache: make(map[string]string),
+	}
 }
 
 func getProjectName(project, workingDir string) string {

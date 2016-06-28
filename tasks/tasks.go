@@ -175,7 +175,7 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	execEnv, err := NewExecEnv(options.Config)
+	execEnv, err := NewExecEnvFromConfig(options.Config)
 	if err != nil {
 		return err
 	}
