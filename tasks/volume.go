@@ -76,3 +76,13 @@ func (t *VolumeTask) exists() bool {
 func (t *VolumeTask) asBind() string {
 	return fmt.Sprintf("%s:%s:%s", t.absPath(), t.config.Mount, t.config.Mode)
 }
+
+// Prepare the task
+func (t *VolumeTask) Prepare(ctx *ExecuteContext) error {
+	return nil
+}
+
+// Stop the task
+func (t *VolumeTask) Stop(ctx *ExecuteContext) error {
+	return nil
+}

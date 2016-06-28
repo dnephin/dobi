@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrepareTasksErrorsOnCyclicDependencies(t *testing.T) {
+func TestCollectTasksErrorsOnCyclicDependencies(t *testing.T) {
 	runOptions := RunOptions{
 		Config: &config.Config{
 			Resources: map[string]config.Resource{
@@ -20,13 +20,13 @@ func TestPrepareTasksErrorsOnCyclicDependencies(t *testing.T) {
 		},
 		Tasks: []string{"one"},
 	}
-	tasks, err := prepareTasks(runOptions)
+	tasks, err := collectTasks(runOptions)
 	assert.Nil(t, tasks)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Invalid dependency cycle: one, two, three")
 }
 
-func TestPrepareTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
+func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
 	runOptions := RunOptions{
 		Config: &config.Config{
 			Resources: map[string]config.Resource{
@@ -36,7 +36,7 @@ func TestPrepareTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
 		},
 		Tasks: []string{"one", "two"},
 	}
-	tasks, err := prepareTasks(runOptions)
+	tasks, err := collectTasks(runOptions)
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(tasks.tasks))
+	assert.Equal(t, 2, len(tasks.All()))
 }

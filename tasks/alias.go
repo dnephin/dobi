@@ -39,3 +39,13 @@ func (t *AliasTask) Run(ctx *ExecuteContext) error {
 	t.logger().Info("done")
 	return nil
 }
+
+// Prepare the task
+func (t *AliasTask) Prepare(ctx *ExecuteContext) error {
+	return nil
+}
+
+// Stop the task
+func (t *AliasTask) Stop(ctx *ExecuteContext) error {
+	return nil
+}

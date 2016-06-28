@@ -97,8 +97,7 @@ func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
 
 func (t *ImageTask) getCanonicalTag(ctx *ExecuteContext) string {
 	if len(t.config.Tags) > 0 {
-		// TODO: Env.Resolve()
-		return t.config.Tags[1]
+		return ctx.Env.GetVar(t.config.Tags[0])
 	}
 	return ctx.Env.Unique()
 }
@@ -121,15 +120,29 @@ func (t *ImageTask) tag(ctx *ExecuteContext) error {
 		return nil
 	}
 	for _, tag := range t.config.Tags[1:] {
-		// TODO: Env.Resolve()
 		err := ctx.client.TagImage(t.getImageName(ctx), docker.TagImageOptions{
 			Repo:  t.config.Image,
-			Tag:   tag,
+			Tag:   ctx.Env.GetVar(tag),
 			Force: true,
 		})
 		if err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+// Prepare the task
+func (t *ImageTask) Prepare(ctx *ExecuteContext) error {
+	for _, tag := range t.config.Tags {
+		if _, err := ctx.Env.Resolve(tag); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Stop the task
+func (t *ImageTask) Stop(ctx *ExecuteContext) error {
 	return nil
 }

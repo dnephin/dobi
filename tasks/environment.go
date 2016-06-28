@@ -82,6 +82,15 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	}
 }
 
+// GetVar returns a variable from the cache, or panics if it doesn't exist
+func (e *ExecEnv) GetVar(tmpl string) string {
+	val, ok := e.tmplCache[tmpl]
+	if !ok {
+		panic(fmt.Sprintf("Variables was not prepared %q", tmpl))
+	}
+	return val
+}
+
 func splitDefault(tag string) (string, string) {
 	parts := strings.SplitN(tag, ":", 2)
 	if len(parts) == 1 {

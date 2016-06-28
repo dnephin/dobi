@@ -241,3 +241,13 @@ func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan
 	}()
 	return chanSig
 }
+
+// Prepare the task
+func (t *RunTask) Prepare(ctx *ExecuteContext) error {
+	return nil
+}
+
+// Stop the task
+func (t *RunTask) Stop(ctx *ExecuteContext) error {
+	return nil
+}

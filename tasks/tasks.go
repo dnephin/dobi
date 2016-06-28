@@ -13,8 +13,10 @@ import (
 
 // Task is an interface implemented by all tasks
 type Task interface {
-	Run(ctx *ExecuteContext) error
 	Name() string
+	Prepare(*ExecuteContext) error
+	Run(*ExecuteContext) error
+	Stop(*ExecuteContext) error
 }
 
 // Task
@@ -52,6 +54,20 @@ func (c *TaskCollection) contains(name string) bool {
 	return false
 }
 
+// All returns all the tasks in the dependency order
+func (c *TaskCollection) All() []Task {
+	return c.tasks
+}
+
+// Reversed returns all the tasks in reversed dependency order
+func (c *TaskCollection) Reversed() []Task {
+	tasks := []Task{}
+	for i := len(c.tasks) - 1; i >= 0; i-- {
+		tasks = append(tasks, c.tasks[i])
+	}
+	return tasks
+}
+
 type eachVolumeFunc func(name string, vol *VolumeTask)
 
 // EachVolume iterates all the volumes in names and calls f for each
@@ -69,11 +85,11 @@ func newTaskCollection() *TaskCollection {
 	}
 }
 
-func prepareTasks(options RunOptions) (*TaskCollection, error) {
-	return prepare(options, newTaskCollection(), stack.NewStringStack())
+func collectTasks(options RunOptions) (*TaskCollection, error) {
+	return collect(options, newTaskCollection(), stack.NewStringStack())
 }
 
-func prepare(
+func collect(
 	options RunOptions,
 	tasks *TaskCollection,
 	taskStack *stack.StringStack,
@@ -102,7 +118,7 @@ func prepare(
 
 		taskStack.Push(name)
 		options.Tasks = resource.Dependencies()
-		if _, err := prepare(options, tasks, taskStack); err != nil {
+		if _, err := collect(options, tasks, taskStack); err != nil {
 			return nil, err
 		}
 		tasks.add(task)
@@ -135,10 +151,26 @@ func buildTaskFromResource(options taskOptions) Task {
 }
 
 func executeTasks(ctx *ExecuteContext) error {
+	log.Debug("preparing tasks")
+	for _, task := range ctx.tasks.All() {
+		if err := task.Prepare(ctx); err != nil {
+			return fmt.Errorf("Failed to prepare task %q: %s", task.Name(), err)
+		}
+	}
+
+	defer func() {
+		log.Debug("stopping tasks")
+		for _, task := range ctx.tasks.Reversed() {
+			if err := task.Stop(ctx); err != nil {
+				log.Warnf("Failed to stop task %q: %s", task.Name(), err)
+			}
+		}
+	}()
+
 	log.Debug("executing tasks")
-	for _, task := range ctx.tasks.tasks {
+	for _, task := range ctx.tasks.All() {
 		if err := task.Run(ctx); err != nil {
-			return fmt.Errorf("Failed to execute task '%s': %s", task.Name(), err)
+			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
 		}
 	}
 	return nil
@@ -170,7 +202,7 @@ func Run(options RunOptions) error {
 		return fmt.Errorf("No task to run, and no default task defined.")
 	}
 
-	tasks, err := prepareTasks(options)
+	tasks, err := collectTasks(options)
 	if err != nil {
 		return err
 	}
