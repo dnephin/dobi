@@ -3,6 +3,7 @@
 #
 
 meta:
+    project: dobi
     default: all
 
 #

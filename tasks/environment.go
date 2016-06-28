@@ -9,26 +9,40 @@ import (
 	"strings"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/kballard/go-shellquote"
+	shlex "github.com/kballard/go-shellquote"
 )
 
 // ExecEnv is a data object which contains variables for an ExecuteContext
 type ExecEnv struct {
-	ExecID string
+	ExecID  string
+	Project string
+}
+
+// Unique returns a unique id for this execution
+func (e *ExecEnv) Unique() string {
+	return e.Project + "-" + e.ExecID
 }
 
 // NewExecEnv returns a new ExecEnv from a Config
 func NewExecEnv(cfg *config.Config) (*ExecEnv, error) {
-	execID, err := getExecID(cfg.Meta.UniqueExecID, cfg.WorkingDir)
+	execID, err := getExecID(cfg.Meta.UniqueExecID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
 	}
-	return &ExecEnv{ExecID: execID}, nil
+	project := getProjectName(cfg.Meta.Project, cfg.WorkingDir)
+	return &ExecEnv{ExecID: execID, Project: project}, nil
 }
 
-func getExecID(cmd string, workingDir string) (string, error) {
+func getProjectName(project, workingDir string) string {
+	if project != "" {
+		return project
+	}
+	return filepath.Base(workingDir)
+}
+
+func getExecID(cmd string) (string, error) {
 	if cmd == "" {
-		return defaultExecID(workingDir), nil
+		return defaultExecID(), nil
 	}
 
 	stdout, err := runCommand(cmd)
@@ -40,7 +54,7 @@ func getExecID(cmd string, workingDir string) (string, error) {
 }
 
 func runCommand(cmdString string) (string, error) {
-	cmdSlice, err := shellquote.Split(cmdString)
+	cmdSlice, err := shlex.Split(cmdString)
 	if err != nil {
 		return "", fmt.Errorf("Failed to parse command: %s", err)
 	}
@@ -70,7 +84,7 @@ func validateExecID(output string) (string, error) {
 	return output, nil
 }
 
-func defaultExecID(workingDir string) string {
+func defaultExecID() string {
 	// TODO: cross-platform user name
-	return fmt.Sprintf("%s-%s", filepath.Base(workingDir), os.Getenv("USER"))
+	return os.Getenv("USER")
 }

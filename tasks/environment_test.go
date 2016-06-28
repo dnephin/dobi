@@ -43,7 +43,7 @@ func (s *ExecEnvSuite) TestNewExecEnvDefault() {
 	execEnv, err := NewExecEnv(s.cfg)
 	s.Nil(err)
 	expected := fmt.Sprintf("%s-testuser", filepath.Base(s.tmpDir))
-	s.Equal(expected, execEnv.ExecID)
+	s.Equal(expected, execEnv.Unique())
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvWithCommand() {

@@ -89,7 +89,7 @@ func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
 }
 
 func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
-	return fmt.Sprintf("%s:%s", t.config.Image, ctx.environment.ExecID)
+	return fmt.Sprintf("%s:%s", t.config.Image, ctx.environment.Unique())
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {

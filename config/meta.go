@@ -2,11 +2,13 @@ package config
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 )
 
 // MetaConfig is a data object for non-resource configuration
 type MetaConfig struct {
 	Default      string
+	Project      string
 	UniqueExecID string
 }
 
@@ -14,6 +16,11 @@ type MetaConfig struct {
 func (m *MetaConfig) Validate(config *Config) error {
 	if _, ok := config.Resources[m.Default]; m.Default != "" && !ok {
 		return fmt.Errorf("Undefined default resource: %s", m.Default)
+	}
+
+	if m.Project == "" {
+		log.Warn(
+			"meta.project is not set. Defauling to working directory basename.")
 	}
 	return nil
 }
