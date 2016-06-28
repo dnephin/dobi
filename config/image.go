@@ -13,6 +13,7 @@ type ImageConfig struct {
 	Context    string
 	Args       map[string]string
 	Pull       bool
+	Tags       []string
 	Depends    []string
 }
 

@@ -47,8 +47,10 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	}
 	t.logger().Debug("image is stale")
 
-	err = t.build(ctx)
-	if err != nil {
+	if err := t.build(ctx); err != nil {
+		return err
+	}
+	if err = t.tag(ctx); err != nil {
 		return err
 	}
 	ctx.setModified(t.name)
@@ -89,7 +91,15 @@ func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
 }
 
 func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
-	return fmt.Sprintf("%s:%s", t.config.Image, ctx.environment.Unique())
+	return fmt.Sprintf("%s:%s", t.config.Image, t.getCanonicalTag(ctx))
+}
+
+func (t *ImageTask) getCanonicalTag(ctx *ExecuteContext) string {
+	if len(t.config.Tags) > 0 {
+		// TODO: environment.Resolve()
+		return t.config.Tags[1]
+	}
+	return ctx.environment.Unique()
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {
@@ -102,4 +112,23 @@ func (t *ImageTask) build(ctx *ExecuteContext) error {
 		// TODO: support quiet, or send to loggeR?
 		OutputStream: os.Stdout,
 	})
+}
+
+func (t *ImageTask) tag(ctx *ExecuteContext) error {
+	// The first one is already tagged in build
+	if len(t.config.Tags) <= 1 {
+		return nil
+	}
+	for _, tag := range t.config.Tags[1:] {
+		// TODO: environment.Resolve()
+		err := ctx.client.TagImage(t.getImageName(ctx), docker.TagImageOptions{
+			Repo:  t.config.Image,
+			Tag:   tag,
+			Force: true,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
