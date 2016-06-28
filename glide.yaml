@@ -10,3 +10,5 @@ import:
 - package: github.com/spf13/cobra
   repo: https://github.com/dnephin/cobra
 - package: github.com/valyala/fasttemplate
+- package: github.com/gogits/git-module
+- package: github.com/mcuadros/go-version

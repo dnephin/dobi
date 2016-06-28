@@ -1,5 +1,5 @@
-hash: 55cadf04fade8520c8c25c46e3e8424680effd6b177286660fb405e02a712692
-updated: 2016-06-28T01:42:38.167063776Z
+hash: a1ad8e94f3fe3b89478fc0565f960ab3441da989204a5f60e32f3f61ef612995
+updated: 2016-06-28T04:44:25.038863936Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -30,12 +30,16 @@ imports:
   version: f2d77a61e3c169b43402a0a1e84f06daf29b8190
 - name: github.com/fsouza/go-dockerclient
   version: 107dc3807d24e581e874212dd9a7ba35599b893d
+- name: github.com/gogits/git-module
+  version: 1dad9765c0adf04fe1eabadfb1a9189157dc50af
 - name: github.com/hashicorp/go-cleanhttp
   version: ad28ea4487f05916463e2423a55166280e8254b5
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
+- name: github.com/mcuadros/go-version
+  version: d52711f8d6bea8dc01efafdb68ad95a4e2606630
 - name: github.com/opencontainers/runc
   version: 9b3a2f16345aa015ca286835f6f5eb67ea60aa4b
   subpackages:

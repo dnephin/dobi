@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	git "github.com/gogits/git-module"
 	shlex "github.com/kballard/go-shellquote"
 	fasttmpl "github.com/valyala/fasttemplate"
 )
@@ -67,7 +69,9 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		return write(os.Getenv(strings.TrimPrefix(tag, "env.")))
 	}
 
-	// TODO: git variables
+	if strings.HasPrefix(tag, "git.") {
+		return valueFromGit(out, strings.TrimPrefix(tag, "git."), defValue)
+	}
 	// TODO: time and date variables?
 
 	switch tag {
@@ -79,6 +83,49 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		return write(e.ExecID)
 	default:
 		return 0, fmt.Errorf("Unknown variable %q", tag)
+	}
+}
+
+func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
+	write := func(value string) (int, error) {
+		return out.Write(bytes.NewBufferString(value).Bytes())
+	}
+
+	writeWithError := func(err error) (int, error) {
+		if defValue == "" {
+			return 0, err
+		}
+
+		log.Warnf("Failed to get variable \"git.%s\", using default", tag)
+		return write(defValue)
+	}
+
+	repo, err := git.OpenRepository(".")
+	if err != nil {
+		return writeWithError(err)
+	}
+
+	switch tag {
+	case "branch":
+		branch, err := repo.GetHEADBranch()
+		if err != nil {
+			return writeWithError(err)
+		}
+		return write(branch.Name)
+	case "sha":
+		commit, err := repo.GetCommit("HEAD")
+		if err != nil {
+			return writeWithError(err)
+		}
+		return write(commit.ID.String())
+	case "short-sha":
+		commit, err := repo.GetCommit("HEAD")
+		if err != nil {
+			return writeWithError(err)
+		}
+		return write(commit.ID.String()[:10])
+	default:
+		return 0, fmt.Errorf("Unknown variable \"git.%s\"", tag)
 	}
 }
 
