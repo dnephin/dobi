@@ -6,10 +6,10 @@ import (
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified    map[string]bool
-	tasks       *TaskCollection
-	client      *docker.Client
-	environment *ExecEnv
+	modified map[string]bool
+	tasks    *TaskCollection
+	client   *docker.Client
+	Env      *ExecEnv
 }
 
 func (ctx *ExecuteContext) isModified(names ...string) bool {
@@ -32,9 +32,9 @@ func NewExecuteContext(
 	execEnv *ExecEnv,
 ) *ExecuteContext {
 	return &ExecuteContext{
-		modified:    make(map[string]bool),
-		tasks:       tasks,
-		client:      client,
-		environment: execEnv,
+		modified: make(map[string]bool),
+		tasks:    tasks,
+		client:   client,
+		Env:      execEnv,
 	}
 }

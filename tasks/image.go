@@ -63,7 +63,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	image, err := t.getImage(ctx)
+	image, err := t.GetImage(ctx)
 	switch err {
 	case docker.ErrNoSuchImage:
 		t.logger().Debug("image does not exist")
@@ -86,7 +86,8 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 	return false, nil
 }
 
-func (t *ImageTask) getImage(ctx *ExecuteContext) (*docker.Image, error) {
+// GetImage returns the image created by this task
+func (t *ImageTask) GetImage(ctx *ExecuteContext) (*docker.Image, error) {
 	return ctx.client.InspectImage(t.getImageName(ctx))
 }
 
@@ -96,10 +97,10 @@ func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
 
 func (t *ImageTask) getCanonicalTag(ctx *ExecuteContext) string {
 	if len(t.config.Tags) > 0 {
-		// TODO: environment.Resolve()
+		// TODO: Env.Resolve()
 		return t.config.Tags[1]
 	}
-	return ctx.environment.Unique()
+	return ctx.Env.Unique()
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {
@@ -120,7 +121,7 @@ func (t *ImageTask) tag(ctx *ExecuteContext) error {
 		return nil
 	}
 	for _, tag := range t.config.Tags[1:] {
-		// TODO: environment.Resolve()
+		// TODO: Env.Resolve()
 		err := ctx.client.TagImage(t.getImageName(ctx), docker.TagImageOptions{
 			Repo:  t.config.Image,
 			Tag:   tag,

@@ -84,7 +84,7 @@ func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	image, err := ctx.tasks.images[t.config.Use].getImage(ctx)
+	image, err := ctx.tasks.images[t.config.Use].GetImage(ctx)
 	if err != nil {
 		return true, err
 	}
@@ -130,7 +130,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	interactive := t.config.Interactive
 	// TODO: support other run options
 	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
-		Name: fmt.Sprintf("%s-%s", ctx.environment.Unique(), t.name),
+		Name: fmt.Sprintf("%s-%s", ctx.Env.Unique(), t.name),
 		Config: &docker.Config{
 			Cmd:          t.config.ParsedCommand(),
 			Image:        ctx.tasks.images[t.config.Use].getImageName(ctx),
