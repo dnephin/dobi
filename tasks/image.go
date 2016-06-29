@@ -2,11 +2,14 @@ package tasks
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
-	"github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
+	"github.com/docker/docker/pkg/term"
+	"github.com/docker/docker/pkg/jsonmessage"
 )
 
 // ImageTask creates a Docker image
@@ -103,15 +106,44 @@ func (t *ImageTask) getCanonicalTag(ctx *ExecuteContext) string {
 }
 
 func (t *ImageTask) build(ctx *ExecuteContext) error {
-	return ctx.client.BuildImage(docker.BuildImageOptions{
+	out := os.Stdout
+	outFd, isTTY := term.GetFdInfo(out)
+	rpipe, wpipe := io.Pipe()
+	defer rpipe.Close()
+
+	errChan := make(chan error)
+
+	go func() {
+		err := jsonmessage.DisplayJSONMessagesStream(rpipe, out, outFd, isTTY, nil)
+		errChan <- err
+	}()
+
+	err := ctx.client.BuildImage(docker.BuildImageOptions{
 		Name:           t.getImageName(ctx),
 		Dockerfile:     t.config.Dockerfile,
+		BuildArgs:      buildArgs(t.config.Args),
 		Pull:           t.config.Pull,
 		RmTmpContainer: true,
 		ContextDir:     t.config.Context,
-		// TODO: support quiet, or send to loggeR?
-		OutputStream: os.Stdout,
+		OutputStream:   wpipe,
+		RawJSONStream:  true,
+		// TODO: support quiet SuppressOutput: ctx.quiet
 	})
+	wpipe.Close()
+	if err != nil {
+		<-errChan
+		return err
+	}
+
+	return <-errChan
+}
+
+func buildArgs(args map[string]string) []docker.BuildArg {
+	out := []docker.BuildArg{}
+	for key, value := range args {
+		out = append(out, docker.BuildArg{Name: key, Value: value})
+	}
+	return out
 }
 
 func (t *ImageTask) tag(ctx *ExecuteContext) error {
