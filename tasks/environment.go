@@ -8,12 +8,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	git "github.com/gogits/git-module"
 	shlex "github.com/kballard/go-shellquote"
 	fasttmpl "github.com/valyala/fasttemplate"
+	"github.com/metakeule/fmtdate"
 )
 
 const (
@@ -26,6 +28,7 @@ type ExecEnv struct {
 	ExecID    string
 	Project   string
 	tmplCache map[string]string
+	startTime time.Time
 }
 
 // Unique returns a unique id for this execution
@@ -65,14 +68,15 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		return out.Write(bytes.NewBufferString(val).Bytes())
 	}
 
-	if strings.HasPrefix(tag, "env.") {
-		return write(os.Getenv(strings.TrimPrefix(tag, "env.")))
+	prefix, suffix := splitPrefix(tag)
+	switch prefix {
+	case "env":
+		return write(os.Getenv(suffix))
+	case "git":
+		return valueFromGit(out, suffix, defValue)
+	case "time":
+		return write(fmtdate.Format(suffix, e.startTime))
 	}
-
-	if strings.HasPrefix(tag, "git.") {
-		return valueFromGit(out, strings.TrimPrefix(tag, "git."), defValue)
-	}
-	// TODO: time and date variables?
 
 	switch tag {
 	case "unique":
@@ -139,11 +143,21 @@ func (e *ExecEnv) GetVar(tmpl string) string {
 }
 
 func splitDefault(tag string) (string, string) {
-	parts := strings.SplitN(tag, ":", 2)
+	parts := strings.Split(tag, ":")
 	if len(parts) == 1 {
 		return tag, ""
 	}
-	return parts[0], parts[1]
+	last := len(parts) - 1
+	return strings.Join(parts[:last], ":"), parts[last]
+}
+
+func splitPrefix(tag string) (string, string) {
+	for _, prefix := range []string{"env", "git", "time"} {
+		if strings.HasPrefix(tag, prefix+".") {
+			return prefix, tag[len(prefix)+1:]
+		}
+	}
+	return "", tag
 }
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
@@ -162,6 +176,7 @@ func NewExecEnv(execID, project string) *ExecEnv {
 		ExecID:    execID,
 		Project:   project,
 		tmplCache: make(map[string]string),
+		startTime: time.Now(),
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/dnephin/dobi/config"
 	"github.com/stretchr/testify/suite"
@@ -134,4 +135,31 @@ func (s *ExecEnvSuite) TestResolveEnvironment() {
 	s.Nil(err)
 	s.Equal(value, expected)
 	s.Equal(execEnv.tmplCache[tmpl], expected)
+}
+
+func (s *ExecEnvSuite) TestResolveTime() {
+	tmpl := "build-{time.YYYY-MM-DD}"
+	expected := "build-2016-04-05"
+
+	execEnv := NewExecEnv("exec", "project")
+	execEnv.startTime = time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC)
+	value, err := execEnv.Resolve(tmpl)
+
+	s.Nil(err)
+	s.Equal(value, expected)
+	s.Equal(execEnv.tmplCache[tmpl], expected)
+}
+
+func (s *ExecEnvSuite) TestSplitDefault() {
+	tag := "time.19:01:01:default"
+	value, defVal := splitDefault(tag)
+	s.Equal(value, "time.19:01:01")
+	s.Equal(defVal, "default")
+}
+
+func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
+	tag := "env.FOO"
+	value, defVal := splitDefault(tag)
+	s.Equal(value, "env.FOO")
+	s.Equal(defVal, "")
 }

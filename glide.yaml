@@ -12,3 +12,4 @@ import:
 - package: github.com/valyala/fasttemplate
 - package: github.com/gogits/git-module
 - package: github.com/mcuadros/go-version
+- package: github.com/metakeule/fmtdate

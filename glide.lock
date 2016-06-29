@@ -1,5 +1,5 @@
-hash: a1ad8e94f3fe3b89478fc0565f960ab3441da989204a5f60e32f3f61ef612995
-updated: 2016-06-28T04:44:25.038863936Z
+hash: 0e64f95685a092204131dccbc69ceabd183295bb6672606d06c04bd45edc46e9
+updated: 2016-06-29T04:47:26.129243752Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -40,6 +40,8 @@ imports:
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
 - name: github.com/mcuadros/go-version
   version: d52711f8d6bea8dc01efafdb68ad95a4e2606630
+- name: github.com/metakeule/fmtdate
+  version: 427373e7d2f8fcaa70a83e289c15fb3618a945bc
 - name: github.com/opencontainers/runc
   version: 9b3a2f16345aa015ca286835f6f5eb67ea60aa4b
   subpackages:
