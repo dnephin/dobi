@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
@@ -31,7 +32,7 @@ func (t *ImageTask) String() string {
 }
 
 func (t *ImageTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{"task": t})
+	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
@@ -50,6 +51,7 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	}
 	t.logger().Debug("is stale")
 
+	t.logger().Info("Building")
 	if err := t.build(ctx); err != nil {
 		return err
 	}

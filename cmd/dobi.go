@@ -77,14 +77,18 @@ func runDobi(opts dobiOptions) error {
 }
 
 func initLogging(verbose, quiet bool) {
+	logger := logging.Log
 	if verbose {
-		log.SetLevel(log.DebugLevel)
+		logger.Level = log.DebugLevel
 	}
 	if quiet {
-		log.SetLevel(log.WarnLevel)
+		logger.Level = log.WarnLevel
 	}
-	log.SetOutput(os.Stderr)
-	log.SetFormatter(&logging.Formatter{})
+	logger.Out = os.Stderr
+
+	formatter := &logging.Formatter{}
+	log.SetFormatter(formatter)
+	logger.Formatter = formatter
 }
 
 func buildClient() (*docker.Client, error) {

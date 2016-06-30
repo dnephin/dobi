@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 )
 
 // VolumeTask is a task which creates a directory on the host
@@ -30,7 +31,7 @@ func (t *VolumeTask) String() string {
 }
 
 func (t *VolumeTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{"task": t})
+	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging

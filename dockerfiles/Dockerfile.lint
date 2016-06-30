@@ -1,0 +1,11 @@
+
+FROM    golang:1.6-alpine
+
+RUN     apk add -U python py-pip python-dev musl-dev gcc git bash
+RUN     pip install pre-commit
+RUN     go get -u github.com/golang/lint/golint
+
+WORKDIR /go/src/github.com/dnephin/dobi
+COPY    .pre-commit-config.yaml .
+
+CMD     ["pre-commit", "run", "-a", "-v"]

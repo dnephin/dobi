@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
-	docker "github.com/fsouza/go-dockerclient"
-
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/utils/stack"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // Task is an interface implemented by all tasks
@@ -153,7 +151,7 @@ func buildTaskFromResource(options taskOptions) Task {
 }
 
 func executeTasks(ctx *ExecuteContext) error {
-	log.Debug("preparing tasks")
+	logging.Log.Debug("preparing tasks")
 	for _, task := range ctx.tasks.All() {
 		if err := task.Prepare(ctx); err != nil {
 			return fmt.Errorf("Failed to prepare task %q: %s", task.Name(), err)
@@ -161,15 +159,15 @@ func executeTasks(ctx *ExecuteContext) error {
 	}
 
 	defer func() {
-		log.Debug("stopping tasks")
+		logging.Log.Debug("stopping tasks")
 		for _, task := range ctx.tasks.Reversed() {
 			if err := task.Stop(ctx); err != nil {
-				log.Warnf("Failed to stop task %q: %s", task.Name(), err)
+				logging.Log.Warnf("Failed to stop task %q: %s", task.Name(), err)
 			}
 		}
 	}()
 
-	log.Debug("executing tasks")
+	logging.Log.Debug("executing tasks")
 	for _, task := range ctx.tasks.All() {
 		if err := task.Run(ctx); err != nil {
 			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)

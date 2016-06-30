@@ -11,6 +11,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -35,7 +36,7 @@ func (t *RunTask) String() string {
 }
 
 func (t *RunTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{"task": t})
+	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
@@ -163,6 +164,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	if err != nil {
 		return fmt.Errorf("Failed creating container: %s", err)
 	}
+	defer t.waitAndRemove(ctx.client, container.ID)
 
 	chanSig := t.forwardSignals(ctx.client, container.ID)
 	defer signal.Stop(chanSig)
@@ -199,7 +201,6 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 		return fmt.Errorf("Failed starting container: %s", err)
 	}
 
-	t.waitAndRemove(ctx.client, container.ID)
 	return nil
 }
 
@@ -213,6 +214,7 @@ func (t *RunTask) waitAndRemove(client *docker.Client, containerID string) {
 			"Exited with non-zero status code")
 	}
 
+	t.logger().Debug("Removing container")
 	if err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,
 		RemoveVolumes: true,

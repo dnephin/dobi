@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	"github.com/dnephin/dobi/logging"
 )
 
 // MetaConfig is a data object for non-resource configuration
@@ -19,7 +19,7 @@ func (m *MetaConfig) Validate(config *Config) error {
 	}
 
 	if m.Project == "" {
-		log.Warn(
+		logging.Log.Warn(
 			"meta.project is not set. Defauling to working directory basename.")
 	}
 	return nil

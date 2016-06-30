@@ -28,6 +28,11 @@ image=builder:
     dockerfile: Dockerfile.build
     tags: ['{unique}', '{project}-{git.short-sha}', '{unique}-{git.branch}']
 
+image=linter:
+    image: dobi-linter
+    context: .
+    dockerfile: dockerfiles/Dockerfile.lint
+
 #
 # Run
 #
@@ -54,6 +59,10 @@ run=test-unit:
     volumes: [source, dist]
     command: "bash -c 'go test -v $(glide novendor)'"
 
+run=lint:
+    use: linter
+    volumes: [source]
+
 #
 # Aliases
 #
@@ -62,4 +71,4 @@ alias=test:
     tasks: [test-unit]
 
 alias=all:
-    tasks: [binary, test]
+    tasks: [lint, test, binary]

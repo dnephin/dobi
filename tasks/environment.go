@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	git "github.com/gogits/git-module"
 	shlex "github.com/kballard/go-shellquote"
 	"github.com/metakeule/fmtdate"
@@ -100,7 +100,7 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 			return 0, err
 		}
 
-		log.Warnf("Failed to get variable \"git.%s\", using default", tag)
+		logging.Log.Warnf("Failed to get variable \"git.%s\", using default", tag)
 		return write(defValue)
 	}
 

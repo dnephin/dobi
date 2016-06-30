@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/dnephin/dobi/logging"
 )
 
 // Resource is an interface for each configurable type
@@ -61,7 +62,7 @@ func Load(filename string) (*Config, error) {
 	if err != nil {
 		return nil, fmtError(err)
 	}
-	log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
+	logging.Log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
 
 	absPath, err := filepath.Abs(filename)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 )
 
 // AliasTask is a task which creates a directory on the host
@@ -26,7 +27,7 @@ func (t *AliasTask) String() string {
 }
 
 func (t *AliasTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{"task": t})
+	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
