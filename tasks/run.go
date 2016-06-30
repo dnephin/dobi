@@ -38,6 +38,7 @@ func (t *RunTask) logger() *log.Entry {
 	return log.WithFields(log.Fields{"task": t})
 }
 
+// Repr formats the task for logging
 func (t *RunTask) Repr() string {
 	buff := &bytes.Buffer{}
 
@@ -52,7 +53,6 @@ func (t *RunTask) Repr() string {
 	}
 	return fmt.Sprintf("[run %v]%v", t.name, buff.String())
 }
-
 
 // Run creates the host path if it doesn't already exist
 func (t *RunTask) Run(ctx *ExecuteContext) error {

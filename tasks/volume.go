@@ -33,6 +33,7 @@ func (t *VolumeTask) logger() *log.Entry {
 	return log.WithFields(log.Fields{"task": t})
 }
 
+// Repr formats the task for logging
 func (t *VolumeTask) Repr() string {
 	return fmt.Sprintf("[volume %s] %s:%s", t.name, t.config.Path, t.config.Mount)
 }

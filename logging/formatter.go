@@ -17,12 +17,16 @@ const (
 	gray    = 90
 )
 
+// LogRepresenter is an interface for objects that can format themselves for
+// logging
 type LogRepresenter interface {
 	Repr() string
 }
 
+// Formatter formats a log entry in a human readable way
 type Formatter struct{}
 
+// Format implements the log.Formatter interface
 func (f *Formatter) Format(entry *log.Entry) ([]byte, error) {
 	buff := &bytes.Buffer{}
 	buff.WriteString(writeLevel(entry.Level))

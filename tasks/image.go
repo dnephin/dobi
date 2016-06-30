@@ -7,9 +7,9 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
-	docker "github.com/fsouza/go-dockerclient"
-	"github.com/docker/docker/pkg/term"
 	"github.com/docker/docker/pkg/jsonmessage"
+	"github.com/docker/docker/pkg/term"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // ImageTask creates a Docker image
@@ -34,6 +34,7 @@ func (t *ImageTask) logger() *log.Entry {
 	return log.WithFields(log.Fields{"task": t})
 }
 
+// Repr formats the task for logging
 func (t *ImageTask) Repr() string {
 	return fmt.Sprintf("[image %s] %s", t.name, t.config.Image)
 }

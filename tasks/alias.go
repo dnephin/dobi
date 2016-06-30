@@ -29,6 +29,7 @@ func (t *AliasTask) logger() *log.Entry {
 	return log.WithFields(log.Fields{"task": t})
 }
 
+// Repr formats the task for logging
 func (t *AliasTask) Repr() string {
 	return fmt.Sprintf("[alias %s]", t.name)
 }

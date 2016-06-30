@@ -8,8 +8,8 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/utils/stack"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/utils/stack"
 )
 
 // Task is an interface implemented by all tasks

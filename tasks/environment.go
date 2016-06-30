@@ -14,8 +14,8 @@ import (
 	"github.com/dnephin/dobi/config"
 	git "github.com/gogits/git-module"
 	shlex "github.com/kballard/go-shellquote"
-	fasttmpl "github.com/valyala/fasttemplate"
 	"github.com/metakeule/fmtdate"
+	fasttmpl "github.com/valyala/fasttemplate"
 )
 
 const (
