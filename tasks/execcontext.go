@@ -10,6 +10,7 @@ type ExecuteContext struct {
 	tasks    *TaskCollection
 	client   *docker.Client
 	Env      *ExecEnv
+	Quiet    bool
 }
 
 func (ctx *ExecuteContext) isModified(names ...string) bool {
@@ -30,11 +31,13 @@ func NewExecuteContext(
 	tasks *TaskCollection,
 	client *docker.Client,
 	execEnv *ExecEnv,
+	quiet bool,
 ) *ExecuteContext {
 	return &ExecuteContext{
 		modified: make(map[string]bool),
 		tasks:    tasks,
 		client:   client,
 		Env:      execEnv,
+		Quiet:    quiet,
 	}
 }

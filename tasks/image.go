@@ -126,7 +126,7 @@ func (t *ImageTask) build(ctx *ExecuteContext) error {
 		ContextDir:     t.config.Context,
 		OutputStream:   wpipe,
 		RawJSONStream:  true,
-		// TODO: support quiet SuppressOutput: ctx.quiet
+		SuppressOutput: ctx.Quiet,
 	})
 	wpipe.Close()
 	if err != nil {

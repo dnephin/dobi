@@ -6,10 +6,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
-	"github.com/dnephin/dobi/logging"
 )
 
 const (
@@ -68,7 +68,12 @@ func runDobi(opts dobiOptions) error {
 		return fmt.Errorf("Failed to create client: %s", err)
 	}
 
-	return tasks.Run(tasks.RunOptions{Client: client, Config: conf, Tasks: opts.tasks})
+	return tasks.Run(tasks.RunOptions{
+		Client: client,
+		Config: conf,
+		Tasks:  opts.tasks,
+		Quiet:  opts.quiet,
+	})
 }
 
 func initLogging(verbose, quiet bool) {

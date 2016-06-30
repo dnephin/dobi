@@ -183,6 +183,7 @@ type RunOptions struct {
 	Client *docker.Client
 	Config *config.Config
 	Tasks  []string
+	Quiet  bool
 }
 
 func getTaskNames(options RunOptions) []string {
@@ -214,6 +215,6 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	ctx := NewExecuteContext(tasks, options.Client, execEnv)
+	ctx := NewExecuteContext(tasks, options.Client, execEnv, options.Quiet)
 	return executeTasks(ctx)
 }

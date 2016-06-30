@@ -14,7 +14,7 @@ const (
 	green   = 32
 	yellow  = 33
 	blue    = 34
-	gray    = 37
+	gray    = 90
 )
 
 type LogRepresenter interface {
@@ -39,7 +39,7 @@ func withColor(color int, msg string) string {
 func writeLevel(level log.Level) string {
 	switch level {
 	case log.DebugLevel:
-		return "[DEBUG] "
+		return fmt.Sprintf("[%s] ", withColor(gray, "DEBUG"))
 	case log.WarnLevel:
 		return fmt.Sprintf("[%s] ", withColor(yellow, "WARN"))
 	case log.ErrorLevel, log.FatalLevel, log.PanicLevel:
@@ -56,8 +56,11 @@ func writeData(fields log.Fields) string {
 		case LogRepresenter:
 			buff = append(buff, value.Repr())
 		default:
-			buff = append(buff, fmt.Sprintf("%s=%s", key, value))
+			buff = append(buff, fmt.Sprintf("%v=%v", key, value))
 		}
 	}
-	return strings.Join(buff, " ") + " "
+	if len(buff) > 0 {
+		buff = append(buff, "")
+	}
+	return strings.Join(buff, " ")
 }
