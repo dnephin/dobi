@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -34,30 +35,42 @@ func (t *RunTask) String() string {
 }
 
 func (t *RunTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{
-		"task":     "Command",
-		"name":     t.name,
-		"use":      t.config.Use,
-		"command":  t.config.Command,
-		"artifact": t.config.Artifact,
-	})
+	return log.WithFields(log.Fields{"task": t})
 }
+
+func (t *RunTask) Repr() string {
+	buff := &bytes.Buffer{}
+
+	if t.config.Command != "" {
+		buff.WriteString(" " + t.config.Command)
+	}
+	if t.config.Command != "" && t.config.Artifact != "" {
+		buff.WriteString(" ->")
+	}
+	if t.config.Artifact != "" {
+		buff.WriteString(" " + t.config.Artifact)
+	}
+	return fmt.Sprintf("[run %v]%v", t.name, buff.String())
+}
+
 
 // Run creates the host path if it doesn't already exist
 func (t *RunTask) Run(ctx *ExecuteContext) error {
-	t.logger().Info("run")
+	t.logger().Debug("Run")
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
+		t.logger().Info("is fresh")
 		return err
 	}
-	t.logger().Debug("artifact is stale")
+	t.logger().Debug("is stale")
 
+	t.logger().Info("Start")
 	err = t.runContainer(ctx)
 	if err != nil {
 		return err
 	}
 	ctx.setModified(t.name)
-	t.logger().Info("done")
+	t.logger().Info("Done")
 	return nil
 }
 
@@ -197,7 +210,7 @@ func (t *RunTask) waitAndRemove(client *docker.Client, containerID string) {
 	}
 	if status != 0 {
 		t.logger().WithFields(log.Fields{"status": status}).Warn(
-			"Container exited with non-zero status code")
+			"Exited with non-zero status code")
 	}
 
 	if err := client.RemoveContainer(docker.RemoveContainerOptions{
@@ -216,7 +229,7 @@ func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan
 	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM)
 
 	kill := func(sig os.Signal) {
-		t.logger().WithFields(log.Fields{"signal": sig}).Debug("Received signal")
+		t.logger().WithFields(log.Fields{"signal": sig}).Debug("received")
 
 		intSig, ok := sig.(syscall.Signal)
 		if !ok {

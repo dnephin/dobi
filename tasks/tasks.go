@@ -9,10 +9,12 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/utils/stack"
+	"github.com/dnephin/dobi/logging"
 )
 
 // Task is an interface implemented by all tasks
 type Task interface {
+	logging.LogRepresenter
 	Name() string
 	Prepare(*ExecuteContext) error
 	Run(*ExecuteContext) error

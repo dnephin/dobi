@@ -30,21 +30,19 @@ func (t *VolumeTask) String() string {
 }
 
 func (t *VolumeTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{
-		"task":  "Volume",
-		"name":  t.name,
-		"path":  t.config.Path,
-		"mount": t.config.Mount,
-		"mode":  t.config.Mode,
-	})
+	return log.WithFields(log.Fields{"task": t})
+}
+
+func (t *VolumeTask) Repr() string {
+	return fmt.Sprintf("[volume %s] %s:%s", t.name, t.config.Path, t.config.Mount)
 }
 
 // Run creates the host path if it doesn't already exist
 func (t *VolumeTask) Run(ctx *ExecuteContext) error {
-	t.logger().Debug("run")
+	t.logger().Debug("Run")
 
 	if t.exists() {
-		t.logger().Debug("exists")
+		t.logger().Debug("is fresh")
 		return nil
 	}
 
@@ -53,7 +51,7 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 		return err
 	}
 	ctx.setModified(t.name)
-	t.logger().Info("created")
+	t.logger().Info("Created")
 	return nil
 }
 

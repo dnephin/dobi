@@ -31,24 +31,23 @@ func (t *ImageTask) String() string {
 }
 
 func (t *ImageTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{
-		"task":       "Image",
-		"name":       t.name,
-		"image":      t.config.Image,
-		"dockerfile": t.config.Dockerfile,
-		"context":    t.config.Context,
-	})
+	return log.WithFields(log.Fields{"task": t})
+}
+
+func (t *ImageTask) Repr() string {
+	return fmt.Sprintf("[image %s] %s", t.name, t.config.Image)
 }
 
 // Run builds or pulls an image if it is out of date
 func (t *ImageTask) Run(ctx *ExecuteContext) error {
-	t.logger().Info("run")
+	t.logger().Debug("Run")
 
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
+		t.logger().Info("is fresh")
 		return err
 	}
-	t.logger().Debug("image is stale")
+	t.logger().Debug("is stale")
 
 	if err := t.build(ctx); err != nil {
 		return err
@@ -57,7 +56,7 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 		return err
 	}
 	ctx.setModified(t.name)
-	t.logger().Info("created")
+	t.logger().Info("Created")
 	return nil
 }
 
@@ -69,7 +68,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 	image, err := t.GetImage(ctx)
 	switch err {
 	case docker.ErrNoSuchImage:
-		t.logger().Debug("image does not exist")
+		t.logger().Debug("Image does not exist")
 		return true, nil
 	case nil:
 	default:
@@ -83,7 +82,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, err
 	}
 	if image.Created.Before(mtime) {
-		t.logger().Debug("image older than context")
+		t.logger().Debug("Image older than context")
 		return true, nil
 	}
 	return false, nil

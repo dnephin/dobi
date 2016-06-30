@@ -26,17 +26,21 @@ func (t *AliasTask) String() string {
 }
 
 func (t *AliasTask) logger() *log.Entry {
-	return log.WithFields(log.Fields{"task": "Alias", "name": t.name})
+	return log.WithFields(log.Fields{"task": t})
+}
+
+func (t *AliasTask) Repr() string {
+	return fmt.Sprintf("[alias %s]", t.name)
 }
 
 // Run does nothing. Dependencies were already run.
 func (t *AliasTask) Run(ctx *ExecuteContext) error {
-	t.logger().Debug("run")
+	t.logger().Debug("Run")
 
 	if ctx.isModified(t.config.Tasks...) {
 		ctx.setModified(t.name)
 	}
-	t.logger().Info("done")
+	t.logger().Info("Done")
 	return nil
 }
 

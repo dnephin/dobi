@@ -9,6 +9,7 @@ import (
 	"github.com/dnephin/dobi/tasks"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
+	"github.com/dnephin/dobi/logging"
 )
 
 const (
@@ -78,6 +79,7 @@ func initLogging(verbose, quiet bool) {
 		log.SetLevel(log.WarnLevel)
 	}
 	log.SetOutput(os.Stderr)
+	log.SetFormatter(&logging.Formatter{})
 }
 
 func buildClient() (*docker.Client, error) {
@@ -90,6 +92,6 @@ func buildClient() (*docker.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Info("Docker client created")
+	log.Debug("Docker client created")
 	return client, nil
 }
