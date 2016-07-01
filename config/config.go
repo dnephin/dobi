@@ -70,11 +70,13 @@ func Load(filename string) (*Config, error) {
 
 // validate validates all the resources in the config
 func validate(config *Config) error {
-	for _, resource := range config.Resources {
-		if err := ValidateFields(resource); err != nil {
+	for name, resource := range config.Resources {
+		path := NewPath(name)
+
+		if err := ValidateFields(path, resource); err != nil {
 			return err
 		}
-		if err := ValidateResourcesExist(config, resource.Dependencies()); err != nil {
+		if err := ValidateResourcesExist(path, config, resource.Dependencies()); err != nil {
 			return NewResourceError(resource, err.Error())
 		}
 		if err := resource.Validate(config); err != nil {
@@ -87,7 +89,7 @@ func validate(config *Config) error {
 
 // ValidateResourcesExist checks that the list of resources is defined in the
 // config and returns an error if a resources is not defined.
-func ValidateResourcesExist(c *Config, names []string) error {
+func ValidateResourcesExist(path Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
 		if _, ok := c.Resources[name]; !ok {
@@ -95,15 +97,13 @@ func ValidateResourcesExist(c *Config, names []string) error {
 		}
 	}
 	if len(missing) != 0 {
-		reason := fmt.Sprintf("missing dependencies: %s", strings.Join(missing, ", "))
-		return fmt.Errorf(reason)
+		return PathErrorf(path, "missing dependencies: %s", strings.Join(missing, ", "))
 	}
 	return nil
 }
 
 // ValidateFields runs validations as defined by struct tags
-// TODO: proper error message including resource type and name
-func ValidateFields(resource interface{}) error {
+func ValidateFields(path Path, resource interface{}) error {
 	value := reflect.ValueOf(resource).Elem()
 
 	if kind := value.Kind(); kind != reflect.Struct {
@@ -116,25 +116,25 @@ func ValidateFields(resource interface{}) error {
 		if tag == "" {
 			continue
 		}
-		if err := validateField(value, field, tag); err != nil {
+		fieldPath := path.add(titleCaseToDash(field.Name))
+		if err := validateField(fieldPath, value, field, tag); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// TODO: use path for better error messages
-func validateField(structValue reflect.Value, field reflect.StructField, tag string) error {
+func validateField(path Path, structValue reflect.Value, field reflect.StructField, tag string) error {
 	value := structValue.FieldByName(field.Name)
 	for _, item := range strings.Split(tag, ",") {
 		switch item {
 		case "required":
 			// TODO: better way to do this?
 			if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
-				return fmt.Errorf("Field %q requires a value", titleCaseToDash(field.Name))
+				return PathErrorf(path, "a value is required")
 			}
 		case "validate":
-			if err := runValidationFunc(structValue, field); err != nil {
+			if err := runValidationFunc(path, structValue, field.Name); err != nil {
 				return err
 			}
 		}
@@ -142,8 +142,8 @@ func validateField(structValue reflect.Value, field reflect.StructField, tag str
 	return nil
 }
 
-func runValidationFunc(structValue reflect.Value, field reflect.StructField) error {
-	methodName := "Validate" + field.Name
+func runValidationFunc(path Path, structValue reflect.Value, field string) error {
+	methodName := "Validate" + field
 	methodValue, err := getMethodFromStruct(structValue, methodName)
 	if err != nil {
 		return err
@@ -152,7 +152,7 @@ func runValidationFunc(structValue reflect.Value, field reflect.StructField) err
 	switch validationFunc := methodValue.Interface().(type) {
 	case func() error:
 		if err := validationFunc(); err != nil {
-			return fmt.Errorf("%q failed validation: %s", titleCaseToDash(field.Name), err)
+			return PathErrorf(path, "failed validation: %s", err)
 		}
 		return nil
 	default:

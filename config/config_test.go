@@ -61,7 +61,7 @@ func TestValidateFieldsIsValid(t *testing.T) {
 		Second: "b",
 		Third:  []string{"one"},
 	}
-	err := ValidateFields(obj)
+	err := ValidateFields(NewPath(""), obj)
 	assert.Nil(t, err)
 }
 
@@ -70,9 +70,9 @@ func TestValidateFieldsMissingRequiredString(t *testing.T) {
 		Second: "b",
 		Third:  []string{"one"},
 	}
-	err := ValidateFields(obj)
+	err := ValidateFields(NewPath("res"), obj)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Field \"first\" requires a value")
+	assert.Contains(t, err.Error(), "Error at res.first: a value is required")
 }
 
 func TestValidateFieldsMissingRequiredStringSlice(t *testing.T) {
@@ -80,9 +80,9 @@ func TestValidateFieldsMissingRequiredStringSlice(t *testing.T) {
 		First:  "a",
 		Second: "b",
 	}
-	err := ValidateFields(obj)
+	err := ValidateFields(NewPath("res"), obj)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Field \"third\" requires a value")
+	assert.Contains(t, err.Error(), "Error at res.third: a value is required")
 }
 
 func TestValidateFieldsValidationFailed(t *testing.T) {
@@ -91,9 +91,9 @@ func TestValidateFieldsValidationFailed(t *testing.T) {
 		Second: "bad",
 		Third:  []string{"one"},
 	}
-	err := ValidateFields(obj)
+	err := ValidateFields(NewPath("res"), obj)
 	assert.Error(t, err)
-	assert.Equal(t, err.Error(), "\"second\" failed validation: validation error")
+	assert.Contains(t, err.Error(), "Error at res.second: failed validation: validation error")
 }
 
 type Sample struct {
@@ -101,9 +101,9 @@ type Sample struct {
 }
 
 func TestValidateFieldsCorrectFieldName(t *testing.T) {
-	err := ValidateFields(&Sample{})
+	err := ValidateFields(NewPath("res"), &Sample{})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Field \"this-name-is-long\" requires a value")
+	assert.Contains(t, err.Error(), "Error at res.this-name-is-long: a value is required")
 }
 
 type BadValidation struct {
@@ -115,7 +115,7 @@ func (t *BadValidation) ValidateFoo() (string, error) {
 }
 
 func TestValidateFieldsBadValidationFuncReturnValue(t *testing.T) {
-	err := ValidateFields(&BadValidation{})
+	err := ValidateFields(NewPath(""), &BadValidation{})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "must be of type \"func() error\"")
 }
@@ -129,7 +129,7 @@ func (t *BadValidationTwo) ValidateFoo(a string) error {
 }
 
 func TestValidateFieldsBadValidationFuncArgs(t *testing.T) {
-	err := ValidateFields(&BadValidationTwo{})
+	err := ValidateFields(NewPath(""), &BadValidationTwo{})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "must be of type \"func() error\"")
 }
