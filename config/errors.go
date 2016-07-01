@@ -5,25 +5,6 @@ import (
 	"strings"
 )
 
-// ResourceError represents an error validating a Resource
-// TODO: delete this error
-type ResourceError struct {
-	Resource Resource
-	Reason   string
-}
-
-func (e ResourceError) Error() string {
-	return e.Reason
-}
-
-// NewResourceError returns a new error for a reasource
-func NewResourceError(resource Resource, reason string, args ...interface{}) *ResourceError {
-	return &ResourceError{
-		Resource: resource,
-		Reason:   fmt.Sprintf(reason, args...),
-	}
-}
-
 // Path is a dotted path of key names to config values
 type Path struct {
 	path []string

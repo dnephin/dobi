@@ -16,7 +16,7 @@ func (c *AliasConfig) Dependencies() []string {
 }
 
 // Validate the resource
-func (c *AliasConfig) Validate(config *Config) error {
+func (c *AliasConfig) Validate(path Path, config *Config) *PathError {
 	return nil
 }
 

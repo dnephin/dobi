@@ -27,7 +27,7 @@ func (r StubResource) Dependencies() []string {
 	return nil
 }
 
-func (r StubResource) Validate(config *Config) error {
+func (r StubResource) Validate(path Path, config *Config) *PathError {
 	return nil
 }
 

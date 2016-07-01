@@ -15,7 +15,7 @@ import (
 // Resource is an interface for each configurable type
 type Resource interface {
 	Dependencies() []string
-	Validate(config *Config) error
+	Validate(Path, *Config) *PathError
 }
 
 // Config is a data object for a full config file
@@ -77,9 +77,9 @@ func validate(config *Config) error {
 			return err
 		}
 		if err := ValidateResourcesExist(path, config, resource.Dependencies()); err != nil {
-			return NewResourceError(resource, err.Error())
+			return err
 		}
-		if err := resource.Validate(config); err != nil {
+		if err := resource.Validate(path, config); err != nil {
 			return err
 		}
 	}

@@ -22,7 +22,7 @@ func (c *ImageConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *ImageConfig) Validate(config *Config) error {
+func (c *ImageConfig) Validate(path Path, config *Config) *PathError {
 	// TODO: validate no tag on image name
 	return nil
 }

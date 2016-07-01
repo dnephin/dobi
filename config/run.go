@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	shellquote "github.com/kballard/go-shellquote"
+	shlex "github.com/kballard/go-shellquote"
 )
 
 // RunConfig is a data object for a command resource
@@ -24,24 +24,25 @@ func (c *RunConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *RunConfig) Validate(config *Config) error {
+func (c *RunConfig) Validate(path Path, config *Config) *PathError {
 	if err := c.validateUse(config); err != nil {
-		return err
+		return PathErrorf(path.add("use"), err.Error())
 	}
 	if err := c.validateMounts(config); err != nil {
-		return err
+		return PathErrorf(path.add("mounts"), err.Error())
 	}
+	return nil
+}
 
-	// TODO: do this with ValidateCommand()
+// ValidateCommand validates the Command field
+func (c *RunConfig) ValidateCommand() error {
 	if c.Command != "" {
-		command, err := shellquote.Split(c.Command)
+		command, err := shlex.Split(c.Command)
 		if err != nil {
-			return NewResourceError(c, "Failed to parse command: %s", err)
+			return fmt.Errorf("failed to parse command %q: %s", c.Command, err)
 		}
 		c.parsedCommand = command
-
 	}
-	// TODO: validate required fields are set
 	return nil
 }
 
@@ -51,17 +52,17 @@ func (c *RunConfig) ParsedCommand() []string {
 }
 
 func (c *RunConfig) validateUse(config *Config) error {
-	reason := fmt.Sprintf("%s is not an image resource", c.Use)
+	err := fmt.Errorf("%s is not an image resource", c.Use)
 
 	res, ok := config.Resources[c.Use]
 	if !ok {
-		return NewResourceError(c, reason)
+		return err
 	}
 
 	switch res.(type) {
 	case *ImageConfig:
 	default:
-		return NewResourceError(c, reason)
+		return err
 	}
 
 	return nil
@@ -69,17 +70,17 @@ func (c *RunConfig) validateUse(config *Config) error {
 
 func (c *RunConfig) validateMounts(config *Config) error {
 	for _, mount := range c.Mounts {
-		reason := fmt.Sprintf("%s is not a mount resource", mount)
+		err := fmt.Errorf("%s is not a mount resource", mount)
 
 		res, ok := config.Resources[mount]
 		if !ok {
-			return NewResourceError(c, reason)
+			return err
 		}
 
 		switch res.(type) {
 		case *MountConfig:
 		default:
-			return NewResourceError(c, reason)
+			return err
 		}
 	}
 	return nil

@@ -6,8 +6,8 @@ import (
 
 // MountConfig is a data object for a container mount
 type MountConfig struct {
-	Bind     string
-	Path     string
+	Bind     string `config:"required"`
+	Path     string `config:"required"`
 	ReadOnly bool
 }
 
@@ -17,7 +17,7 @@ func (c *MountConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *MountConfig) Validate(config *Config) error {
+func (c *MountConfig) Validate(path Path, config *Config) *PathError {
 	return nil
 }
 

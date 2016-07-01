@@ -31,7 +31,7 @@ func (s *RunConfigSuite) TestString() {
 func (s *RunConfigSuite) TestValidateMissingUse() {
 	s.conf.Resources["example"] = &AliasConfig{}
 	s.run.Use = "example"
-	err := s.run.Validate(s.conf)
+	err := s.run.Validate(NewPath(""), s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "example is not an image resource")
 }
@@ -43,7 +43,7 @@ func (s *RunConfigSuite) TestValidateMissingMount() {
 	s.run.Use = "example"
 	s.run.Mounts = []string{"one", "two"}
 
-	err := s.run.Validate(s.conf)
+	err := s.run.Validate(NewPath(""), s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "one is not a mount resource")
 }
