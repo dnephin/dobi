@@ -34,9 +34,7 @@ func NewRootCommand() *cobra.Command {
 		SilenceUsage:          true,
 		SilenceErrors:         true,
 		TraverseChildCommands: true,
-		Args: func(cmd *cobra.Command, args []string) error {
-			return nil
-		},
+		Args: cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.tasks = args
 			return runDobi(opts)

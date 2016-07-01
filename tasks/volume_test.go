@@ -11,56 +11,56 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type VolumeTaskSuite struct {
+type MountTaskSuite struct {
 	suite.Suite
-	task *VolumeTask
+	task *MountTask
 	path string
 	ctx  *ExecuteContext
 }
 
-func TestVolumeTaskSuite(t *testing.T) {
-	suite.Run(t, new(VolumeTaskSuite))
+func TestMountTaskSuite(t *testing.T) {
+	suite.Run(t, new(MountTaskSuite))
 }
 
-func (s *VolumeTaskSuite) SetupTest() {
+func (s *MountTaskSuite) SetupTest() {
 	var err error
-	s.path, err = ioutil.TempDir("", "volume-task-test")
+	s.path, err = ioutil.TempDir("", "mount-task-test")
 	s.Require().Nil(err)
 
-	s.task = NewVolumeTask(
+	s.task = NewMountTask(
 		taskOptions{
-			name:   "volume-task-def",
+			name:   "mount-task-def",
 			config: &config.Config{WorkingDir: s.path},
 		},
-		&config.VolumeConfig{
-			Path:  filepath.Join("a", "b", "c"),
-			Mount: "/target",
-			Mode:  "rw",
+		&config.MountConfig{
+			Bind:     filepath.Join("a", "b", "c"),
+			Path:     "/target",
+			ReadOnly: false,
 		})
 
 	s.ctx = NewExecuteContext(nil, nil, nil, false)
 }
 
-func (s *VolumeTaskSuite) TearDownTest() {
+func (s *MountTaskSuite) TearDownTest() {
 	s.Nil(os.RemoveAll(s.path))
 }
 
-func (s *VolumeTaskSuite) TestRunPathExists() {
+func (s *MountTaskSuite) TestRunPathExists() {
 	s.False(s.task.exists())
 	s.Require().Nil(os.MkdirAll(s.task.absPath(), 0777))
 	s.True(s.task.exists())
 
 	s.Nil(s.task.Run(s.ctx))
-	s.False(s.ctx.isModified("volume-task-def"))
+	s.False(s.ctx.isModified("mount-task-def"))
 }
 
-func (s *VolumeTaskSuite) TestRunPathIsNew() {
+func (s *MountTaskSuite) TestRunPathIsNew() {
 	s.Nil(s.task.Run(s.ctx))
 
 	s.True(s.task.exists())
-	s.True(s.ctx.isModified("volume-task-def"))
+	s.True(s.ctx.isModified("mount-task-def"))
 }
 
-func (s *VolumeTaskSuite) TestAsBind() {
+func (s *MountTaskSuite) TestAsBind() {
 	s.Equal(fmt.Sprintf("%s:/target:rw", s.task.absPath()), s.task.asBind())
 }

@@ -10,37 +10,37 @@ import (
 	"github.com/dnephin/dobi/logging"
 )
 
-// VolumeTask is a task which creates a directory on the host
-type VolumeTask struct {
+// MountTask is a task which creates a directory on the host
+type MountTask struct {
 	baseTask
-	config     *config.VolumeConfig
+	config     *config.MountConfig
 	workingDir string
 }
 
-// NewVolumeTask creates a new VolumeTask object
-func NewVolumeTask(options taskOptions, conf *config.VolumeConfig) *VolumeTask {
-	return &VolumeTask{
+// NewMountTask creates a new MountTask object
+func NewMountTask(options taskOptions, conf *config.MountConfig) *MountTask {
+	return &MountTask{
 		baseTask:   baseTask{name: options.name},
 		config:     conf,
 		workingDir: options.config.WorkingDir,
 	}
 }
 
-func (t *VolumeTask) String() string {
-	return fmt.Sprintf("VolumeTask(name=%s, config=%s)", t.name, t.config)
+func (t *MountTask) String() string {
+	return fmt.Sprintf("MountTask(name=%s, config=%s)", t.name, t.config)
 }
 
-func (t *VolumeTask) logger() *log.Entry {
+func (t *MountTask) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
-func (t *VolumeTask) Repr() string {
-	return fmt.Sprintf("[volume %s] %s:%s", t.name, t.config.Path, t.config.Mount)
+func (t *MountTask) Repr() string {
+	return fmt.Sprintf("[mount %s] %s:%s", t.name, t.config.Bind, t.config.Path)
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *VolumeTask) Run(ctx *ExecuteContext) error {
+func (t *MountTask) Run(ctx *ExecuteContext) error {
 	t.logger().Debug("Run")
 
 	if t.exists() {
@@ -57,14 +57,14 @@ func (t *VolumeTask) Run(ctx *ExecuteContext) error {
 	return nil
 }
 
-func (t *VolumeTask) absPath() string {
-	if filepath.IsAbs(t.config.Path) {
-		return t.config.Path
+func (t *MountTask) absPath() string {
+	if filepath.IsAbs(t.config.Bind) {
+		return t.config.Bind
 	}
-	return filepath.Join(t.workingDir, t.config.Path)
+	return filepath.Join(t.workingDir, t.config.Bind)
 }
 
-func (t *VolumeTask) exists() bool {
+func (t *MountTask) exists() bool {
 	_, err := os.Stat(t.absPath())
 	if err != nil {
 		return false
@@ -73,16 +73,22 @@ func (t *VolumeTask) exists() bool {
 	return true
 }
 
-func (t *VolumeTask) asBind() string {
-	return fmt.Sprintf("%s:%s:%s", t.absPath(), t.config.Mount, t.config.Mode)
+func (t *MountTask) asBind() string {
+	var mode string
+	if t.config.ReadOnly {
+		mode = "ro"
+	} else {
+		mode = "rw"
+	}
+	return fmt.Sprintf("%s:%s:%s", t.absPath(), t.config.Path, mode)
 }
 
 // Prepare the task
-func (t *VolumeTask) Prepare(ctx *ExecuteContext) error {
+func (t *MountTask) Prepare(ctx *ExecuteContext) error {
 	return nil
 }
 
 // Stop the task
-func (t *VolumeTask) Stop(ctx *ExecuteContext) error {
+func (t *MountTask) Stop(ctx *ExecuteContext) error {
 	return nil
 }

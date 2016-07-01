@@ -7,16 +7,16 @@ meta:
     default: all
 
 #
-# Volumes
+# Mounts
 #
 
-volume=source:
-    path: .
-    mount: /go/src/github.com/dnephin/dobi
+mount=source:
+    bind: .
+    path: /go/src/github.com/dnephin/dobi
 
-volume=dist:
-    path: ./dist/bin/
-    mount: /go/bin/
+mount=dist:
+    bind: ./dist/bin/
+    path: /go/bin/
 
 #
 # Images
@@ -40,28 +40,28 @@ image=linter:
 run=binary:
     use: builder
     artifact: ./dist/bin/dobi
-    volumes: [source, dist]
+    mounts: [source, dist]
 
 run=watch:
     use: builder
-    volumes: [source, dist]
+    mounts: [source, dist]
     command: "filewatcher -x .git -x dist -x vendor -x '**/*.swp' go test -v './${dir}'"
     interactive: true
 
 run=shell:
     use: builder
-    volumes: [source, dist]
+    mounts: [source, dist]
     interactive: true
     command: bash
 
 run=test-unit:
     use: builder
-    volumes: [source, dist]
+    mounts: [source, dist]
     command: "bash -c 'go test -v $(glide novendor)'"
 
 run=lint:
     use: linter
-    volumes: [source]
+    mounts: [source]
 
 #
 # Aliases

@@ -89,13 +89,13 @@ func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, err
 	}
 
-	volumesLastModified, err := t.volumesLastModified(ctx)
+	mountsLastModified, err := t.mountsLastModified(ctx)
 	if err != nil {
 		return true, err
 	}
 
-	if artifactLastModified.Before(volumesLastModified) {
-		t.logger().Debug("artifact older than volume files")
+	if artifactLastModified.Before(mountsLastModified) {
+		t.logger().Debug("artifact older than mount files")
 		return true, nil
 	}
 
@@ -124,19 +124,19 @@ func (t *RunTask) artifactLastModified() (time.Time, error) {
 	return lastModified(t.config.Artifact)
 }
 
-// TODO: support a .volumeignore file used to ignore mtime of files
-func (t *RunTask) volumesLastModified(ctx *ExecuteContext) (time.Time, error) {
-	volumePaths := []string{}
-	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
-		volumePaths = append(volumePaths, volume.config.Path)
+// TODO: support a .mountignore file used to ignore mtime of files
+func (t *RunTask) mountsLastModified(ctx *ExecuteContext) (time.Time, error) {
+	mountPaths := []string{}
+	ctx.tasks.EachMount(t.config.Mounts, func(name string, mount *MountTask) {
+		mountPaths = append(mountPaths, mount.config.Bind)
 	})
-	return lastModified(volumePaths...)
+	return lastModified(mountPaths...)
 }
 
-func (t *RunTask) volumeBinds(ctx *ExecuteContext) []string {
+func (t *RunTask) bindMounts(ctx *ExecuteContext) []string {
 	binds := []string{}
-	ctx.tasks.EachVolume(t.config.Volumes, func(name string, volume *VolumeTask) {
-		binds = append(binds, volume.asBind())
+	ctx.tasks.EachMount(t.config.Mounts, func(name string, mount *MountTask) {
+		binds = append(binds, mount.asBind())
 	})
 	return binds
 }
@@ -157,7 +157,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 			AttachStdout: true,
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:      t.volumeBinds(ctx),
+			Binds:      t.bindMounts(ctx),
 			Privileged: t.config.Privileged,
 		},
 	})

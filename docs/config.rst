@@ -23,7 +23,7 @@ first (if it is not up-to-date).
 If an image depends on a run resource, the run resource will be executed first.
 The run resource must exit before the image resource will be run.
 
-An image resource can not depend on a volume.
+An image resource can not depend on a mount.
 
 
 Run
@@ -37,7 +37,7 @@ last modified time of that file will be used. A run resource is considered
 up-to-date if the modified time of the ``artifact`` is more recent then:
 
 * the created time of the image it uses
-* the last modified time of all files in any volumes used by the resource
+* the last modified time of all files in any mounts used by the resource
 
 
 The image resource used by a run resource is automatically added
@@ -45,18 +45,18 @@ as an implicit dependency.
 
 If a run resource depends on another run resource, the dependency will be run first.
 
-If a uses ``volumes``, the volumes resources will be run first.
+If a run resource uses ``mounts``, the mounts resources will be run first.
 
 If a run resource uses a ``network`` resource it will be run first and the run
 resource will join the default network for the environment.
 
 
-Volume
-------
-A volume resource creates a host or named volume. If the volume already exists
+Mount
+-----
+A mount resource creates a host or named mount. If the mount already exists
 the resource is a no-op.
 
-A volume can not depend on any resource.
+A mount can not depend on any resource.
 
 
 Task Aliases
@@ -76,7 +76,7 @@ A service resource runs a service using an image. The service is kept running
 for the duration of the execution, and is shutdown when all other resources
 are complete.
 
-A service resource may depend on images, volumes, or run resources.
+A service resource may depend on images, mounts, or run resources.
 
 
 Meta

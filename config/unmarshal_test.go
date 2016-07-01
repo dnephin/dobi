@@ -18,13 +18,13 @@ func TestLoadFromBytes(t *testing.T) {
 		    VERSION: "3.3.3"
 		    DEBUG: 'true'
 
-		volume=vol-def:
-		  path: dist/
-		  mount: /target
+		mount=vol-def:
+		  bind: dist/
+		  path: /target
 
 		run=cmd-def:
 		  use: image-dev
-		  volumes: [vol-def]
+		  mounts: [vol-def]
 
 		alias=alias-def:
 		  tasks: [vol-def, cmd-def]
@@ -34,7 +34,7 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 4, len(config.Resources))
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
-	assert.IsType(t, &VolumeConfig{}, config.Resources["vol-def"])
+	assert.IsType(t, &MountConfig{}, config.Resources["vol-def"])
 	assert.IsType(t, &RunConfig{}, config.Resources["cmd-def"])
 	assert.IsType(t, &AliasConfig{}, config.Resources["alias-def"])
 
@@ -47,10 +47,10 @@ func TestLoadFromBytes(t *testing.T) {
 		"DEBUG":   "true",
 	}, imageConf.Args)
 
-	volumeConf := config.Resources["vol-def"].(*VolumeConfig)
-	assert.Equal(t, "dist/", volumeConf.Path)
-	assert.Equal(t, "/target", volumeConf.Mount)
-	assert.Equal(t, "rw", volumeConf.Mode)
+	mountConf := config.Resources["vol-def"].(*MountConfig)
+	assert.Equal(t, "dist/", mountConf.Bind)
+	assert.Equal(t, "/target", mountConf.Path)
+	assert.Equal(t, false, mountConf.ReadOnly)
 
 	aliasConf := config.Resources["alias-def"].(*AliasConfig)
 	assert.Equal(t, []string{"vol-def", "cmd-def"}, aliasConf.Tasks)
@@ -64,7 +64,7 @@ func TestLoadFromBytesWithReservedName(t *testing.T) {
 		  image: imagename
 		  dockerfile: what
 
-		volume=autoclean:
+		mount=autoclean:
 		  path: dist/
 		  mount: /target
 	`)

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func (c *AliasConfig) Validate(config *Config) error {
 }
 
 func (c *AliasConfig) String() string {
-	return strings.Join(c.Tasks, ", ")
+	return fmt.Sprintf("Run tasks: %v", strings.Join(c.Tasks, ", "))
 }
 
 func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {

@@ -11,7 +11,7 @@ type RunConfig struct {
 	Use           string
 	Artifact      string
 	Command       string
-	Volumes       []string
+	Mounts        []string
 	Privileged    bool
 	Interactive   bool
 	Depends       []string
@@ -20,7 +20,7 @@ type RunConfig struct {
 
 // Dependencies returns the list of implicit and explicit dependencies
 func (c *RunConfig) Dependencies() []string {
-	return append([]string{c.Use}, append(c.Volumes, c.Depends...)...)
+	return append([]string{c.Use}, append(c.Mounts, c.Depends...)...)
 }
 
 // Validate checks that all fields have acceptable values
@@ -31,7 +31,7 @@ func (c *RunConfig) Validate(config *Config) error {
 	if err := c.validateUse(config); err != nil {
 		return err
 	}
-	if err := c.validateVolumes(config); err != nil {
+	if err := c.validateMounts(config); err != nil {
 		return err
 	}
 
@@ -73,17 +73,17 @@ func (c *RunConfig) validateUse(config *Config) error {
 	return nil
 }
 
-func (c *RunConfig) validateVolumes(config *Config) error {
-	for _, volume := range c.Volumes {
-		reason := fmt.Sprintf("%s is not a volume resource", volume)
+func (c *RunConfig) validateMounts(config *Config) error {
+	for _, mount := range c.Mounts {
+		reason := fmt.Sprintf("%s is not a mount resource", mount)
 
-		res, ok := config.Resources[volume]
+		res, ok := config.Resources[mount]
 		if !ok {
 			return NewResourceError(c, reason)
 		}
 
 		switch res.(type) {
-		case *VolumeConfig:
+		case *MountConfig:
 		default:
 			return NewResourceError(c, reason)
 		}

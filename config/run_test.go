@@ -36,14 +36,14 @@ func (s *RunConfigSuite) TestValidateMissingUse() {
 	s.Contains(err.Error(), "example is not an image resource")
 }
 
-func (s *RunConfigSuite) TestValidateMissingVolume() {
+func (s *RunConfigSuite) TestValidateMissingMount() {
 	s.conf.Resources["one"] = NewImageConfig()
 	s.conf.Resources["two"] = NewImageConfig()
 	s.conf.Resources["example"] = NewImageConfig()
 	s.run.Use = "example"
-	s.run.Volumes = []string{"one", "two"}
+	s.run.Mounts = []string{"one", "two"}
 
 	err := s.run.Validate(s.conf)
 	s.Error(err)
-	s.Contains(err.Error(), "one is not a volume resource")
+	s.Contains(err.Error(), "one is not a mount resource")
 }

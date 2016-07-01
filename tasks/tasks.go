@@ -30,16 +30,16 @@ func (t *baseTask) Name() string {
 
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	tasks   []Task
-	volumes map[string]*VolumeTask
-	images  map[string]*ImageTask
+	tasks  []Task
+	mounts map[string]*MountTask
+	images map[string]*ImageTask
 }
 
 func (c *TaskCollection) add(task Task) {
 	c.tasks = append(c.tasks, task)
 	switch typedTask := task.(type) {
-	case *VolumeTask:
-		c.volumes[task.Name()] = typedTask
+	case *MountTask:
+		c.mounts[task.Name()] = typedTask
 	case *ImageTask:
 		c.images[task.Name()] = typedTask
 	}
@@ -68,20 +68,20 @@ func (c *TaskCollection) Reversed() []Task {
 	return tasks
 }
 
-type eachVolumeFunc func(name string, vol *VolumeTask)
+type eachMountFunc func(name string, vol *MountTask)
 
-// EachVolume iterates all the volumes in names and calls f for each
-func (c *TaskCollection) EachVolume(names []string, f eachVolumeFunc) {
+// EachMount iterates all the mounts in names and calls f for each
+func (c *TaskCollection) EachMount(names []string, f eachMountFunc) {
 	for _, name := range names {
-		volume, _ := c.volumes[name]
-		f(name, volume)
+		mount, _ := c.mounts[name]
+		f(name, mount)
 	}
 }
 
 func newTaskCollection() *TaskCollection {
 	return &TaskCollection{
-		volumes: make(map[string]*VolumeTask),
-		images:  make(map[string]*ImageTask),
+		mounts: make(map[string]*MountTask),
+		images: make(map[string]*ImageTask),
 	}
 }
 
@@ -141,8 +141,8 @@ func buildTaskFromResource(options taskOptions) Task {
 		return NewImageTask(options, conf)
 	case *config.RunConfig:
 		return NewRunTask(options, conf)
-	case *config.VolumeConfig:
-		return NewVolumeTask(options, conf)
+	case *config.MountConfig:
+		return NewMountTask(options, conf)
 	case *config.AliasConfig:
 		return NewAliasTask(options, conf)
 	default:

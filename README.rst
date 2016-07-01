@@ -12,7 +12,7 @@ Resources are defined in a ``dobi.yaml`` file, and are run using the command
 ``dobi <resource name>``.
 
 ``dobi`` differs from other build tools by making the Docker containers, images,
-volumes, and environments a first-class resource.
+mounts, and environments a first-class resource.
 
 
 Install
