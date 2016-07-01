@@ -7,7 +7,7 @@ import (
 
 // AliasConfig is a data object for a task alias
 type AliasConfig struct {
-	Tasks []string
+	Tasks []string `config:"required"`
 }
 
 // Dependencies returns the list of tasks
@@ -15,11 +15,8 @@ func (c *AliasConfig) Dependencies() []string {
 	return c.Tasks
 }
 
-// Validate the aliased resources exist
+// Validate the resource
 func (c *AliasConfig) Validate(config *Config) error {
-	if err := ValidateResourcesExist(config, c.Dependencies()); err != nil {
-		return NewResourceError(c, err.Error())
-	}
 	return nil
 }
 

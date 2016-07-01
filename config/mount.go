@@ -18,7 +18,6 @@ func (c *MountConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *MountConfig) Validate(config *Config) error {
-	// TODO: validate required fields are set
 	return nil
 }
 

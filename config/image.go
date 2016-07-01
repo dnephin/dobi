@@ -7,9 +7,9 @@ import (
 
 // ImageConfig ia a data object for image resource
 type ImageConfig struct {
-	Image      string
-	Dockerfile string
-	Context    string
+	Image      string `config:"required"`
+	Dockerfile string `config:"required"`
+	Context    string `config:"required"`
 	Args       map[string]string
 	Pull       bool
 	Tags       []string
@@ -23,11 +23,6 @@ func (c *ImageConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *ImageConfig) Validate(config *Config) error {
-	if err := ValidateResourcesExist(config, c.Dependencies()); err != nil {
-		return NewResourceError(c, err.Error())
-	}
-
-	// TODO: validate required fields are set
 	// TODO: validate no tag on image name
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 
 // RunConfig is a data object for a command resource
 type RunConfig struct {
-	Use           string
+	Use           string `config:"required"`
 	Artifact      string
 	Command       string
 	Mounts        []string
@@ -25,9 +25,6 @@ func (c *RunConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *RunConfig) Validate(config *Config) error {
-	if err := ValidateResourcesExist(config, c.Dependencies()); err != nil {
-		return NewResourceError(c, err.Error())
-	}
 	if err := c.validateUse(config); err != nil {
 		return err
 	}
@@ -35,6 +32,7 @@ func (c *RunConfig) Validate(config *Config) error {
 		return err
 	}
 
+	// TODO: do this with ValidateCommand()
 	if c.Command != "" {
 		command, err := shellquote.Split(c.Command)
 		if err != nil {
@@ -54,10 +52,6 @@ func (c *RunConfig) ParsedCommand() []string {
 
 func (c *RunConfig) validateUse(config *Config) error {
 	reason := fmt.Sprintf("%s is not an image resource", c.Use)
-
-	if c.Use == "" {
-		return NewResourceError(c, "\"use\" is required")
-	}
 
 	res, ok := config.Resources[c.Use]
 	if !ok {

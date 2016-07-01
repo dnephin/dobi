@@ -1,14 +1,12 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
-)
-
-var (
-	fieldNotFound = reflect.Value{}
+	"unicode"
 )
 
 // TransformError is an error during  transforming a raw type to a structured
@@ -58,13 +56,13 @@ func NewPath(root string) Path {
 // target structure. A TransformError is returned if the raw type has a field
 // with an incorrect type, or has extra fields.
 func Transform(root string, raw map[string]interface{}, target interface{}) error {
-	targetValue := reflect.ValueOf(target)
+	targetValue := reflect.ValueOf(target).Elem()
 
-	if kind := targetValue.Kind(); kind != reflect.Ptr {
+	if kind := targetValue.Kind(); kind != reflect.Struct {
 		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
 	}
 
-	return transformAtPath(NewPath(root), raw, targetValue.Elem())
+	return transformAtPath(NewPath(root), raw, targetValue)
 }
 
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
@@ -73,7 +71,7 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 		key := dashToTitleCase(key)
 		field := target.FieldByName(key)
 
-		if field == fieldNotFound {
+		if !field.IsValid() {
 			return tErrorf(localPath, "unexpected key")
 		}
 
@@ -87,6 +85,27 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 
 func dashToTitleCase(source string) string {
 	return strings.Replace(strings.Title(source), "-", "", -1)
+}
+
+func titleCaseToDash(source string) string {
+	var buff bytes.Buffer
+	var prevCharIsLower bool
+
+	for _, char := range source {
+		var n rune
+		switch {
+		case unicode.IsLower(char):
+			n = char
+		case prevCharIsLower:
+			buff.WriteRune('-')
+			n = unicode.ToLower(char)
+		default:
+			n = unicode.ToLower(char)
+		}
+		buff.WriteRune(n)
+		prevCharIsLower = unicode.IsLower(char)
+	}
+	return buff.String()
 }
 
 func transformField(path Path, raw reflect.Value, target reflect.Value) error {
