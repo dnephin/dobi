@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -eu
+
+docker version
+if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
+docker build -t dobi-dev -f dockerfiles/Dockerfile.build .
+mkdir -p ~/docker; docker save dobi-dev > ~/docker/image.tar
+
+docker run \
+    -v $PWD:/go/src/github.com/dnephin/dobi \
+    -v $PWD/dist/bin:/go/bin \
+    dobi-dev \
+    bash -ec "glide install; go install"
+
+./dist/bin/dobi linter

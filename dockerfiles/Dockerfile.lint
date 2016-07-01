@@ -6,6 +6,9 @@ RUN     pip install pre-commit
 RUN     go get -u github.com/golang/lint/golint
 
 WORKDIR /go/src/github.com/dnephin/dobi
-COPY    .pre-commit-config.yaml .
+COPY    .pre-commit-config.yaml ./
+
+# run pre-commit once to git pull hooks
+RUN     git init && pre-commit run -a -v
 
 CMD     ["pre-commit", "run", "-a", "-v"]

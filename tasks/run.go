@@ -166,6 +166,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	}
 	defer t.waitAndRemove(ctx.client, container.ID)
 
+	// TODO: this stopped working?
 	chanSig := t.forwardSignals(ctx.client, container.ID)
 	defer signal.Stop(chanSig)
 
