@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 )
 
 // ImageConfig ia a data object for image resource
@@ -24,9 +23,8 @@ func (c *ImageConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *ImageConfig) Validate(config *Config) error {
-	if missing := config.missingResources(c.Depends); len(missing) != 0 {
-		reason := fmt.Sprintf("missing dependencies: %s", strings.Join(missing, ", "))
-		return NewResourceError(c, reason)
+	if err := ValidateResourcesExist(config, c.Dependencies()); err != nil {
+		return NewResourceError(c, err.Error())
 	}
 
 	// TODO: validate required fields are set

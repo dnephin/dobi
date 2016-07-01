@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/logging"
@@ -38,14 +39,20 @@ func (c *Config) Sorted() []string {
 	return names
 }
 
-func (c *Config) missingResources(names []string) []string {
+// ValidateResourcesExist checks that the list of resources is defined in the
+// config and returns an error if a resources is not defined.
+func ValidateResourcesExist(c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
 		if _, ok := c.Resources[name]; !ok {
 			missing = append(missing, name)
 		}
 	}
-	return missing
+	if len(missing) != 0 {
+		reason := fmt.Sprintf("missing dependencies: %s", strings.Join(missing, ", "))
+		return fmt.Errorf(reason)
+	}
+	return nil
 }
 
 // Load a configuration from a filename

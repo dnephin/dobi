@@ -14,8 +14,11 @@ func (c *AliasConfig) Dependencies() []string {
 	return c.Tasks
 }
 
-// Validate does nothing
+// Validate the aliased resources exist
 func (c *AliasConfig) Validate(config *Config) error {
+	if err := ValidateResourcesExist(config, c.Dependencies()); err != nil {
+		return NewResourceError(c, err.Error())
+	}
 	return nil
 }
 
