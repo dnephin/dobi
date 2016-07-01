@@ -78,7 +78,6 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, err
 	}
 
-	// TODO: support .dockerignore
 	mtime, err := lastModified(t.config.Context)
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")

@@ -164,11 +164,10 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 	if err != nil {
 		return fmt.Errorf("Failed creating container: %s", err)
 	}
-	defer t.waitAndRemove(ctx.client, container.ID)
 
-	// TODO: this stopped working?
 	chanSig := t.forwardSignals(ctx.client, container.ID)
 	defer signal.Stop(chanSig)
+	defer t.waitAndRemove(ctx.client, container.ID)
 
 	_, err = ctx.client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
