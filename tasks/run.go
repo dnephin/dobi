@@ -167,7 +167,7 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 
 	chanSig := t.forwardSignals(ctx.client, container.ID)
 	defer signal.Stop(chanSig)
-	defer t.waitAndRemove(ctx.client, container.ID)
+	defer t.remove(ctx.client, container.ID)
 
 	_, err = ctx.client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
@@ -201,19 +201,21 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 		return fmt.Errorf("Failed starting container: %s", err)
 	}
 
+	return t.wait(ctx.client, container.ID)
+}
+
+func (t *RunTask) wait(client *docker.Client, containerID string) error {
+	status, err := client.WaitContainer(containerID)
+	if err != nil {
+		return fmt.Errorf("Failed to wait on container exit: %s", err)
+	}
+	if status != 0 {
+		return fmt.Errorf("Exited with non-zero status code %d", status)
+	}
 	return nil
 }
 
-func (t *RunTask) waitAndRemove(client *docker.Client, containerID string) {
-	status, err := client.WaitContainer(containerID)
-	if err != nil {
-		t.logger().Warnf("Failed to wait on container exit: %s", err)
-	}
-	if status != 0 {
-		t.logger().WithFields(log.Fields{"status": status}).Warn(
-			"Exited with non-zero status code")
-	}
-
+func (t *RunTask) remove(client *docker.Client, containerID string) {
 	t.logger().Debug("Removing container")
 	if err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,
