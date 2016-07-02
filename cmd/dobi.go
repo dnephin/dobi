@@ -17,11 +17,18 @@ const (
 	DefaultDockerAPIVersion = "1.23"
 )
 
+var (
+	version   = "0.1"
+	gitsha    = "unknown"
+	buildDate = ""
+)
+
 type dobiOptions struct {
 	filename string
 	verbose  bool
 	quiet    bool
 	tasks    []string
+	version  bool
 }
 
 // NewRootCommand returns a new root command
@@ -49,6 +56,7 @@ func NewRootCommand() *cobra.Command {
 	flags.StringVarP(&opts.filename, "filename", "f", "dobi.yaml", "Path to config file")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "Verbose")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "Quiet")
+	flags.BoolVar(&opts.version, "version", false, "Print version and exit")
 
 	flags.SetInterspersed(false)
 	cmd.AddCommand(newListCommand(&opts))
@@ -56,6 +64,11 @@ func NewRootCommand() *cobra.Command {
 }
 
 func runDobi(opts dobiOptions) error {
+	if opts.version {
+		printVersion()
+		return nil
+	}
+
 	conf, err := config.Load(opts.filename)
 	if err != nil {
 		return err
@@ -101,4 +114,8 @@ func buildClient() (*docker.Client, error) {
 	}
 	log.Debug("Docker client created")
 	return client, nil
+}
+
+func printVersion() {
+	fmt.Printf("dobi version %v (build: %v, date: %s)\n", version, gitsha, buildDate)
 }

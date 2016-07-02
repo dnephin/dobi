@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+
+gitsha=$(git rev-parse --short HEAD)
+builddate="$(date)"
+go build \
+    -ldflags "-X github.com/dnephin/dobi/cmd.gitsha=$gitsha \
+              -X \"github.com/dnephin/dobi/cmd.buildDate=$builddate\"" \
+    -o /go/bin/dobi \
+    .

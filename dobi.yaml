@@ -41,6 +41,7 @@ run=binary:
     use: builder
     artifact: ./dist/bin/dobi
     mounts: [source, dist]
+    command: "./script/build"
 
 run=watch:
     use: builder
