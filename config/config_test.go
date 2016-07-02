@@ -42,16 +42,18 @@ func (s *ConfigSuite) TestSorted() {
 }
 
 type Something struct {
-	First  string   `config:"required"`
-	Second string   `config:"required,validate"`
-	Third  []string `config:"required"`
-	Forth  string
+	First     string   `config:"required"`
+	Second    string   `config:"required,validate"`
+	Third     []string `config:"required"`
+	Forth     string
+	validated bool
 }
 
 func (s *Something) ValidateSecond() error {
 	if s.Second == "bad" {
 		return fmt.Errorf("validation error")
 	}
+	s.validated = true
 	return nil
 }
 
@@ -63,6 +65,7 @@ func TestValidateFieldsIsValid(t *testing.T) {
 	}
 	err := ValidateFields(NewPath(""), obj)
 	assert.Nil(t, err)
+	assert.Equal(t, obj.validated, true)
 }
 
 func TestValidateFieldsMissingRequiredString(t *testing.T) {

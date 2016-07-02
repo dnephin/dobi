@@ -47,7 +47,7 @@ func (s *MountTaskSuite) TearDownTest() {
 
 func (s *MountTaskSuite) TestRunPathExists() {
 	s.False(s.task.exists())
-	s.Require().Nil(os.MkdirAll(s.task.absPath(), 0777))
+	s.Require().Nil(os.MkdirAll(s.task.absBindPath(), 0777))
 	s.True(s.task.exists())
 
 	s.Nil(s.task.Run(s.ctx))
@@ -62,5 +62,5 @@ func (s *MountTaskSuite) TestRunPathIsNew() {
 }
 
 func (s *MountTaskSuite) TestAsBind() {
-	s.Equal(fmt.Sprintf("%s:/target:rw", s.task.absPath()), s.task.asBind())
+	s.Equal(fmt.Sprintf("%s:/target:rw", s.task.absBindPath()), s.task.asBind())
 }

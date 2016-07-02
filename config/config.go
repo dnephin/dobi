@@ -104,7 +104,8 @@ func ValidateResourcesExist(path Path, c *Config, names []string) error {
 
 // ValidateFields runs validations as defined by struct tags
 func ValidateFields(path Path, resource interface{}) error {
-	value := reflect.ValueOf(resource).Elem()
+	ptrValue := reflect.ValueOf(resource)
+	value := ptrValue.Elem()
 
 	if kind := value.Kind(); kind != reflect.Struct {
 		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
@@ -117,7 +118,7 @@ func ValidateFields(path Path, resource interface{}) error {
 			continue
 		}
 		fieldPath := path.add(titleCaseToDash(field.Name))
-		if err := validateField(fieldPath, value, field, tag); err != nil {
+		if err := validateField(fieldPath, ptrValue, field, tag); err != nil {
 			return err
 		}
 	}
@@ -125,7 +126,7 @@ func ValidateFields(path Path, resource interface{}) error {
 }
 
 func validateField(path Path, structValue reflect.Value, field reflect.StructField, tag string) error {
-	value := structValue.FieldByName(field.Name)
+	value := structValue.Elem().FieldByName(field.Name)
 	for _, item := range strings.Split(tag, ",") {
 		switch item {
 		case "required":
@@ -157,23 +158,19 @@ func runValidationFunc(path Path, structValue reflect.Value, field string) error
 		return nil
 	default:
 		return fmt.Errorf("%s.%s must be of type \"func() error\" not %T",
-			structValue.Type(), methodName, validationFunc)
+			structValue.Elem().Type(), methodName, validationFunc)
 	}
 }
 
 func getMethodFromStruct(structValue reflect.Value, methodName string) (reflect.Value, error) {
 	// First look for method with non-pointer receiver
-	methodValue := structValue.MethodByName(methodName)
+	methodValue := structValue.Elem().MethodByName(methodName)
 	if methodValue.IsValid() {
 		return methodValue, nil
 	}
 
 	// Second look for method with pointer receiver
-	ptr := reflect.New(structValue.Type())
-	temp := ptr.Elem()
-	temp.Set(structValue)
-
-	methodValue = ptr.MethodByName(methodName)
+	methodValue = structValue.MethodByName(methodName)
 	if methodValue.IsValid() {
 		return methodValue, nil
 	}

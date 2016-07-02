@@ -10,7 +10,7 @@ import (
 type RunConfig struct {
 	Use           string `config:"required"`
 	Artifact      string
-	Command       string
+	Command       string `config:"validate"`
 	Mounts        []string
 	Privileged    bool
 	Interactive   bool
