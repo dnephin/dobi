@@ -8,13 +8,15 @@ import (
 
 // RunConfig is a data object for a command resource
 type RunConfig struct {
-	Use           string `config:"required"`
-	Artifact      string
-	Command       string `config:"validate"`
-	Mounts        []string
-	Privileged    bool
-	Interactive   bool
-	Depends       []string
+	Use         string `config:"required"`
+	Artifact    string
+	Command     string `config:"validate"`
+	Mounts      []string
+	Privileged  bool
+	Interactive bool
+	Depends     []string
+	Env         []string
+
 	parsedCommand []string
 }
 
