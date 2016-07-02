@@ -48,7 +48,7 @@ func (t *MountTask) Run(ctx *ExecuteContext) error {
 		return nil
 	}
 
-	err := os.MkdirAll(t.absPath(), 0777)
+	err := os.MkdirAll(t.absBindPath(), 0777)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (t *MountTask) Run(ctx *ExecuteContext) error {
 	return nil
 }
 
-func (t *MountTask) absPath() string {
+func (t *MountTask) absBindPath() string {
 	if filepath.IsAbs(t.config.Bind) {
 		return t.config.Bind
 	}
@@ -65,7 +65,7 @@ func (t *MountTask) absPath() string {
 }
 
 func (t *MountTask) exists() bool {
-	_, err := os.Stat(t.absPath())
+	_, err := os.Stat(t.absBindPath())
 	if err != nil {
 		return false
 	}
@@ -80,7 +80,7 @@ func (t *MountTask) asBind() string {
 	} else {
 		mode = "rw"
 	}
-	return fmt.Sprintf("%s:%s:%s", t.absPath(), t.config.Path, mode)
+	return fmt.Sprintf("%s:%s:%s", t.absBindPath(), t.config.Path, mode)
 }
 
 // Prepare the task
