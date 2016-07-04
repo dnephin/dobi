@@ -9,14 +9,22 @@ import (
 
 // GetTask returns a new task for the action
 func GetTask(name, action string, conf *config.ImageConfig) (iface.Task, error) {
-	switch action {
+	imageAction, err := getAction(action, name)
+	if err != nil {
+		return nil, err
+	}
+	return NewTask(name, conf, imageAction), nil
+}
+
+func getAction(name string, task string) (action, error) {
+	switch name {
 	case "", "build":
-		return NewBuildTask(name, conf), nil
+		return action{name: "build", Run: RunBuild}, nil
 	case "push":
-		return NewPushTask(name, conf), nil
+		return action{name: "push", Run: RunPush}, nil
 	case "remove", "rm":
-		return NewRemoveTask(name, conf), nil
+		return action{name: "remove", Run: RunRemove}, nil
 	default:
-		return nil, fmt.Errorf("Invalid image action %q for task %q", action, name)
+		return action{}, fmt.Errorf("Invalid image action %q for task %q", name, task)
 	}
 }
