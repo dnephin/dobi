@@ -59,9 +59,6 @@ func (t *BuildTask) Run(ctx *context.ExecuteContext) error {
 	if err := t.build(ctx); err != nil {
 		return err
 	}
-	if err = t.tag(ctx); err != nil {
-		return err
-	}
 	ctx.SetModified(t.name)
 	t.logger().Info("Created")
 	return nil
@@ -133,24 +130,6 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 		out = append(out, docker.BuildArg{Name: key, Value: value})
 	}
 	return out
-}
-
-func (t *BuildTask) tag(ctx *context.ExecuteContext) error {
-	// The first one is already tagged in build
-	if len(t.config.Tags) <= 1 {
-		return nil
-	}
-	for _, tag := range t.config.Tags[1:] {
-		err := ctx.Client.TagImage(GetImageName(ctx, t.config), docker.TagImageOptions{
-			Repo:  t.config.Image,
-			Tag:   ctx.Env.GetVar(tag),
-			Force: true,
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // Prepare the task

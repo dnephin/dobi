@@ -47,7 +47,12 @@ func (t *PushTask) Repr() string {
 func (t *PushTask) Run(ctx *context.ExecuteContext) error {
 	t.logger().Debug("Run")
 
+	// TODO: triger a BuildTask if it's not already in the modified set?
+
 	t.logger().Info("Pushing")
+	if err := t.tag(ctx); err != nil {
+		return err
+	}
 	if err := t.pushTags(ctx); err != nil {
 		return err
 	}
@@ -91,6 +96,24 @@ func (t *PushTask) push(ctx *context.ExecuteContext, tag string) error {
 func (t *PushTask) pushTags(ctx *context.ExecuteContext) error {
 	for _, tag := range t.config.Tags {
 		if err := t.push(ctx, tag); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *PushTask) tag(ctx *context.ExecuteContext) error {
+	// The first one is already tagged in build
+	if len(t.config.Tags) <= 1 {
+		return nil
+	}
+	for _, tag := range t.config.Tags[1:] {
+		err := ctx.Client.TagImage(GetImageName(ctx, t.config), docker.TagImageOptions{
+			Repo:  t.config.Image,
+			Tag:   ctx.Env.GetVar(tag),
+			Force: true,
+		})
+		if err != nil {
 			return err
 		}
 	}
