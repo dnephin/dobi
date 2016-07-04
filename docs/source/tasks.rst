@@ -2,13 +2,13 @@ Tasks
 =====
 
 Each resource defined in the ``dobi.yml`` provides one or more tasks. Each
-resource has a default task, which is usually the "create" or "build" action
+resource has a default action, which is usually the "create" or "build" action
 associated with that resource (build an image, run a container, etc).
 
 Each resource also defines a ``remove`` task which can be used to remove
 anything that was created by the create action of the resource.
 
-To run a task use the name of the resource, an optionally an action name.
+To run a task use the name of the resource, and optionally an action name.
 
 .. code-block:: sh
 
@@ -18,11 +18,28 @@ To run a task use the name of the resource, an optionally an action name.
     # Run the remove action for the builder resource
     dobi builder:rm
 
-To list all the tasks in a project run
+
+
+Built-in Tasks
+--------------
+
+list
+~~~~
+
+List all the configured resources with a description.
 
 .. code-block:: sh
 
     dobi list
+
+autoclean
+~~~~~~~~~
+
+Run the ``:rm`` action for every configured resource.
+
+.. code-block:: sh
+
+    dobi autoclean
 
 
 Image Tasks
