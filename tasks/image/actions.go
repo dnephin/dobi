@@ -12,6 +12,8 @@ func GetTask(name, action string, conf *config.ImageConfig) (iface.Task, error) 
 	switch action {
 	case "", "build":
 		return NewBuildTask(name, conf), nil
+	case "push":
+		return NewPushTask(name, conf), nil
 	default:
 		return nil, fmt.Errorf("Invalid image action %q for task %q", action, name)
 	}

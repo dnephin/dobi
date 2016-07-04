@@ -32,7 +32,7 @@ func (t *BuildTask) Name() string {
 }
 
 func (t *BuildTask) String() string {
-	return fmt.Sprintf("BuildTask(name=%s, config=%s)", t.name, t.config)
+	return fmt.Sprintf("image.BuildTask(name=%s, config=%s)", t.name, t.config)
 }
 
 func (t *BuildTask) logger() *log.Entry {
@@ -41,7 +41,7 @@ func (t *BuildTask) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *BuildTask) Repr() string {
-	return fmt.Sprintf("[image %s] %s", t.name, t.config.Image)
+	return fmt.Sprintf("[image:build %s] %s", t.name, t.config.Image)
 }
 
 // Run builds or pulls an image if it is out of date
