@@ -8,6 +8,7 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/tasks/run"
@@ -15,21 +16,12 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// Task is an interface implemented by all tasks
-type Task interface {
-	logging.LogRepresenter
-	Name() string
-	Prepare(*context.ExecuteContext) error
-	Run(*context.ExecuteContext) error
-	Stop(*context.ExecuteContext) error
-}
-
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	tasks []Task
+	tasks []iface.Task
 }
 
-func (c *TaskCollection) add(task Task, resource config.Resource) {
+func (c *TaskCollection) add(task iface.Task, resource config.Resource) {
 	c.tasks = append(c.tasks, task)
 }
 
@@ -43,13 +35,13 @@ func (c *TaskCollection) contains(name string) bool {
 }
 
 // All returns all the tasks in the dependency order
-func (c *TaskCollection) All() []Task {
+func (c *TaskCollection) All() []iface.Task {
 	return c.tasks
 }
 
 // Reversed returns all the tasks in reversed dependency order
-func (c *TaskCollection) Reversed() []Task {
-	tasks := []Task{}
+func (c *TaskCollection) Reversed() []iface.Task {
+	tasks := []iface.Task{}
 	for i := len(c.tasks) - 1; i >= 0; i-- {
 		tasks = append(tasks, c.tasks[i])
 	}
@@ -80,12 +72,16 @@ func collect(
 				strings.Join(taskStack.Items(), ", "))
 		}
 
+		name, action := splitAction(name)
 		resource, ok := options.Config.Resources[name]
 		if !ok {
 			return nil, fmt.Errorf("Resource %q does not exist", name)
 		}
 
-		task := buildTaskFromResource(name, resource)
+		task, err := buildTaskFromResource(name, action, resource)
+		if err != nil {
+			return nil, err
+		}
 		taskStack.Push(name)
 		options.Tasks = resource.Dependencies()
 		if _, err := collect(options, tasks, taskStack); err != nil {
@@ -98,18 +94,29 @@ func collect(
 }
 
 // TODO: some way to make this a registry
-func buildTaskFromResource(name string, resource config.Resource) Task {
+func buildTaskFromResource(name, action string, resource config.Resource) (iface.Task, error) {
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
-		return image.NewBuildTask(name, conf)
+		return image.GetTask(name, action, conf)
 	case *config.RunConfig:
-		return run.NewTask(name, conf)
+		return run.NewTask(name, conf), nil
 	case *config.MountConfig:
-		return mount.NewCreateTask(name, conf)
+		return mount.NewCreateTask(name, conf), nil
 	case *config.AliasConfig:
-		return alias.NewTask(name, conf)
+		return alias.NewTask(name, conf), nil
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
+	}
+
+}
+
+func splitAction(name string) (string, string) {
+	parts := strings.SplitN(name, ":", 2)
+	switch len(parts) {
+	case 2:
+		return parts[0], parts[1]
+	default:
+		return name, ""
 	}
 }
 
