@@ -70,5 +70,17 @@ func TestLoadFromBytesWithReservedName(t *testing.T) {
 
 	_, err := LoadFromBytes([]byte(conf))
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Name \"autoclean\" is reserved")
+	assert.Contains(t, err.Error(), "\"autoclean\" is reserved")
+}
+
+func TestLoadFromBytesWithInvalidName(t *testing.T) {
+	conf := dedent.Dedent(`
+		image=image:latest:
+		  image: imagename
+		  dockerfile: what
+	`)
+
+	_, err := LoadFromBytes([]byte(conf))
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Invalid character \":\"")
 }

@@ -24,9 +24,15 @@ var (
 
 type resourceFactory func(string, map[string]interface{}) (Resource, error)
 
-func isReservedName(name string) bool {
-	_, reserved := reservedNames[name]
-	return reserved
+func validateName(name string) error {
+	if _, reserved := reservedNames[name]; reserved {
+		return fmt.Errorf(
+			"%q is reserved, please use a different resource name", name)
+	}
+	if strings.Contains(name, ":") {
+		return fmt.Errorf("Invalid character \":\" in resource name %q", name)
+	}
+	return nil
 }
 
 // UnmarshalYAML unmarshals a config
@@ -53,9 +59,8 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			return err
 		}
 
-		if isReservedName(resName) {
-			return fmt.Errorf(
-				"Name %q is reserved, please use a different resource name.", resName)
+		if err := validateName(resName); err != nil {
+			return err
 		}
 
 		resource, err := unmarshalResource(name, resType, value)
