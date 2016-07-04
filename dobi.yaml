@@ -30,8 +30,12 @@ image=builder:
 
 image=linter:
     image: dobi-linter
-    context: .
     dockerfile: dockerfiles/Dockerfile.lint
+
+image=dist-img:
+    image: 'dnephin/dobi'
+    tags: ['{env.DOBI_VERSION}']
+    dockerfile: dockerfiles/Dockerfile.dist
 
 #
 # Run

@@ -75,15 +75,17 @@ func (t *PushTask) push(ctx *context.ExecuteContext, tag string) error {
 		errChan <- err
 	}()
 
-	// TODO: support auth creds
-	err := ctx.Client.PushImage(docker.PushImageOptions{
+	repo, err := parseRepo(t.config.Image)
+	if err != nil {
+		return err
+	}
+	err = ctx.Client.PushImage(docker.PushImageOptions{
 		Name:          t.config.Image,
 		Tag:           tag,
 		OutputStream:  wpipe,
 		RawJSONStream: true,
-		// TODO: do I need to set the registry?
 		// TODO: timeout
-	}, docker.AuthConfiguration{})
+	}, ctx.GetAuthConfig(repo))
 	wpipe.Close()
 	if err != nil {
 		<-errChan
@@ -95,7 +97,7 @@ func (t *PushTask) push(ctx *context.ExecuteContext, tag string) error {
 
 func (t *PushTask) pushTags(ctx *context.ExecuteContext) error {
 	for _, tag := range t.config.Tags {
-		if err := t.push(ctx, tag); err != nil {
+		if err := t.push(ctx, ctx.Env.GetVar(tag)); err != nil {
 			return err
 		}
 	}

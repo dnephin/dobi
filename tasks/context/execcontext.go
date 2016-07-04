@@ -4,16 +4,18 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 )
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified   map[string]bool
-	Resources  *config.ResourceCollection
-	Client     *docker.Client
-	WorkingDir string
-	Env        *ExecEnv
-	Quiet      bool
+	modified    map[string]bool
+	Resources   *config.ResourceCollection
+	Client      *docker.Client
+	authConfigs *docker.AuthConfigurations
+	WorkingDir  string
+	Env         *ExecEnv
+	Quiet       bool
 }
 
 // IsModified returns true if any of the tasks named in names has been modified
@@ -32,6 +34,15 @@ func (ctx *ExecuteContext) SetModified(name string) {
 	ctx.modified[name] = true
 }
 
+// GetAuthConfig returns the auth configuration for the repo
+func (ctx *ExecuteContext) GetAuthConfig(repo string) docker.AuthConfiguration {
+	auth, ok := ctx.authConfigs.Configs[repo]
+	if !ok {
+		logging.Log.Warnf("Missing auth config for %q", repo)
+	}
+	return auth
+}
+
 // NewExecuteContext craetes a new empty ExecuteContext
 func NewExecuteContext(
 	config *config.Config,
@@ -39,12 +50,19 @@ func NewExecuteContext(
 	execEnv *ExecEnv,
 	quiet bool,
 ) *ExecuteContext {
+
+	authConfigs, err := docker.NewAuthConfigurationsFromDockerCfg()
+	if err != nil {
+		logging.Log.Warnf("Failed to load auth config: %s", err)
+	}
+
 	return &ExecuteContext{
-		modified:   make(map[string]bool),
-		Resources:  config.Collection,
-		WorkingDir: config.WorkingDir,
-		Client:     client,
-		Env:        execEnv,
-		Quiet:      quiet,
+		modified:    make(map[string]bool),
+		Resources:   config.Collection,
+		WorkingDir:  config.WorkingDir,
+		Client:      client,
+		authConfigs: authConfigs,
+		Env:         execEnv,
+		Quiet:       quiet,
 	}
 }
