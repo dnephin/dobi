@@ -40,7 +40,6 @@ func TestLoadFromBytes(t *testing.T) {
 
 	// Test default value and override
 	imageConf := config.Resources["image-def"].(*ImageConfig)
-	assert.Equal(t, ".", imageConf.Context)
 	assert.Equal(t, "what", imageConf.Dockerfile)
 	assert.Equal(t, map[string]string{
 		"VERSION": "3.3.3",

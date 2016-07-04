@@ -123,7 +123,7 @@ func (t *ImageTask) build(ctx *ExecuteContext) error {
 		Name:           t.getImageName(ctx),
 		Dockerfile:     t.config.Dockerfile,
 		BuildArgs:      buildArgs(t.config.Args),
-		Pull:           t.config.Pull,
+		Pull:           t.config.PullBaseImageOnBuild,
 		RmTmpContainer: true,
 		ContextDir:     t.config.Context,
 		OutputStream:   wpipe,

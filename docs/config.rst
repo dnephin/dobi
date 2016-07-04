@@ -11,14 +11,15 @@ resource must be one of the following types.
 
 Image
 -----
-An image resource builds an image from a Dockerfile, or pulls an image from a
-registry.
+An image resource describes a Docker image.
 
-An image is considered up-to-date if all files in the build context have a
-modified time older than the created time of the current image.
+If an image is buildable it is considered up-to-date if all files in the build
+context have a modified time older than the created time of the image. If the
+image is only pullable, it is considered up to date if the image is current
+according to the pull policy.
 
-If an image depends on another image resource, the dependency will be built
-first (if it is not up-to-date).
+If an image depends on another image resource, the dependency image will be
+built first.
 
 If an image depends on a run resource, the run resource will be executed first.
 The run resource must exit before the image resource will be run.
