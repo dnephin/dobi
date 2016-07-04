@@ -23,11 +23,21 @@ type Config struct {
 	Meta       *MetaConfig
 	Resources  map[string]Resource
 	WorkingDir string
+	Collection *ResourceCollection
 }
 
 // NewConfig returns a new Config object
 func NewConfig() *Config {
-	return &Config{Resources: make(map[string]Resource), Meta: &MetaConfig{}}
+	return &Config{
+		Resources:  make(map[string]Resource),
+		Meta:       &MetaConfig{},
+		Collection: newResourceCollection(),
+	}
+}
+
+func (c *Config) add(name string, resource Resource) {
+	c.Resources[name] = resource
+	c.Collection.add(name, resource)
 }
 
 // Sorted returns the list of resource names in alphabetical sort order

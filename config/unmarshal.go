@@ -62,7 +62,7 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		if err != nil {
 			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err)
 		}
-		c.Resources[resName] = resource
+		c.add(resName, resource)
 	}
 	return nil
 }

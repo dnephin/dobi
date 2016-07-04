@@ -1,4 +1,4 @@
-package tasks
+package run
 
 import (
 	"bytes"
@@ -12,35 +12,41 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/image"
+	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// RunTask is a task which runs a command in a container to produce a
+// Task is a task which runs a command in a container to produce a
 // file or set of files.
-type RunTask struct {
-	baseTask
+type Task struct {
+	name   string
 	config *config.RunConfig
 }
 
-// NewRunTask creates a new RunTask object
-func NewRunTask(options taskOptions, conf *config.RunConfig) *RunTask {
-	return &RunTask{
-		baseTask: baseTask{name: options.name},
-		config:   conf,
-	}
+// NewTask creates a new Task object
+func NewTask(name string, conf *config.RunConfig) *Task {
+	return &Task{name: name, config: conf}
 }
 
-func (t *RunTask) String() string {
-	return fmt.Sprintf("RunTask(name=%s, config=%s)", t.name, t.config)
+// Name returns the name of the task
+func (t *Task) Name() string {
+	return t.name
 }
 
-func (t *RunTask) logger() *log.Entry {
+func (t *Task) String() string {
+	return fmt.Sprintf("Task(name=%s, config=%s)", t.name, t.config)
+}
+
+func (t *Task) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
-func (t *RunTask) Repr() string {
+func (t *Task) Repr() string {
 	buff := &bytes.Buffer{}
 
 	if t.config.Command != "" {
@@ -56,7 +62,7 @@ func (t *RunTask) Repr() string {
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *RunTask) Run(ctx *ExecuteContext) error {
+func (t *Task) Run(ctx *context.ExecuteContext) error {
 	t.logger().Debug("Run")
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
@@ -70,13 +76,13 @@ func (t *RunTask) Run(ctx *ExecuteContext) error {
 	if err != nil {
 		return err
 	}
-	ctx.setModified(t.name)
+	ctx.SetModified(t.name)
 	t.logger().Info("Done")
 	return nil
 }
 
-func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
-	if ctx.isModified(t.config.Dependencies()...) {
+func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
+	if ctx.IsModified(t.config.Dependencies()...) {
 		return true, nil
 	}
 
@@ -99,7 +105,7 @@ func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	image, err := ctx.tasks.images[t.config.Use].GetImage(ctx)
+	image, err := image.GetImage(ctx, ctx.Resources.Image(t.config.Use))
 	if err != nil {
 		return true, err
 	}
@@ -110,7 +116,7 @@ func (t *RunTask) isStale(ctx *ExecuteContext) (bool, error) {
 	return false, nil
 }
 
-func (t *RunTask) artifactLastModified() (time.Time, error) {
+func (t *Task) artifactLastModified() (time.Time, error) {
 	info, err := os.Stat(t.config.Artifact)
 	// File or directory doesn't exist
 	if err != nil {
@@ -121,34 +127,34 @@ func (t *RunTask) artifactLastModified() (time.Time, error) {
 		return info.ModTime(), nil
 	}
 
-	return lastModified(t.config.Artifact)
+	return fs.LastModified(t.config.Artifact)
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files
-func (t *RunTask) mountsLastModified(ctx *ExecuteContext) (time.Time, error) {
+func (t *Task) mountsLastModified(ctx *context.ExecuteContext) (time.Time, error) {
 	mountPaths := []string{}
-	ctx.tasks.EachMount(t.config.Mounts, func(name string, mount *MountTask) {
-		mountPaths = append(mountPaths, mount.config.Bind)
+	ctx.Resources.EachMount(t.config.Mounts, func(name string, mount *config.MountConfig) {
+		mountPaths = append(mountPaths, mount.Bind)
 	})
-	return lastModified(mountPaths...)
+	return fs.LastModified(mountPaths...)
 }
 
-func (t *RunTask) bindMounts(ctx *ExecuteContext) []string {
+func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 	binds := []string{}
-	ctx.tasks.EachMount(t.config.Mounts, func(name string, mount *MountTask) {
-		binds = append(binds, mount.asBind())
+	ctx.Resources.EachMount(t.config.Mounts, func(name string, config *config.MountConfig) {
+		binds = append(binds, mount.AsBind(config, ctx.WorkingDir))
 	})
 	return binds
 }
 
-func (t *RunTask) runContainer(ctx *ExecuteContext) error {
+func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
 	// TODO: support other run options
-	container, err := ctx.client.CreateContainer(docker.CreateContainerOptions{
+	container, err := ctx.Client.CreateContainer(docker.CreateContainerOptions{
 		Name: fmt.Sprintf("%s-%s", ctx.Env.Unique(), t.name),
 		Config: &docker.Config{
 			Cmd:          t.config.ParsedCommand(),
-			Image:        ctx.tasks.images[t.config.Use].getImageName(ctx),
+			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
 			OpenStdin:    interactive,
 			Tty:          interactive,
 			AttachStdin:  interactive,
@@ -166,11 +172,11 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 		return fmt.Errorf("Failed creating container: %s", err)
 	}
 
-	chanSig := t.forwardSignals(ctx.client, container.ID)
+	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
-	defer t.remove(ctx.client, container.ID)
+	defer t.remove(ctx.Client, container.ID)
 
-	_, err = ctx.client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
 		OutputStream: os.Stdout,
 		ErrorStream:  os.Stderr,
@@ -198,14 +204,14 @@ func (t *RunTask) runContainer(ctx *ExecuteContext) error {
 		}()
 	}
 
-	if err := ctx.client.StartContainer(container.ID, nil); err != nil {
+	if err := ctx.Client.StartContainer(container.ID, nil); err != nil {
 		return fmt.Errorf("Failed starting container: %s", err)
 	}
 
-	return t.wait(ctx.client, container.ID)
+	return t.wait(ctx.Client, container.ID)
 }
 
-func (t *RunTask) wait(client *docker.Client, containerID string) error {
+func (t *Task) wait(client *docker.Client, containerID string) error {
 	status, err := client.WaitContainer(containerID)
 	if err != nil {
 		return fmt.Errorf("Failed to wait on container exit: %s", err)
@@ -216,7 +222,7 @@ func (t *RunTask) wait(client *docker.Client, containerID string) error {
 	return nil
 }
 
-func (t *RunTask) remove(client *docker.Client, containerID string) {
+func (t *Task) remove(client *docker.Client, containerID string) {
 	t.logger().Debug("Removing container")
 	if err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,
@@ -227,7 +233,7 @@ func (t *RunTask) remove(client *docker.Client, containerID string) {
 	}
 }
 
-func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
+func (t *Task) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
 	// TODO: not all of these exist on windows?
@@ -261,7 +267,7 @@ func (t *RunTask) forwardSignals(client *docker.Client, containerID string) chan
 }
 
 // Prepare the task
-func (t *RunTask) Prepare(ctx *ExecuteContext) error {
+func (t *Task) Prepare(ctx *context.ExecuteContext) error {
 	for _, env := range t.config.Env {
 		if _, err := ctx.Env.Resolve(env); err != nil {
 			return err
@@ -271,11 +277,11 @@ func (t *RunTask) Prepare(ctx *ExecuteContext) error {
 }
 
 // Stop the task
-func (t *RunTask) Stop(ctx *ExecuteContext) error {
+func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return nil
 }
 
-func envWithVars(execEnv *ExecEnv, envs []string) []string {
+func envWithVars(execEnv *context.ExecEnv, envs []string) []string {
 	out := []string{}
 	for _, env := range envs {
 		out = append(out, execEnv.GetVar(env))

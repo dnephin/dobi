@@ -6,6 +6,11 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/alias"
+	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/image"
+	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/run"
 	"github.com/dnephin/dobi/utils/stack"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -14,35 +19,18 @@ import (
 type Task interface {
 	logging.LogRepresenter
 	Name() string
-	Prepare(*ExecuteContext) error
-	Run(*ExecuteContext) error
-	Stop(*ExecuteContext) error
-}
-
-// Task
-type baseTask struct {
-	name string
-}
-
-func (t *baseTask) Name() string {
-	return t.name
+	Prepare(*context.ExecuteContext) error
+	Run(*context.ExecuteContext) error
+	Stop(*context.ExecuteContext) error
 }
 
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	tasks  []Task
-	mounts map[string]*MountTask
-	images map[string]*ImageTask
+	tasks []Task
 }
 
-func (c *TaskCollection) add(task Task) {
+func (c *TaskCollection) add(task Task, resource config.Resource) {
 	c.tasks = append(c.tasks, task)
-	switch typedTask := task.(type) {
-	case *MountTask:
-		c.mounts[task.Name()] = typedTask
-	case *ImageTask:
-		c.images[task.Name()] = typedTask
-	}
 }
 
 func (c *TaskCollection) contains(name string) bool {
@@ -68,21 +56,8 @@ func (c *TaskCollection) Reversed() []Task {
 	return tasks
 }
 
-type eachMountFunc func(name string, vol *MountTask)
-
-// EachMount iterates all the mounts in names and calls f for each
-func (c *TaskCollection) EachMount(names []string, f eachMountFunc) {
-	for _, name := range names {
-		mount, _ := c.mounts[name]
-		f(name, mount)
-	}
-}
-
 func newTaskCollection() *TaskCollection {
-	return &TaskCollection{
-		mounts: make(map[string]*MountTask),
-		images: make(map[string]*ImageTask),
-	}
+	return &TaskCollection{}
 }
 
 func collectTasks(options RunOptions) (*TaskCollection, error) {
@@ -110,49 +85,37 @@ func collect(
 			return nil, fmt.Errorf("Resource %q does not exist", name)
 		}
 
-		task := buildTaskFromResource(taskOptions{
-			name:     name,
-			resource: resource,
-			config:   options.Config,
-		})
-
+		task := buildTaskFromResource(name, resource)
 		taskStack.Push(name)
 		options.Tasks = resource.Dependencies()
 		if _, err := collect(options, tasks, taskStack); err != nil {
 			return nil, err
 		}
-		tasks.add(task)
+		tasks.add(task, resource)
 		taskStack.Pop()
 	}
 	return tasks, nil
 }
 
-type taskOptions struct {
-	name     string
-	client   *docker.Client
-	resource config.Resource
-	config   *config.Config
-}
-
 // TODO: some way to make this a registry
-func buildTaskFromResource(options taskOptions) Task {
-	switch conf := options.resource.(type) {
+func buildTaskFromResource(name string, resource config.Resource) Task {
+	switch conf := resource.(type) {
 	case *config.ImageConfig:
-		return NewImageTask(options, conf)
+		return image.NewBuildTask(name, conf)
 	case *config.RunConfig:
-		return NewRunTask(options, conf)
+		return run.NewTask(name, conf)
 	case *config.MountConfig:
-		return NewMountTask(options, conf)
+		return mount.NewCreateTask(name, conf)
 	case *config.AliasConfig:
-		return NewAliasTask(options, conf)
+		return alias.NewTask(name, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
 }
 
-func executeTasks(ctx *ExecuteContext) error {
+func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 	logging.Log.Debug("preparing tasks")
-	for _, task := range ctx.tasks.All() {
+	for _, task := range tasks.All() {
 		if err := task.Prepare(ctx); err != nil {
 			return fmt.Errorf("Failed to prepare task %q: %s", task.Name(), err)
 		}
@@ -160,7 +123,7 @@ func executeTasks(ctx *ExecuteContext) error {
 
 	defer func() {
 		logging.Log.Debug("stopping tasks")
-		for _, task := range ctx.tasks.Reversed() {
+		for _, task := range tasks.Reversed() {
 			if err := task.Stop(ctx); err != nil {
 				logging.Log.Warnf("Failed to stop task %q: %s", task.Name(), err)
 			}
@@ -168,7 +131,7 @@ func executeTasks(ctx *ExecuteContext) error {
 	}()
 
 	logging.Log.Debug("executing tasks")
-	for _, task := range ctx.tasks.All() {
+	for _, task := range tasks.All() {
 		if err := task.Run(ctx); err != nil {
 			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
 		}
@@ -208,11 +171,11 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	execEnv, err := NewExecEnvFromConfig(options.Config)
+	execEnv, err := context.NewExecEnvFromConfig(options.Config)
 	if err != nil {
 		return err
 	}
 
-	ctx := NewExecuteContext(tasks, options.Client, execEnv, options.Quiet)
-	return executeTasks(ctx)
+	ctx := context.NewExecuteContext(options.Config, options.Client, execEnv, options.Quiet)
+	return executeTasks(ctx, tasks)
 }

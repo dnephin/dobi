@@ -1,4 +1,4 @@
-package tasks
+package fs
 
 import (
 	"io/ioutil"
@@ -43,7 +43,7 @@ func (s *DirectorySuite) TestLastModified() {
 		mtime := time.Now().AddDate(0, 0, days)
 		file := filepath.Join(dir, "file")
 		s.Require().Nil(touch(file, mtime))
-		actual, err := lastModified(dirs...)
+		actual, err := LastModified(dirs...)
 		s.Equal(actual, mtime)
 		s.Nil(err)
 	}

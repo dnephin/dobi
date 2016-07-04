@@ -1,4 +1,4 @@
-package tasks
+package image
 
 import (
 	"fmt"
@@ -8,40 +8,44 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// ImageTask creates a Docker image
-type ImageTask struct {
-	baseTask
+// BuildTask creates a Docker image
+type BuildTask struct {
+	name   string
 	config *config.ImageConfig
 }
 
-// NewImageTask creates a new ImageTask object
-func NewImageTask(options taskOptions, conf *config.ImageConfig) *ImageTask {
-	return &ImageTask{
-		baseTask: baseTask{name: options.name},
-		config:   conf,
-	}
+// NewBuildTask creates a new BuildTask object
+func NewBuildTask(name string, conf *config.ImageConfig) *BuildTask {
+	return &BuildTask{name: name, config: conf}
 }
 
-func (t *ImageTask) String() string {
-	return fmt.Sprintf("ImageTask(name=%s, config=%s)", t.name, t.config)
+// Name returns the name of the task
+func (t *BuildTask) Name() string {
+	return t.name
 }
 
-func (t *ImageTask) logger() *log.Entry {
+func (t *BuildTask) String() string {
+	return fmt.Sprintf("BuildTask(name=%s, config=%s)", t.name, t.config)
+}
+
+func (t *BuildTask) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
-func (t *ImageTask) Repr() string {
+func (t *BuildTask) Repr() string {
 	return fmt.Sprintf("[image %s] %s", t.name, t.config.Image)
 }
 
 // Run builds or pulls an image if it is out of date
-func (t *ImageTask) Run(ctx *ExecuteContext) error {
+func (t *BuildTask) Run(ctx *context.ExecuteContext) error {
 	t.logger().Debug("Run")
 
 	stale, err := t.isStale(ctx)
@@ -58,17 +62,17 @@ func (t *ImageTask) Run(ctx *ExecuteContext) error {
 	if err = t.tag(ctx); err != nil {
 		return err
 	}
-	ctx.setModified(t.name)
+	ctx.SetModified(t.name)
 	t.logger().Info("Created")
 	return nil
 }
 
-func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
-	if ctx.isModified(t.config.Dependencies()...) {
+func (t *BuildTask) isStale(ctx *context.ExecuteContext) (bool, error) {
+	if ctx.IsModified(t.config.Dependencies()...) {
 		return true, nil
 	}
 
-	image, err := t.GetImage(ctx)
+	image, err := GetImage(ctx, t.config)
 	switch err {
 	case docker.ErrNoSuchImage:
 		t.logger().Debug("Image does not exist")
@@ -78,7 +82,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 		return true, err
 	}
 
-	mtime, err := lastModified(t.config.Context)
+	mtime, err := fs.LastModified(t.config.Context)
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
@@ -90,23 +94,7 @@ func (t *ImageTask) isStale(ctx *ExecuteContext) (bool, error) {
 	return false, nil
 }
 
-// GetImage returns the image created by this task
-func (t *ImageTask) GetImage(ctx *ExecuteContext) (*docker.Image, error) {
-	return ctx.client.InspectImage(t.getImageName(ctx))
-}
-
-func (t *ImageTask) getImageName(ctx *ExecuteContext) string {
-	return fmt.Sprintf("%s:%s", t.config.Image, t.getCanonicalTag(ctx))
-}
-
-func (t *ImageTask) getCanonicalTag(ctx *ExecuteContext) string {
-	if len(t.config.Tags) > 0 {
-		return ctx.Env.GetVar(t.config.Tags[0])
-	}
-	return ctx.Env.Unique()
-}
-
-func (t *ImageTask) build(ctx *ExecuteContext) error {
+func (t *BuildTask) build(ctx *context.ExecuteContext) error {
 	out := os.Stdout
 	outFd, isTTY := term.GetFdInfo(out)
 	rpipe, wpipe := io.Pipe()
@@ -119,8 +107,8 @@ func (t *ImageTask) build(ctx *ExecuteContext) error {
 		errChan <- err
 	}()
 
-	err := ctx.client.BuildImage(docker.BuildImageOptions{
-		Name:           t.getImageName(ctx),
+	err := ctx.Client.BuildImage(docker.BuildImageOptions{
+		Name:           GetImageName(ctx, t.config),
 		Dockerfile:     t.config.Dockerfile,
 		BuildArgs:      buildArgs(t.config.Args),
 		Pull:           t.config.PullBaseImageOnBuild,
@@ -147,13 +135,13 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func (t *ImageTask) tag(ctx *ExecuteContext) error {
+func (t *BuildTask) tag(ctx *context.ExecuteContext) error {
 	// The first one is already tagged in build
 	if len(t.config.Tags) <= 1 {
 		return nil
 	}
 	for _, tag := range t.config.Tags[1:] {
-		err := ctx.client.TagImage(t.getImageName(ctx), docker.TagImageOptions{
+		err := ctx.Client.TagImage(GetImageName(ctx, t.config), docker.TagImageOptions{
 			Repo:  t.config.Image,
 			Tag:   ctx.Env.GetVar(tag),
 			Force: true,
@@ -166,7 +154,7 @@ func (t *ImageTask) tag(ctx *ExecuteContext) error {
 }
 
 // Prepare the task
-func (t *ImageTask) Prepare(ctx *ExecuteContext) error {
+func (t *BuildTask) Prepare(ctx *context.ExecuteContext) error {
 	for _, tag := range t.config.Tags {
 		if _, err := ctx.Env.Resolve(tag); err != nil {
 			return err
@@ -176,6 +164,6 @@ func (t *ImageTask) Prepare(ctx *ExecuteContext) error {
 }
 
 // Stop the task
-func (t *ImageTask) Stop(ctx *ExecuteContext) error {
+func (t *BuildTask) Stop(ctx *context.ExecuteContext) error {
 	return nil
 }

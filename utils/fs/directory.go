@@ -1,4 +1,4 @@
-package tasks
+package fs
 
 import (
 	"os"
@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-// TODO: use go routines to speed this up
-// lastModified returns the latest modified time for all the files in all of
+// LastModified returns the latest modified time for all the files in all of
 // the directories
-func lastModified(dirs ...string) (time.Time, error) {
+// TODO: use go routines to speed this up
+func LastModified(dirs ...string) (time.Time, error) {
 	var latest time.Time
 
 	// TODO: does this error contain enough context?
