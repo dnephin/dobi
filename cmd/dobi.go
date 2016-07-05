@@ -36,8 +36,8 @@ func NewRootCommand() *cobra.Command {
 	var opts dobiOptions
 
 	cmd := &cobra.Command{
-		Use:                   "dobi [flags] TASK [TASK...]",
-		Short:                 "A build tool for Docker application.",
+		Use:                   "dobi [flags] RESOURCE[:ACTION] [RESOURCE[:ACTION]...]",
+		Short:                 "A build automation tool for Docker applications",
 		SilenceUsage:          true,
 		SilenceErrors:         true,
 		TraverseChildCommands: true,

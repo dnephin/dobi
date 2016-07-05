@@ -162,7 +162,7 @@ func splitPrefix(tag string) (string, string) {
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
 func NewExecEnvFromConfig(cfg *config.Config) (*ExecEnv, error) {
-	execID, err := getExecID(cfg.Meta.UniqueExecID)
+	execID, err := getExecID(cfg.Meta.ExecIDCommand)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
 	}

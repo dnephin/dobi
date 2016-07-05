@@ -2,14 +2,17 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/dnephin/dobi/logging"
 )
 
 // MetaConfig is a data object for non-resource configuration
 type MetaConfig struct {
-	Default      string
-	Project      string
-	UniqueExecID string
+	Default string
+	Project string
+	// TODO: `config:"field=exec-id-command"`
+	// TODO: support an env variable override
+	ExecIDCommand string
 }
 
 // Validate the MetaConfig

@@ -1,13 +1,22 @@
 Configuration File
 ==================
 
-Every section in a ``dobi.yaml`` configuration file defines a resource. Each
-resource must be one of the following types.
+Every section in a ``dobi.yaml`` configuration file defines a resource (with the
+exception of ``meta``, which is configuration for ``dobi`` itself).  Each
+resource must be one of the following resource types.
 
 .. contents::
     :backlinks: none
     :depth: 2
 
+
+Each section in the file has the following form:
+
+.. code::
+
+    resource-type=resource-name:
+        field: value
+        ...
 
 Image
 -----
@@ -62,9 +71,13 @@ A mount can not depend on any resource.
 
 Task Aliases
 ------------
-A task alias is a list of other resource names. It will run each resource in the
-order they are listed.
+A task alias is a list of other tasks which will be run in the order they are
+listed.
 
+Compose
+-------
+
+A compose resource runs ``docker-compose`` to create an isolated environment.
 
 Service
 -------
