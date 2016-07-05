@@ -37,10 +37,6 @@ func (t *Task) Name() string {
 	return t.name
 }
 
-func (t *Task) String() string {
-	return fmt.Sprintf("Task(name=%s, config=%s)", t.name, t.config)
-}
-
 func (t *Task) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }

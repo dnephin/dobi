@@ -100,7 +100,7 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 	case *config.ImageConfig:
 		return image.GetTask(name, action, conf)
 	case *config.RunConfig:
-		return run.NewTask(name, conf), nil
+		return run.GetTask(name, action, conf)
 	case *config.MountConfig:
 		return mount.GetTask(name, action, conf)
 	case *config.AliasConfig:
