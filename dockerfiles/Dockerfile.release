@@ -1,0 +1,11 @@
+FROM    alpine:3.4
+
+RUN     apk -U add bash curl
+RUN     export VERSION="v0.4.0"; \
+        export URL="https://github.com/tcnksm/ghr/releases/download/"; \
+        curl -sL -o ghr.zip "${URL}/${VERSION}/ghr_${VERSION}_linux_amd64.zip" && \
+        unzip ghr.zip && \
+        mv ghr /usr/bin/ghr && \
+        rm -rf *.zip
+
+CMD     ghr -u dnephin -r dobi $DOBI_VERSION /go/bin/dobi

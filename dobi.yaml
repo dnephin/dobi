@@ -33,8 +33,12 @@ image=linter:
 
 image=dist-img:
     image: dnephin/dobi
-    tags: ['{env.DOBI_VERSION}']
+    tags: ["{env.DOBI_VERSION}"]
     dockerfile: dockerfiles/Dockerfile.dist
+
+image=releaser:
+    image: dobi-release
+    dockerfile: dockerfiles/Dockerfile.release
 
 #
 # Run
@@ -66,6 +70,13 @@ run=test-unit:
 run=lint:
     use: linter
     mounts: [source]
+
+run=release:
+    use: releaser
+    mounts: [dist]
+    env:
+     - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
+     - "DOBI_VERSION={env.CIRCLE_TAG}"
 
 #
 # Aliases
