@@ -25,17 +25,13 @@ func (t *Task) Name() string {
 	return t.name
 }
 
-func (t *Task) String() string {
-	return fmt.Sprintf("Task(name=%s, config=%s)", t.name, t.config)
-}
-
 func (t *Task) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[alias %s]", t.name)
+	return fmt.Sprintf("[alias:run %s]", t.name)
 }
 
 // Run does nothing. Dependencies were already run.

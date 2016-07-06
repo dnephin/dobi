@@ -26,17 +26,13 @@ func (t *CreateTask) Name() string {
 	return t.name
 }
 
-func (t *CreateTask) String() string {
-	return fmt.Sprintf("CreateTask(name=%s, config=%s)", t.name, t.config)
-}
-
 func (t *CreateTask) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
 func (t *CreateTask) Repr() string {
-	return fmt.Sprintf("[mount %s] %s:%s", t.name, t.config.Bind, t.config.Path)
+	return fmt.Sprintf("[mount:create %s] %s:%s", t.name, t.config.Bind, t.config.Path)
 }
 
 // Run creates the host path if it doesn't already exist

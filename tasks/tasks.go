@@ -102,9 +102,9 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 	case *config.RunConfig:
 		return run.NewTask(name, conf), nil
 	case *config.MountConfig:
-		return mount.NewCreateTask(name, conf), nil
+		return mount.GetTask(name, action, conf)
 	case *config.AliasConfig:
-		return alias.NewTask(name, conf), nil
+		return alias.GetTask(name, action, conf)
 	case *config.ComposeConfig:
 		return compose.GetTask(name, action, conf)
 	default:
