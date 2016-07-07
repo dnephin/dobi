@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"path/filepath"
+
+	"github.com/dnephin/dobi/execenv"
 )
 
 // ImageConfig ia a data object for image resource
@@ -48,6 +50,13 @@ func (c *ImageConfig) validateBuildOrPull() error {
 func (c *ImageConfig) String() string {
 	dir := filepath.Join(c.Context, c.Dockerfile)
 	return fmt.Sprintf("Build image '%s' from '%s'", c.Image, dir)
+}
+
+// Resolve resolves variables in the resource
+func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	var err error
+	c.Tags, err = env.ResolveSlice(c.Tags)
+	return c, err
 }
 
 // NewImageConfig creates a new ImageConfig with default values

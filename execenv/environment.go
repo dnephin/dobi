@@ -1,4 +1,4 @@
-package context
+package execenv
 
 import (
 	"bytes"
@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	git "github.com/gogits/git-module"
 	shlex "github.com/kballard/go-shellquote"
@@ -53,6 +52,19 @@ func (e *ExecEnv) Resolve(tmpl string) (string, error) {
 		e.tmplCache[tmpl] = buff.String()
 	}
 	return buff.String(), err
+}
+
+// ResolveSlice resolves all strings in the slice
+func (e *ExecEnv) ResolveSlice(tmpls []string) ([]string, error) {
+	resolved := []string{}
+	for _, item := range tmpls {
+		item, err := e.Resolve(item)
+		if err != nil {
+			return tmpls, err
+		}
+		resolved = append(resolved, item)
+	}
+	return resolved, nil
 }
 
 func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
@@ -133,15 +145,6 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 	}
 }
 
-// GetVar returns a variable from the cache, or panics if it doesn't exist
-func (e *ExecEnv) GetVar(tmpl string) string {
-	val, ok := e.tmplCache[tmpl]
-	if !ok {
-		panic(fmt.Sprintf("Variables was not prepared %q", tmpl))
-	}
-	return val
-}
-
 func splitDefault(tag string) (string, string) {
 	parts := strings.Split(tag, ":")
 	if len(parts) == 1 {
@@ -161,12 +164,12 @@ func splitPrefix(tag string) (string, string) {
 }
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
-func NewExecEnvFromConfig(cfg *config.Config) (*ExecEnv, error) {
-	execID, err := getExecID(cfg.Meta.ExecIDCommand)
+func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) {
+	execID, err := getExecID(execID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
 	}
-	project := getProjectName(cfg.Meta.Project, cfg.WorkingDir)
+	project = getProjectName(project, workingDir)
 	return NewExecEnv(execID, project), nil
 }
 

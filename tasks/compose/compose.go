@@ -53,13 +53,7 @@ func (t *Task) Run(ctx *context.ExecuteContext) error {
 
 // Prepare the task
 func (t *Task) Prepare(ctx *context.ExecuteContext) error {
-	for _, file := range t.config.Files {
-		if _, err := ctx.Env.Resolve(file); err != nil {
-			return err
-		}
-	}
-	_, err := ctx.Env.Resolve(t.config.Project)
-	return err
+	return nil
 }
 
 // Stop the task
@@ -76,9 +70,9 @@ func StopNothing(ctx *context.ExecuteContext, t *Task) error {
 func buildCommandArgs(ctx *context.ExecuteContext, conf *config.ComposeConfig) []string {
 	args := []string{}
 	for _, filename := range conf.Files {
-		args = append(args, "-f", ctx.Env.GetVar(filename))
+		args = append(args, "-f", filename)
 	}
-	return append(args, "-p", ctx.Env.GetVar(conf.Project))
+	return append(args, "-p", conf.Project)
 }
 
 func (t *Task) execCompose(ctx *context.ExecuteContext, args ...string) error {

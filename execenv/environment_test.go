@@ -1,4 +1,4 @@
-package context
+package execenv
 
 import (
 	"fmt"
@@ -8,13 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnephin/dobi/config"
 	"github.com/stretchr/testify/suite"
 )
 
 type ExecEnvSuite struct {
 	suite.Suite
-	cfg    *config.Config
 	tmpDir string
 }
 
@@ -26,11 +24,6 @@ func (s *ExecEnvSuite) SetupTest() {
 	var err error
 	s.tmpDir, err = ioutil.TempDir("", "environment-test")
 	s.Require().Nil(err)
-
-	s.cfg = &config.Config{
-		Meta:       &config.MetaConfig{},
-		WorkingDir: s.tmpDir,
-	}
 }
 
 func (s *ExecEnvSuite) TearDownTest() {
@@ -41,24 +34,20 @@ func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
 	defer os.Setenv("USER", os.Getenv("USER"))
 	os.Setenv("USER", "testuser")
 
-	execEnv, err := NewExecEnvFromConfig(s.cfg)
+	execEnv, err := NewExecEnvFromConfig("", "", s.tmpDir)
 	s.Nil(err)
 	expected := fmt.Sprintf("%s-testuser", filepath.Base(s.tmpDir))
 	s.Equal(expected, execEnv.Unique())
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithCommand() {
-	s.cfg.Meta.ExecIDCommand = "echo Use-This"
-
-	execEnv, err := NewExecEnvFromConfig(s.cfg)
+	execEnv, err := NewExecEnvFromConfig("echo Use-This", "", s.tmpDir)
 	s.Nil(err)
 	s.Equal("Use-This", execEnv.ExecID)
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidCommand() {
-	s.cfg.Meta.ExecIDCommand = "bogus Use-This"
-
-	_, err := NewExecEnvFromConfig(s.cfg)
+	_, err := NewExecEnvFromConfig("bogus Use-This", "", s.tmpDir)
 	s.Error(err)
 	s.Contains(err.Error(), "\"bogus\": executable file not found")
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
 	"github.com/dnephin/dobi/tasks/compose"
@@ -53,24 +54,29 @@ func newTaskCollection() *TaskCollection {
 	return &TaskCollection{}
 }
 
-func collectTasks(options RunOptions) (*TaskCollection, error) {
-	return collect(options, newTaskCollection(), stack.NewStringStack())
+func collectTasks(options RunOptions, execEnv *execenv.ExecEnv) (*TaskCollection, error) {
+	return collect(options, &collectionState{
+		newTaskCollection(),
+		stack.NewStringStack(),
+		newResourceResolver(execEnv),
+	})
 }
 
-func collect(
-	options RunOptions,
-	tasks *TaskCollection,
-	taskStack *stack.StringStack,
-) (*TaskCollection, error) {
+type collectionState struct {
+	tasks     *TaskCollection
+	taskStack *stack.StringStack
+	resolver  *ResourceResolver
+}
+
+func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
 	for _, name := range options.Tasks {
-		if tasks.contains(name) {
+		if state.tasks.contains(name) {
 			continue
 		}
 
-		if taskStack.Contains(name) {
+		if state.taskStack.Contains(name) {
 			return nil, fmt.Errorf(
-				"Invalid dependency cycle: %s",
-				strings.Join(taskStack.Items(), ", "))
+				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Items(), ", "))
 		}
 
 		name, action := splitAction(name)
@@ -79,19 +85,49 @@ func collect(
 			return nil, fmt.Errorf("Resource %q does not exist", name)
 		}
 
+		resource, err := state.resolver.Resolve(name, resource)
+		if err != nil {
+			return nil, err
+		}
+
 		task, err := buildTaskFromResource(name, action, resource)
 		if err != nil {
 			return nil, err
 		}
-		taskStack.Push(name)
+		state.taskStack.Push(name)
 		options.Tasks = resource.Dependencies()
-		if _, err := collect(options, tasks, taskStack); err != nil {
+		if _, err := collect(options, state); err != nil {
 			return nil, err
 		}
-		tasks.add(task, resource)
-		taskStack.Pop()
+		state.tasks.add(task, resource)
+		state.taskStack.Pop()
 	}
-	return tasks, nil
+	return state.tasks, nil
+}
+
+// ResourceResolver is used to resolve variables in a resource config, and cache
+// the result of the resolution
+type ResourceResolver struct {
+	execEnv *execenv.ExecEnv
+	cache   map[string]config.Resource
+}
+
+// Resolve calls Resolve on resources and caches the resolved resource
+func (r *ResourceResolver) Resolve(name string, res config.Resource) (config.Resource, error) {
+	var err error
+	resolved, ok := r.cache[name]
+	if ok {
+		return resolved, nil
+	}
+	resolved, err = res.Resolve(r.execEnv)
+	if err == nil {
+		r.cache[name] = resolved
+	}
+	return resolved, err
+}
+
+func newResourceResolver(execEnv *execenv.ExecEnv) *ResourceResolver {
+	return &ResourceResolver{execEnv: execEnv, cache: make(map[string]config.Resource)}
 }
 
 // TODO: some way to make this a registry
@@ -176,12 +212,16 @@ func Run(options RunOptions) error {
 		return fmt.Errorf("No task to run, and no default task defined.")
 	}
 
-	tasks, err := collectTasks(options)
+	execEnv, err := execenv.NewExecEnvFromConfig(
+		options.Config.Meta.ExecIDCommand,
+		options.Config.Meta.Project,
+		options.Config.WorkingDir,
+	)
 	if err != nil {
 		return err
 	}
 
-	execEnv, err := context.NewExecEnvFromConfig(options.Config)
+	tasks, err := collectTasks(options, execEnv)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 )
 
@@ -14,7 +15,7 @@ type ExecuteContext struct {
 	Client      *docker.Client
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
-	Env         *ExecEnv
+	Env         *execenv.ExecEnv
 	Quiet       bool
 }
 
@@ -47,7 +48,7 @@ func (ctx *ExecuteContext) GetAuthConfig(repo string) docker.AuthConfiguration {
 func NewExecuteContext(
 	config *config.Config,
 	client *docker.Client,
-	execEnv *ExecEnv,
+	execEnv *execenv.ExecEnv,
 	quiet bool,
 ) *ExecuteContext {
 

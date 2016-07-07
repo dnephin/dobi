@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"strings"
+
+	"github.com/dnephin/dobi/execenv"
 )
 
 // AliasConfig is a data object for a task alias
@@ -22,6 +24,11 @@ func (c *AliasConfig) Validate(path Path, config *Config) *PathError {
 
 func (c *AliasConfig) String() string {
 	return fmt.Sprintf("Run tasks: %v", strings.Join(c.Tasks, ", "))
+}
+
+// Resolve resolves variables in the resource
+func (c *AliasConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	return c, nil
 }
 
 func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {

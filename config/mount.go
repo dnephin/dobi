@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+
+	"github.com/dnephin/dobi/execenv"
 )
 
 // MountConfig is a data object for a container mount
@@ -23,6 +25,11 @@ func (c *MountConfig) Validate(path Path, config *Config) *PathError {
 
 func (c *MountConfig) String() string {
 	return fmt.Sprintf("Create directory '%s' to be mounted at '%s'", c.Bind, c.Path)
+}
+
+// Resolve resolves variables in the resource
+func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	return c, nil
 }
 
 func mountFromConfig(name string, values map[string]interface{}) (Resource, error) {

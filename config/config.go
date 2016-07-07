@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 )
 
@@ -16,6 +17,7 @@ import (
 type Resource interface {
 	Dependencies() []string
 	Validate(Path, *Config) *PathError
+	Resolve(*execenv.ExecEnv) (Resource, error)
 }
 
 // Config is a data object for a full config file

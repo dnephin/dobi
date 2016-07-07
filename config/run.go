@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 
+	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
 )
 
@@ -97,6 +98,13 @@ func (c *RunConfig) String() string {
 		command = fmt.Sprintf("'%s' using ", c.Command)
 	}
 	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
+}
+
+// Resolve resolves variables in the resource
+func (c *RunConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	var err error
+	c.Env, err = env.ResolveSlice(c.Env)
+	return c, err
 }
 
 func runFromConfig(name string, values map[string]interface{}) (Resource, error) {

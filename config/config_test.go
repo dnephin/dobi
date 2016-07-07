@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/dnephin/dobi/execenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -29,6 +30,10 @@ func (r StubResource) Dependencies() []string {
 
 func (r StubResource) Validate(path Path, config *Config) *PathError {
 	return nil
+}
+
+func (r StubResource) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	return r, nil
 }
 
 func (s *ConfigSuite) TestSorted() {

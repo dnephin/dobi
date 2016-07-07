@@ -25,7 +25,7 @@ func GetImageName(ctx *context.ExecuteContext, conf *config.ImageConfig) string 
 // GetCanonicalTag returns the canonical tag for an image config
 func GetCanonicalTag(ctx *context.ExecuteContext, conf *config.ImageConfig) string {
 	if len(conf.Tags) > 0 {
-		return ctx.Env.GetVar(conf.Tags[0])
+		return conf.Tags[0]
 	}
 	return ctx.Env.Unique()
 }

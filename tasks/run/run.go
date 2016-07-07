@@ -158,7 +158,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 			StdinOnce:    interactive,
 			AttachStderr: true,
 			AttachStdout: true,
-			Env:          envWithVars(ctx.Env, t.config.Env),
+			Env:          t.config.Env,
 		},
 		HostConfig: &docker.HostConfig{
 			Binds:      t.bindMounts(ctx),
@@ -265,23 +265,10 @@ func (t *Task) forwardSignals(client *docker.Client, containerID string) chan<- 
 
 // Prepare the task
 func (t *Task) Prepare(ctx *context.ExecuteContext) error {
-	for _, env := range t.config.Env {
-		if _, err := ctx.Env.Resolve(env); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
 // Stop the task
 func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return nil
-}
-
-func envWithVars(execEnv *context.ExecEnv, envs []string) []string {
-	out := []string{}
-	for _, env := range envs {
-		out = append(out, execEnv.GetVar(env))
-	}
-	return out
 }

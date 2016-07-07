@@ -51,11 +51,6 @@ func (t *Task) Run(ctx *context.ExecuteContext) error {
 
 // Prepare the task
 func (t *Task) Prepare(ctx *context.ExecuteContext) error {
-	for _, tag := range t.config.Tags {
-		if _, err := ctx.Env.Resolve(tag); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
@@ -71,7 +66,7 @@ func (t *Task) ForEachTag(ctx *context.ExecuteContext, each func(string) error) 
 	}
 
 	for _, tag := range t.config.Tags {
-		if err := each(t.config.Image + ":" + ctx.Env.GetVar(tag)); err != nil {
+		if err := each(t.config.Image + ":" + tag); err != nil {
 			return err
 		}
 	}
