@@ -145,9 +145,10 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
+	name := fmt.Sprintf("%s-%s", ctx.Env.Unique(), t.name)
 	// TODO: support other run options
 	container, err := ctx.Client.CreateContainer(docker.CreateContainerOptions{
-		Name: fmt.Sprintf("%s-%s", ctx.Env.Unique(), t.name),
+		Name: name,
 		Config: &docker.Config{
 			Cmd:          t.config.ParsedCommand(),
 			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
@@ -165,7 +166,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("Failed creating container: %s", err)
+		return fmt.Errorf("Failed creating container %q: %s", name, err)
 	}
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
@@ -184,7 +185,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 		Stderr:       true,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed attaching to container: %s", err)
+		return fmt.Errorf("Failed attaching to container %q: %s", name, err)
 	}
 
 	if interactive {
@@ -201,7 +202,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	}
 
 	if err := ctx.Client.StartContainer(container.ID, nil); err != nil {
-		return fmt.Errorf("Failed starting container: %s", err)
+		return fmt.Errorf("Failed starting container %q: %s", name, err)
 	}
 
 	return t.wait(ctx.Client, container.ID)
