@@ -57,6 +57,11 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return t.action.Stop(ctx, t)
 }
 
+// Dependencies returns the list of dependencies
+func (t *Task) Dependencies() []string {
+	return t.config.Dependencies()
+}
+
 // StopNothing implements the Stop interface but does nothing
 func StopNothing(ctx *context.ExecuteContext, t *Task) error {
 	return nil

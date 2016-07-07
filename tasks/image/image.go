@@ -54,6 +54,11 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return nil
 }
 
+// Dependencies returns the list of dependencies
+func (t *Task) Dependencies() []string {
+	return t.config.Dependencies()
+}
+
 // ForEachTag runs a function for each tag
 func (t *Task) ForEachTag(ctx *context.ExecuteContext, each func(string) error) error {
 	if len(t.config.Tags) == 0 {

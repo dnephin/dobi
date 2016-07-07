@@ -53,6 +53,11 @@ func (t *CreateTask) Run(ctx *context.ExecuteContext) error {
 	return nil
 }
 
+// Dependencies returns the list of dependencies
+func (t *CreateTask) Dependencies() []string {
+	return t.config.Dependencies()
+}
+
 func (t *CreateTask) exists(ctx *context.ExecuteContext) bool {
 	_, err := os.Stat(AbsBindPath(t.config, ctx.WorkingDir))
 	if err != nil {

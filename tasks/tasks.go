@@ -8,6 +8,7 @@ import (
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
+	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/iface"
@@ -79,7 +80,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Items(), ", "))
 		}
 
-		name, action := splitAction(name)
+		name, action := common.SplitTaskActionName(name)
 		resource, ok := options.Config.Resources[name]
 		if !ok {
 			return nil, fmt.Errorf("Resource %q does not exist", name)
@@ -95,7 +96,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 			return nil, err
 		}
 		state.taskStack.Push(name)
-		options.Tasks = resource.Dependencies()
+		options.Tasks = task.Dependencies()
 		if _, err := collect(options, state); err != nil {
 			return nil, err
 		}
@@ -147,16 +148,6 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
 
-}
-
-func splitAction(name string) (string, string) {
-	parts := strings.SplitN(name, ":", 2)
-	switch len(parts) {
-	case 2:
-		return parts[0], parts[1]
-	default:
-		return name, ""
-	}
 }
 
 func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {

@@ -263,6 +263,11 @@ func (t *Task) forwardSignals(client *docker.Client, containerID string) chan<- 
 	return chanSig
 }
 
+// Dependencies returns the list of dependencies
+func (t *Task) Dependencies() []string {
+	return t.config.Dependencies()
+}
+
 // Stop the task
 func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return nil

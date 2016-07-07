@@ -11,4 +11,5 @@ type Task interface {
 	Name() string
 	Run(*context.ExecuteContext) error
 	Stop(*context.ExecuteContext) error
+	Dependencies() []string
 }

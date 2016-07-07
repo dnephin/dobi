@@ -13,11 +13,17 @@ import (
 type Task struct {
 	name   string
 	config *config.AliasConfig
+	action action
+}
+
+type action struct {
+	name         string
+	Dependencies func(*Task) []string
 }
 
 // NewTask creates a new Task object
-func NewTask(name string, conf *config.AliasConfig) *Task {
-	return &Task{name: name, config: conf}
+func NewTask(name string, conf *config.AliasConfig, act action) *Task {
+	return &Task{name: name, config: conf, action: act}
 }
 
 // Name returns the name of the task
@@ -43,6 +49,11 @@ func (t *Task) Run(ctx *context.ExecuteContext) error {
 	}
 	t.logger().Info("Done")
 	return nil
+}
+
+// Dependencies returns the dependencies for the task
+func (t *Task) Dependencies() []string {
+	return t.action.Dependencies(t)
 }
 
 // Stop the task
