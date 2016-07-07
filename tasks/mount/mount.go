@@ -62,11 +62,6 @@ func (t *CreateTask) exists(ctx *context.ExecuteContext) bool {
 	return true
 }
 
-// Prepare the task
-func (t *CreateTask) Prepare(ctx *context.ExecuteContext) error {
-	return nil
-}
-
 // Stop the task
 func (t *CreateTask) Stop(ctx *context.ExecuteContext) error {
 	return nil

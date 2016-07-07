@@ -160,13 +160,6 @@ func splitAction(name string) (string, string) {
 }
 
 func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
-	logging.Log.Debug("preparing tasks")
-	for _, task := range tasks.All() {
-		if err := task.Prepare(ctx); err != nil {
-			return fmt.Errorf("Failed to prepare task %q: %s", task.Name(), err)
-		}
-	}
-
 	defer func() {
 		logging.Log.Debug("stopping tasks")
 		for _, task := range tasks.Reversed() {

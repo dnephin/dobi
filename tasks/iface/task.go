@@ -9,8 +9,6 @@ import (
 type Task interface {
 	logging.LogRepresenter
 	Name() string
-	// TODO: possibly remove? currently unused
-	Prepare(*context.ExecuteContext) error
 	Run(*context.ExecuteContext) error
 	Stop(*context.ExecuteContext) error
 }
