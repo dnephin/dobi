@@ -46,7 +46,7 @@ image=releaser:
 
 run=binary:
     use: builder
-    artifact: ./dist/bin/dobi
+    artifact: ./dist/bin/dobi-linux
     mounts: [source, dist]
     command: "script/build"
 

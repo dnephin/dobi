@@ -3,8 +3,9 @@ set -eu
 
 gitsha=$(git rev-parse --short HEAD)
 builddate="$(date)"
-go build \
+gox \
     -ldflags "-X github.com/dnephin/dobi/cmd.gitsha=$gitsha \
               -X \"github.com/dnephin/dobi/cmd.buildDate=$builddate\"" \
-    -o /go/bin/dobi \
+    -output="/go/bin/dobi-{{.OS}}" \
+    -arch="amd64" -os="darwin linux windows" \
     .
