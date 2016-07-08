@@ -12,6 +12,8 @@ func GetTask(name, action string, conf *config.MountConfig) (iface.Task, error) 
 	switch action {
 	case "", "create":
 		return NewCreateTask(name, conf), nil
+	case "remove", "rm":
+		return NewRemoveTask(name, conf), nil
 	default:
 		return nil, fmt.Errorf("Invalid mount action %q for task %q", action, name)
 	}

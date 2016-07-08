@@ -88,11 +88,13 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 
 	artifactLastModified, err := t.artifactLastModified()
 	if err != nil {
+		t.logger().Warnf("Failed to get artifact last modified: %s", err)
 		return true, err
 	}
 
 	mountsLastModified, err := t.mountsLastModified(ctx)
 	if err != nil {
+		t.logger().Warnf("Failed to get mounts last modified: %s", err)
 		return true, err
 	}
 
@@ -145,7 +147,7 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
-	name := fmt.Sprintf("%s-%s", ctx.Env.Unique(), t.name)
+	name := ContainerName(ctx, t.name)
 	// TODO: support other run options
 	container, err := ctx.Client.CreateContainer(docker.CreateContainerOptions{
 		Name: name,
@@ -171,7 +173,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
-	defer t.remove(ctx.Client, container.ID)
+	defer RemoveContainer(t.logger(), ctx.Client, container.ID)
 
 	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
@@ -217,17 +219,6 @@ func (t *Task) wait(client *docker.Client, containerID string) error {
 		return fmt.Errorf("Exited with non-zero status code %d", status)
 	}
 	return nil
-}
-
-func (t *Task) remove(client *docker.Client, containerID string) {
-	t.logger().Debug("Removing container")
-	if err := client.RemoveContainer(docker.RemoveContainerOptions{
-		ID:            containerID,
-		RemoveVolumes: true,
-	}); err != nil {
-		t.logger().WithFields(log.Fields{"container": containerID}).Warnf(
-			"Failed to remove container: %s", err)
-	}
 }
 
 func (t *Task) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {

@@ -12,8 +12,8 @@ func GetTask(name, action string, conf *config.RunConfig) (iface.Task, error) {
 	switch action {
 	case "", "run":
 		return NewTask(name, conf), nil
-		//	case "remove", "rm":
-		//		return NewRemoveTask(name, conf), nil
+	case "remove", "rm":
+		return NewRemoveTask(name, conf), nil
 	default:
 		return nil, fmt.Errorf("Invalid run action %q for task %q", name, action)
 	}

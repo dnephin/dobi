@@ -37,7 +37,7 @@ func (t *Task) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[alias:run %s]", t.name)
+	return fmt.Sprintf("[alias:%s %s]", t.action.name, t.name)
 }
 
 // Run does nothing. Dependencies were already run.
