@@ -64,7 +64,9 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		if err != nil {
 			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err)
 		}
-		c.add(resName, resource)
+		if err := c.add(resName, resource); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -76,6 +78,7 @@ func (c *Config) loadMeta(value map[string]interface{}) error {
 		return fmt.Errorf("Invalid \"meta\" config: %s", err)
 	}
 
+	// TODO: prevent infinite recursive includes
 	for _, include := range c.Meta.Include {
 		config, err := Load(include)
 		if err != nil {

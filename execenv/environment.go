@@ -68,14 +68,14 @@ func (e *ExecEnv) ResolveSlice(tmpls []string) ([]string, error) {
 }
 
 func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
-	tag, defValue := splitDefault(tag)
+	tag, defValue, hasDefault := splitDefault(tag)
 
 	write := func(val string) (int, error) {
 		if val == "" {
+			if !hasDefault {
+				return 0, fmt.Errorf("A value is required for variable %q", tag)
+			}
 			val = defValue
-		}
-		if val == "" {
-			return 0, fmt.Errorf("A value is required for variable %q", tag)
 		}
 		return out.Write(bytes.NewBufferString(val).Bytes())
 	}
@@ -145,13 +145,13 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 	}
 }
 
-func splitDefault(tag string) (string, string) {
+func splitDefault(tag string) (string, string, bool) {
 	parts := strings.Split(tag, ":")
 	if len(parts) == 1 {
-		return tag, ""
+		return tag, "", false
 	}
 	last := len(parts) - 1
-	return strings.Join(parts[:last], ":"), parts[last]
+	return strings.Join(parts[:last], ":"), parts[last], true
 }
 
 func splitPrefix(tag string) (string, string) {

@@ -3,9 +3,10 @@ set -eu
 
 gitsha=$(git rev-parse --short HEAD)
 builddate="$(date)"
+oslist=${DOBI_BUILD_OS:="darwin linux windows"}
 gox \
     -ldflags "-X github.com/dnephin/dobi/cmd.gitsha=$gitsha \
               -X \"github.com/dnephin/dobi/cmd.buildDate=$builddate\"" \
     -output="/go/bin/dobi-{{.OS}}" \
-    -arch="amd64" -os="darwin linux windows" \
+    -arch="amd64" -os="$oslist" \
     .

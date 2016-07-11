@@ -49,6 +49,8 @@ run=binary:
     artifact: ./dist/bin/
     mounts: [source, dist]
     command: "script/build"
+    env:
+      - "DOBI_BUILD_OS={env.DOBI_BUILD_OS:}"
 
 run=watch:
     use: builder

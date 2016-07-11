@@ -141,14 +141,16 @@ func (s *ExecEnvSuite) TestResolveTime() {
 
 func (s *ExecEnvSuite) TestSplitDefault() {
 	tag := "time.19:01:01:default"
-	value, defVal := splitDefault(tag)
+	value, defVal, hasDefault := splitDefault(tag)
 	s.Equal(value, "time.19:01:01")
 	s.Equal(defVal, "default")
+	s.Equal(hasDefault, true)
 }
 
 func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
 	tag := "env.FOO"
-	value, defVal := splitDefault(tag)
+	value, defVal, hasDefault := splitDefault(tag)
 	s.Equal(value, "env.FOO")
 	s.Equal(defVal, "")
+	s.Equal(hasDefault, false)
 }
