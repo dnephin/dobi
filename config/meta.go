@@ -1,15 +1,12 @@
 package config
 
-import (
-	"fmt"
-
-	"github.com/dnephin/dobi/logging"
-)
+import "fmt"
 
 // MetaConfig is a data object for non-resource configuration
 type MetaConfig struct {
 	Default string
 	Project string
+	Include []string
 	// TODO: `config:"field=exec-id-command"`
 	// TODO: support an env variable override
 	ExecIDCommand string
@@ -20,12 +17,13 @@ func (m *MetaConfig) Validate(config *Config) error {
 	if _, ok := config.Resources[m.Default]; m.Default != "" && !ok {
 		return fmt.Errorf("Undefined default resource: %s", m.Default)
 	}
-
-	if m.Project == "" {
-		logging.Log.Warn(
-			"meta.project is not set. Defauling to working directory basename.")
-	}
 	return nil
+}
+
+// IsZero returns true if the struct contains only zero values, except for
+// Includes which is ignored
+func (m *MetaConfig) IsZero() bool {
+	return m.Default == "" && m.Project == "" && m.ExecIDCommand == ""
 }
 
 // NewMetaConfig returns a new MetaConfig from config values

@@ -37,9 +37,18 @@ func NewConfig() *Config {
 	}
 }
 
-func (c *Config) add(name string, resource Resource) {
+func (c *Config) add(name string, resource Resource) error {
+	if c.contains(name) {
+		return fmt.Errorf("duplicate resource name %q", name)
+	}
 	c.Resources[name] = resource
 	c.Collection.add(name, resource)
+	return nil
+}
+
+func (c *Config) contains(name string) bool {
+	_, exists := c.Resources[name]
+	return exists
 }
 
 // Sorted returns the list of resource names in alphabetical sort order

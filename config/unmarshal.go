@@ -44,16 +44,13 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	var err error
-	for name, value := range values {
-		if name == META {
-			c.Meta, err = NewMetaConfig(name, value)
-			if err != nil {
-				return fmt.Errorf("Invalid \"meta\" config: %s", err)
-			}
-			continue
+	if value, ok := values[META]; ok {
+		if err := c.loadMeta(value); err != nil {
+			return err
 		}
-
+		delete(values, META)
+	}
+	for name, value := range values {
 		resType, resName, err := parseResourceName(name)
 		if err != nil {
 			return err
@@ -68,6 +65,30 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err)
 		}
 		c.add(resName, resource)
+	}
+	return nil
+}
+
+func (c *Config) loadMeta(value map[string]interface{}) error {
+	var err error
+	c.Meta, err = NewMetaConfig(META, value)
+	if err != nil {
+		return fmt.Errorf("Invalid \"meta\" config: %s", err)
+	}
+
+	for _, include := range c.Meta.Include {
+		config, err := Load(include)
+		if err != nil {
+			return fmt.Errorf("error including %q: %s", include, err)
+		}
+		if !config.Meta.IsZero() {
+			return fmt.Errorf("include %q can not define meta config", include)
+		}
+		for name, resource := range config.Resources {
+			if err := c.add(name, resource); err != nil {
+				return fmt.Errorf("error including %q: %s", include, err)
+			}
+		}
 	}
 	return nil
 }
