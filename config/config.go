@@ -134,31 +134,30 @@ func ValidateFields(path Path, resource interface{}) error {
 
 	for i := 0; i < value.Type().NumField(); i++ {
 		field := value.Type().Field(i)
-		tag := field.Tag.Get("config")
-		if tag == "" {
-			continue
-		}
-		fieldPath := path.add(titleCaseToDash(field.Name))
-		if err := validateField(fieldPath, ptrValue, field, tag); err != nil {
+		if err := validateField(path, ptrValue, field); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateField(path Path, structValue reflect.Value, field reflect.StructField, tag string) error {
-	value := structValue.Elem().FieldByName(field.Name)
-	for _, item := range strings.Split(tag, ",") {
-		switch item {
-		case "required":
-			// TODO: better way to do this?
-			if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
-				return PathErrorf(path, "a value is required")
-			}
-		case "validate":
-			if err := runValidationFunc(path, structValue, field.Name); err != nil {
-				return err
-			}
+func validateField(path Path, structValue reflect.Value, field reflect.StructField) error {
+	tags, err := newFieldTags(field.Name, field.Tag.Get("config"))
+	if err != nil {
+		return err
+	}
+	path = path.add(tags.name)
+
+	if tags.isRequired {
+		value := structValue.Elem().FieldByName(field.Name)
+		// TODO: better way to do this?
+		if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
+			return PathErrorf(path, "a value is required")
+		}
+	}
+	if tags.doValidate {
+		if err := runValidationFunc(path, structValue, field.Name); err != nil {
+			return err
 		}
 	}
 	return nil

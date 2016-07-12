@@ -22,26 +22,58 @@ func Transform(root string, raw map[string]interface{}, target interface{}) erro
 	return transformAtPath(NewPath(root), raw, targetValue)
 }
 
+// TODO: better code sharing with ValidateFields
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
-	for key, value := range raw {
-		localPath := path.add(key)
-		key := dashToTitleCase(key)
-		field := target.FieldByName(key)
-
-		if !field.IsValid() {
-			return PathErrorf(localPath, "unexpected key")
-		}
-
-		rawValue := reflect.ValueOf(value)
-		if err := transformField(localPath, rawValue, field); err != nil {
+	for i := 0; i < target.Type().NumField(); i++ {
+		structField := target.Type().Field(i)
+		tags, err := newFieldTags(structField.Name, structField.Tag.Get("config"))
+		if err != nil {
 			return err
 		}
+
+		value, ok := raw[tags.name]
+		if !ok {
+			continue
+		}
+		delete(raw, tags.name)
+
+		localPath := path.add(tags.name)
+		rawValue := reflect.ValueOf(value)
+		if err := transformField(localPath, rawValue, target.Field(i)); err != nil {
+			return err
+		}
+	}
+
+	for key := range raw {
+		return PathErrorf(path.add(key), "unexpected key")
 	}
 	return nil
 }
 
-func dashToTitleCase(source string) string {
-	return strings.Replace(strings.Title(source), "-", "", -1)
+type fieldTags struct {
+	isRequired bool
+	doValidate bool
+	name       string
+}
+
+func newFieldTags(name, tags string) (fieldTags, error) {
+	field := fieldTags{}
+	for index, item := range strings.Split(tags, ",") {
+		switch {
+		case item == "required":
+			field.isRequired = true
+		case item == "validate":
+			field.doValidate = true
+		case index == 0:
+			field.name = item
+		default:
+			return field, fmt.Errorf("invalid field tag %q in %q", item, tags)
+		}
+	}
+	if field.name == "" {
+		field.name = titleCaseToDash(name)
+	}
+	return field, nil
 }
 
 func titleCaseToDash(source string) string {

@@ -51,6 +51,7 @@ type Something struct {
 	Second    string   `config:"required,validate"`
 	Third     []string `config:"required"`
 	Forth     string
+	Renamed   string `config:"foo-field,validate"`
 	validated bool
 }
 
@@ -59,6 +60,13 @@ func (s *Something) ValidateSecond() error {
 		return fmt.Errorf("validation error")
 	}
 	s.validated = true
+	return nil
+}
+
+func (s *Something) ValidateRenamed() error {
+	if s.Renamed == "bad" {
+		return fmt.Errorf("validation error")
+	}
 	return nil
 }
 
@@ -102,6 +110,18 @@ func TestValidateFieldsValidationFailed(t *testing.T) {
 	err := ValidateFields(NewPath("res"), obj)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Error at res.second: failed validation: validation error")
+}
+
+func TestFieldWithDefinedName(t *testing.T) {
+	obj := &Something{
+		First:   "a",
+		Second:  "ok",
+		Third:   []string{"one"},
+		Renamed: "bad",
+	}
+	err := ValidateFields(NewPath("res"), obj)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Error at res.foo-field: failed validation: validation error")
 }
 
 type Sample struct {

@@ -7,9 +7,8 @@ type MetaConfig struct {
 	Default string
 	Project string
 	Include []string
-	// TODO: `config:"field=exec-id-command"`
-	// TODO: support an env variable override
-	ExecIDCommand string
+	// TODO: only support a template string, not a command
+	ExecIDCommand string `config:"exec-id-command"`
 }
 
 // Validate the MetaConfig
