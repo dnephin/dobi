@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/dnephin/dobi/logging"
 	git "github.com/gogits/git-module"
-	shlex "github.com/kballard/go-shellquote"
 	"github.com/metakeule/fmtdate"
 	fasttmpl "github.com/valyala/fasttemplate"
 )
@@ -165,12 +163,14 @@ func splitPrefix(tag string) (string, string) {
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
 func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) {
-	execID, err := getExecID(execID)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to generated unique execution id: %s", err)
+	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir))
+
+	if execID == "" {
+		return env, nil
 	}
-	project = getProjectName(project, workingDir)
-	return NewExecEnv(execID, project), nil
+	var err error
+	env.ExecID, err = getExecID(execID, env)
+	return env, err
 }
 
 // NewExecEnv returns a new ExecEnv from values
@@ -192,45 +192,25 @@ func getProjectName(project, workingDir string) string {
 	return filepath.Base(workingDir)
 }
 
-func getExecID(cmd string) (string, error) {
-	if cmd == "" {
-		return defaultExecID(), nil
-	}
-
-	stdout, err := runCommand(cmd)
+func getExecID(execID string, env *ExecEnv) (string, error) {
+	var err error
+	execID, err = env.Resolve(execID)
 	if err != nil {
 		return "", err
 	}
-
-	return validateExecID(stdout)
-}
-
-func runCommand(cmdString string) (string, error) {
-	cmdSlice, err := shlex.Split(cmdString)
-	if err != nil {
-		return "", fmt.Errorf("Failed to parse command: %s", err)
-	}
-
-	var stdout bytes.Buffer
-	cmd := exec.Command(cmdSlice[0], cmdSlice[1:]...)
-	cmd.Stdout = &stdout
-
-	if err := cmd.Run(); err != nil {
-		return "", err
-	}
-	return stdout.String(), nil
+	return validateExecID(execID)
 }
 
 func validateExecID(output string) (string, error) {
 	output = strings.TrimSpace(output)
 
 	if output == "" {
-		return "", fmt.Errorf("Exec id command returned no output.")
+		return "", fmt.Errorf("exec-id template was empty after rendering")
 	}
 	lines := len(strings.Split(output, "\n"))
 	if lines > 1 {
 		return "", fmt.Errorf(
-			"Exec id command returned %v lines, expected only one.", lines)
+			"exec-id template rendered to %v lines, expected only one", lines)
 	}
 
 	return output, nil

@@ -40,31 +40,33 @@ func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
 	s.Equal(expected, execEnv.Unique())
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithCommand() {
-	execEnv, err := NewExecEnvFromConfig("echo Use-This", "", s.tmpDir)
+func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithTemplate() {
+	os.Setenv("EXEC_ID", "Use-This")
+	defer os.Unsetenv("EXEC_ID")
+
+	execEnv, err := NewExecEnvFromConfig("{env.EXEC_ID}", "", s.tmpDir)
 	s.Nil(err)
 	s.Equal("Use-This", execEnv.ExecID)
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidCommand() {
-	_, err := NewExecEnvFromConfig("bogus Use-This", "", s.tmpDir)
+func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidTemplate() {
+	_, err := NewExecEnvFromConfig("{env.bogus} ", "", s.tmpDir)
 	s.Error(err)
-	s.Contains(err.Error(), "\"bogus\": executable file not found")
+	s.Contains(err.Error(), "A value is required for variable \"env.bogus\"")
 }
 
 func (s *ExecEnvSuite) TestValidateExecIDEmpty() {
 	output, err := validateExecID("")
 	s.Equal("", output)
 	s.Error(err)
-	s.Contains(err.Error(), "no output")
+	s.Contains(err.Error(), "exec-id template was empty after rendering")
 }
 
 func (s *ExecEnvSuite) TestValidateExecIDTooManyLines() {
 	output, err := validateExecID("one\ntwo")
 	s.Equal("", output)
 	s.Error(err)
-	s.Contains(err.Error(), "returned 2 lines")
-
+	s.Contains(err.Error(), "rendered to 2 lines")
 }
 
 func (s *ExecEnvSuite) TestValidateExecIDValid() {

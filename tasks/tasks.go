@@ -197,7 +197,7 @@ func Run(options RunOptions) error {
 	}
 
 	execEnv, err := execenv.NewExecEnvFromConfig(
-		options.Config.Meta.ExecIDCommand,
+		options.Config.Meta.ExecID,
 		options.Config.Meta.Project,
 		options.Config.WorkingDir,
 	)

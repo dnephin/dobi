@@ -7,8 +7,7 @@ type MetaConfig struct {
 	Default string
 	Project string
 	Include []string
-	// TODO: only support a template string, not a command
-	ExecIDCommand string `config:"exec-id-command"`
+	ExecID  string `config:"exec-id"`
 }
 
 // Validate the MetaConfig
@@ -22,7 +21,7 @@ func (m *MetaConfig) Validate(config *Config) error {
 // IsZero returns true if the struct contains only zero values, except for
 // Includes which is ignored
 func (m *MetaConfig) IsZero() bool {
-	return m.Default == "" && m.Project == "" && m.ExecIDCommand == ""
+	return m.Default == "" && m.Project == "" && m.ExecID == ""
 }
 
 // NewMetaConfig returns a new MetaConfig from config values
