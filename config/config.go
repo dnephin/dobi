@@ -67,15 +67,10 @@ func Load(filename string) (*Config, error) {
 		return fmt.Errorf("Failed to load config from %q: %s", filename, err)
 	}
 
-	data, err := ioutil.ReadFile(filename)
+	config, err := loadConfig(filename)
 	if err != nil {
 		return nil, fmtError(err)
 	}
-	config, err := LoadFromBytes(data)
-	if err != nil {
-		return nil, fmtError(err)
-	}
-	logging.Log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
 
 	absPath, err := filepath.Abs(filename)
 	if err != nil {
@@ -86,6 +81,19 @@ func Load(filename string) (*Config, error) {
 	if err = validate(config); err != nil {
 		return nil, fmtError(err)
 	}
+	return config, nil
+}
+
+func loadConfig(filename string) (*Config, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	config, err := LoadFromBytes(data)
+	if err != nil {
+		return nil, err
+	}
+	logging.Log.WithFields(log.Fields{"filename": filename}).Debug("Configuration loaded")
 	return config, nil
 }
 
