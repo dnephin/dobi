@@ -9,6 +9,11 @@ import (
 	"unicode"
 )
 
+const (
+	// StructTagKey is the key used to find struct tags on a field
+	StructTagKey = "config"
+)
+
 // Transform recursively copies values from a raw map of values into the
 // target structure. A PathError is returned if the raw type has a field
 // with an incorrect type, or has extra fields.
@@ -26,18 +31,18 @@ func Transform(root string, raw map[string]interface{}, target interface{}) erro
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
 	for i := 0; i < target.Type().NumField(); i++ {
 		structField := target.Type().Field(i)
-		tags, err := newFieldTags(structField.Name, structField.Tag.Get("config"))
+		tags, err := NewFieldTags(structField.Name, structField.Tag.Get(StructTagKey))
 		if err != nil {
 			return err
 		}
 
-		value, ok := raw[tags.name]
+		value, ok := raw[tags.Name]
 		if !ok {
 			continue
 		}
-		delete(raw, tags.name)
+		delete(raw, tags.Name)
 
-		localPath := path.add(tags.name)
+		localPath := path.add(tags.Name)
 		rawValue := reflect.ValueOf(value)
 		if err := transformField(localPath, rawValue, target.Field(i)); err != nil {
 			return err
@@ -50,33 +55,36 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 	return nil
 }
 
-type fieldTags struct {
-	isRequired bool
-	doValidate bool
-	name       string
+// FieldTags are annotations that specify properties of the config field
+type FieldTags struct {
+	IsRequired bool
+	DoValidate bool
+	Name       string
 }
 
-func newFieldTags(name, tags string) (fieldTags, error) {
-	field := fieldTags{}
+// NewFieldTags creates a FieldTags struct from a StructField.Tag string
+func NewFieldTags(name, tags string) (FieldTags, error) {
+	field := FieldTags{}
 	for index, item := range strings.Split(tags, ",") {
 		switch {
 		case item == "required":
-			field.isRequired = true
+			field.IsRequired = true
 		case item == "validate":
-			field.doValidate = true
+			field.DoValidate = true
 		case index == 0:
-			field.name = item
+			field.Name = item
 		default:
 			return field, fmt.Errorf("invalid field tag %q in %q", item, tags)
 		}
 	}
-	if field.name == "" {
-		field.name = titleCaseToDash(name)
+	if field.Name == "" {
+		field.Name = TitleCaseToDash(name)
 	}
 	return field, nil
 }
 
-func titleCaseToDash(source string) string {
+// TitleCaseToDash converts a CamelCased name into a dashed config field name
+func TitleCaseToDash(source string) string {
 	var buff bytes.Buffer
 	var prevCharIsLower bool
 

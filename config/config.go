@@ -150,20 +150,20 @@ func ValidateFields(path Path, resource interface{}) error {
 }
 
 func validateField(path Path, structValue reflect.Value, field reflect.StructField) error {
-	tags, err := newFieldTags(field.Name, field.Tag.Get("config"))
+	tags, err := NewFieldTags(field.Name, field.Tag.Get(StructTagKey))
 	if err != nil {
 		return err
 	}
-	path = path.add(tags.name)
+	path = path.add(tags.Name)
 
-	if tags.isRequired {
+	if tags.IsRequired {
 		value := structValue.Elem().FieldByName(field.Name)
 		// TODO: better way to do this?
 		if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
 			return PathErrorf(path, "a value is required")
 		}
 	}
-	if tags.doValidate {
+	if tags.DoValidate {
 		if err := runValidationFunc(path, structValue, field.Name); err != nil {
 			return err
 		}
