@@ -45,10 +45,10 @@ func (t *Task) logger() *log.Entry {
 func (t *Task) Repr() string {
 	buff := &bytes.Buffer{}
 
-	if t.config.Command != "" {
-		buff.WriteString(" " + t.config.Command)
+	if !t.config.Command.Empty() {
+		buff.WriteString(" " + t.config.Command.String())
 	}
-	if t.config.Command != "" && t.config.Artifact != "" {
+	if !t.config.Command.Empty() && t.config.Artifact != "" {
 		buff.WriteString(" ->")
 	}
 	if t.config.Artifact != "" {
@@ -152,7 +152,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	container, err := ctx.Client.CreateContainer(docker.CreateContainerOptions{
 		Name: name,
 		Config: &docker.Config{
-			Cmd:          t.config.ParsedCommand(),
+			Cmd:          t.config.Command.Value(),
 			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
 			OpenStdin:    interactive,
 			Tty:          interactive,
@@ -161,6 +161,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 			AttachStderr: true,
 			AttachStdout: true,
 			Env:          t.config.Env,
+			Entrypoint:   t.config.Entrypoint.Value(),
 		},
 		HostConfig: &docker.HostConfig{
 			Binds:      t.bindMounts(ctx),

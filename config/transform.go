@@ -102,7 +102,9 @@ func transformField(path Path, raw reflect.Value, target reflect.Value) error {
 	if !target.CanSet() {
 		return PathErrorf(path, "cant set target")
 	}
-	if target.Kind() != raw.Kind() {
+	// Structs can be other types because they can use a TransformConfig method
+	// to convert the raw type into their type.
+	if target.Kind() != reflect.Struct && target.Kind() != raw.Kind() {
 		return PathErrorf(path, "expected type %q not %q", target.Kind(), raw.Kind())
 	}
 	// TODO: recursive call for struct type
@@ -111,8 +113,36 @@ func transformField(path Path, raw reflect.Value, target reflect.Value) error {
 		return transformSlice(path, raw, target)
 	case reflect.Map:
 		return transformMap(path, raw, target)
+	case reflect.Struct:
+		return transformStruct(path, raw, target)
 	default:
 		target.Set(raw)
+	}
+	return nil
+}
+
+// TODO: share code with runValidationFunc
+func transformStruct(path Path, raw reflect.Value, target reflect.Value) error {
+	methodName := "TransformConfig"
+
+	// Defer to the structs TransformConfig() method if it exists
+	ptrTarget := target.Addr()
+	method := ptrTarget.MethodByName(methodName)
+	if !method.IsValid() {
+		// TODO: Otherwise use transformAtPath (needs some refactor)
+		//return transformAtPath(path, raw, target)
+		return nil
+	}
+
+	switch transformFunc := method.Interface().(type) {
+	case func(reflect.Value) error:
+		if err := transformFunc(raw); err != nil {
+			return PathErrorf(path, err.Error())
+		}
+	default:
+		return fmt.Errorf(
+			"%s.%s must be of type \"func(reflect.Value) error\" not %T",
+			target.Type(), methodName, transformFunc)
 	}
 	return nil
 }

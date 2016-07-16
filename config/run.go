@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
@@ -11,14 +12,13 @@ import (
 type RunConfig struct {
 	Use         string `config:"required"`
 	Artifact    string
-	Command     string `config:"validate"`
+	Command     ShlexSlice
 	Mounts      []string
 	Privileged  bool
 	Interactive bool
 	Depends     []string
 	Env         []string
-
-	parsedCommand []string
+	Entrypoint  ShlexSlice
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
@@ -35,23 +35,6 @@ func (c *RunConfig) Validate(path Path, config *Config) *PathError {
 		return PathErrorf(path.add("mounts"), err.Error())
 	}
 	return nil
-}
-
-// ValidateCommand validates the Command field
-func (c *RunConfig) ValidateCommand() error {
-	if c.Command != "" {
-		command, err := shlex.Split(c.Command)
-		if err != nil {
-			return fmt.Errorf("failed to parse command %q: %s", c.Command, err)
-		}
-		c.parsedCommand = command
-	}
-	return nil
-}
-
-// ParsedCommand returns the shlex parsed command
-func (c *RunConfig) ParsedCommand() []string {
-	return c.parsedCommand
 }
 
 func (c *RunConfig) validateUse(config *Config) error {
@@ -94,8 +77,9 @@ func (c *RunConfig) String() string {
 	if c.Artifact != "" {
 		artifact = fmt.Sprintf(" to create '%s'", c.Artifact)
 	}
-	if c.Command != "" {
-		command = fmt.Sprintf("'%s' using ", c.Command)
+	// TODO: look for entrypoint as well as command
+	if !c.Command.Empty() {
+		command = fmt.Sprintf("'%s' using ", c.Command.String())
 	}
 	return fmt.Sprintf("Run %sthe '%s' image%s", command, c.Use, artifact)
 }
@@ -105,6 +89,44 @@ func (c *RunConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
 	c.Env, err = env.ResolveSlice(c.Env)
 	return c, err
+}
+
+// ShlexSlice is a type used for config transforming a string into a []string
+// using shelx.
+type ShlexSlice struct {
+	original string
+	parsed   []string
+}
+
+func (s *ShlexSlice) String() string {
+	return s.original
+}
+
+// Value returns the slice value
+func (s *ShlexSlice) Value() []string {
+	return s.parsed
+}
+
+// Empty returns true if the instance contains the zero value
+func (s *ShlexSlice) Empty() bool {
+	return s.original == ""
+}
+
+// TransformConfig is used to transform a string from a config file into a
+// sliced value, using shlex.
+func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
+	var err error
+	switch value := raw.Interface().(type) {
+	case string:
+		s.original = value
+		s.parsed, err = shlex.Split(value)
+		if err != nil {
+			return fmt.Errorf("failed to parse command %q: %s", value, err)
+		}
+	default:
+		return fmt.Errorf("must be a string, not %T", value)
+	}
+	return nil
 }
 
 func runFromConfig(name string, values map[string]interface{}) (Resource, error) {

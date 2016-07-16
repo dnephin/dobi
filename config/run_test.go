@@ -23,7 +23,7 @@ func (s *RunConfigSuite) SetupTest() {
 
 func (s *RunConfigSuite) TestString() {
 	s.run.Use = "builder"
-	s.run.Command = "run"
+	s.run.Command = ShlexSlice{original: "run"}
 	s.run.Artifact = "foo"
 	s.Equal(s.run.String(), "Run 'run' using the 'builder' image to create 'foo'")
 }
@@ -46,4 +46,20 @@ func (s *RunConfigSuite) TestValidateMissingMount() {
 	err := s.run.Validate(NewPath(""), s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "one is not a mount resource")
+}
+
+func (s *RunConfigSuite) TestRunFromConfig() {
+	values := map[string]interface{}{
+		"use":        "image-res",
+		"command":    "echo foo",
+		"entrypoint": "bash -c",
+	}
+	res, err := runFromConfig("foo", values)
+	run, ok := res.(*RunConfig)
+
+	s.Equal(ok, true)
+	s.Nil(err)
+	s.Equal(run.Use, "image-res")
+	s.Equal(run.Command.Value(), []string{"echo", "foo"})
+	s.Equal(run.Entrypoint.Value(), []string{"bash", "-c"})
 }
