@@ -24,6 +24,7 @@ import (
 type ConfigType struct {
 	Name        string
 	Description string
+	Example     string
 	Fields      []ConfigField
 }
 
@@ -38,11 +39,28 @@ type ConfigField struct {
 	Description string
 }
 
+// OutputFormat is an enumeration of supported output formats
+type OutputFormat string
+
+const (
+	// ReStructuredText format is .rst
+	ReStructuredText OutputFormat = "rst"
+)
+
 // Generate returns documentation for a config type in the requested format, or
 // an error if the documentation could not be generated.
-func Generate(config interface{}, format string) (string, error) {
-	// TODO:
-	return "", nil
+func Generate(config interface{}, format OutputFormat) (string, error) {
+	configType, err := Parse(config)
+	if err != nil {
+		return "", err
+	}
+
+	switch format {
+	case ReStructuredText:
+		return FormatRst(configType)
+	default:
+		return "", fmt.Errorf("Unsupported format %q", format)
+	}
 }
 
 // Parse parses the definition of the struct and returns the metadata about the
@@ -57,6 +75,7 @@ func Parse(source interface{}) (ConfigType, error) {
 
 	config.Name = getTypeName(structType.Name(), comments)
 	config.Description = comments.comment.description
+	config.Example = comments.comment.Get("example", "")
 	config.Fields, err = buildConfigFields(structType, comments)
 	return config, err
 }
@@ -79,6 +98,8 @@ func (c parsedComment) Get(key, def string) string {
 	return def
 }
 
+// TODO: support multi-line examples by keeping track of the last field that was
+// added to values, and adding the line to it.
 func parseComment(name, comment string) parsedComment {
 	lines := strings.Split(comment, "\n")
 	parsed := parsedComment{values: make(map[string]string)}
@@ -91,7 +112,7 @@ func parseComment(name, comment string) parsedComment {
 			continue
 		case len(parts) == 2 || isAnnotation(parts[0]):
 			parsed.values[strings.ToLower(parts[0])] = strings.TrimSpace(parts[1])
-		default:
+		case len(parsed.values) == 0:
 			parsed.description += " " + line
 		}
 	}
