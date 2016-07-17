@@ -2,12 +2,26 @@ package config
 
 import "fmt"
 
-// MetaConfig is a data object for non-resource configuration
+// MetaConfig dobi meta configuration that does not relate to a resource
+// name: meta
 type MetaConfig struct {
+	// Default The name of a resource to run when no resource name is given.
 	Default string
+
+	// Project The name of the project. Used to create unique identifiers for
+	// image tags and container names.
+	// default: *the basename of the working directory*
 	Project string
+
+	// Include A list of other dobi configuration files to include. Paths are
+	// relative to the current working directory.
+	// type: list of filepaths
 	Include []string
-	ExecID  string `config:"exec-id"`
+
+	// ExecID A template value used as part of unique identifiers for image tags
+	// and container names. Supports variables.
+	// default: '{env.USER}'
+	ExecID string `config:"exec-id"`
 }
 
 // Validate the MetaConfig

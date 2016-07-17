@@ -39,11 +39,13 @@ Fields
 
 **{{ .Name }}** {{ if .IsRequired }} (required) {{ end }}
 
-    Type: {{ .Type }} {{ with .Format }} (format: {{ . }}) {{ end }}
+    Type: {{ .Type }}{{ with .Format }} (format: {{ . }}) {{ end }}
+
+	{{ with .Default }}Default: {{ . }} {{ end }}
 
 	{{ .Description }}
 
-	{{ with .Example }} Example: {{ . }} {{ end }}
+	{{ with .Example }}Example: {{ . }} {{ end }}
 
 {{ end }}
 `
