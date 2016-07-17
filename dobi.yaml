@@ -62,6 +62,7 @@ run=shell:
     use: builder
     mounts: [source, dist]
     interactive: true
+    provide-docker: true
     command: bash
 
 run=test-unit:

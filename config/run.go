@@ -10,15 +10,16 @@ import (
 
 // RunConfig is a data object for a command resource
 type RunConfig struct {
-	Use         string `config:"required"`
-	Artifact    string
-	Command     ShlexSlice
-	Mounts      []string
-	Privileged  bool
-	Interactive bool
-	Depends     []string
-	Env         []string
-	Entrypoint  ShlexSlice
+	Use           string `config:"required"`
+	Artifact      string
+	Command       ShlexSlice
+	Mounts        []string
+	Privileged    bool
+	Interactive   bool
+	Depends       []string
+	Env           []string
+	Entrypoint    ShlexSlice
+	ProvideDocker bool
 }
 
 // Dependencies returns the list of implicit and explicit dependencies

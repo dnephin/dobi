@@ -16,6 +16,7 @@ import (
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/utils/fs"
+	dopts "github.com/docker/docker/opts"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -148,26 +149,7 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
 	name := ContainerName(ctx, t.name)
-	// TODO: support other run options
-	container, err := ctx.Client.CreateContainer(docker.CreateContainerOptions{
-		Name: name,
-		Config: &docker.Config{
-			Cmd:          t.config.Command.Value(),
-			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
-			OpenStdin:    interactive,
-			Tty:          interactive,
-			AttachStdin:  interactive,
-			StdinOnce:    interactive,
-			AttachStderr: true,
-			AttachStdout: true,
-			Env:          t.config.Env,
-			Entrypoint:   t.config.Entrypoint.Value(),
-		},
-		HostConfig: &docker.HostConfig{
-			Binds:      t.bindMounts(ctx),
-			Privileged: t.config.Privileged,
-		},
-	})
+	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
 	if err != nil {
 		return fmt.Errorf("Failed creating container %q: %s", name, err)
 	}
@@ -209,6 +191,44 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	}
 
 	return t.wait(ctx.Client, container.ID)
+}
+
+func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
+	interactive := t.config.Interactive
+	// TODO: only set Tty if running in a tty
+	opts := docker.CreateContainerOptions{
+		Name: name,
+		Config: &docker.Config{
+			Cmd:          t.config.Command.Value(),
+			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
+			OpenStdin:    interactive,
+			Tty:          interactive,
+			AttachStdin:  interactive,
+			StdinOnce:    interactive,
+			AttachStderr: true,
+			AttachStdout: true,
+			Env:          t.config.Env,
+			Entrypoint:   t.config.Entrypoint.Value(),
+		},
+		HostConfig: &docker.HostConfig{
+			Binds:      t.bindMounts(ctx),
+			Privileged: t.config.Privileged,
+		},
+	}
+	opts = provideDocker(opts)
+	return opts
+}
+
+func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOptions {
+	dockerHostEnv := os.Getenv("DOCKER_HOST")
+	switch {
+	case dockerHostEnv != "":
+		opts.Config.Env = append(opts.Config.Env, "DOCKER_HOST="+dockerHostEnv)
+	default:
+		path := dopts.DefaultUnixSocket
+		opts.HostConfig.Binds = append(opts.HostConfig.Binds, path+":"+path)
+	}
+	return opts
 }
 
 func (t *Task) wait(client *docker.Client, containerID string) error {
