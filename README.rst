@@ -15,7 +15,7 @@ Resources are defined in a ``dobi.yaml`` file, and are run using the command
 ``dobi`` differs from other build automation tools by making the Docker
 containers, images, mounts, and environments a first-class resource.
 
-See `Getting Started <./docs/index.rst>`_
+See `Getting Started <./docs/source/index.rst>`_
 
 .. image:: https://circleci.com/gh/dnephin/dobi/tree/master.svg?style=svg
     :target: https://circleci.com/gh/dnephin/dobi/tree/master
@@ -61,7 +61,7 @@ Examples
 Documentation
 -------------
 
-See `docs <./docs/index.rst>`_ for complete documentation.
+See `docs <./docs/source/index.rst>`_ for complete documentation.
 
 Contributing
 ------------
