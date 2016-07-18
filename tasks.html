@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tasks &mdash; dobi 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dobi 0.2 documentation" href="index.html" />
+    <link rel="prev" title="Config Variables" href="variables.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tasks">
+<h1>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h1>
+<p>Each resource defined in the <code class="docutils literal"><span class="pre">dobi.yml</span></code> provides one or more tasks. Each
+resource has a default task, which is usually the &#8220;create&#8221; or &#8220;build&#8221; action
+associated with that resource (build an image, run a container, etc).</p>
+<p>Each resource also defines a &#8220;remove&#8221; task which can be used to remove the
+artifact the resource created.</p>
+<p>Tasks are run using <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">RESOURCE[:ACTION]</span></code> where <code class="docutils literal"><span class="pre">RESOURCE:ACTION</span></code> is the
+name of the task.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#tasks" id="id3">Tasks</a><ul>
+<li><a class="reference internal" href="#image-tasks" id="id4">Image Tasks</a></li>
+<li><a class="reference internal" href="#compose-tasks" id="id5">Compose Tasks</a></li>
+<li><a class="reference internal" href="#run-tasks" id="id6">Run Tasks</a></li>
+<li><a class="reference internal" href="#mount-tasks" id="id7">Mount Tasks</a></li>
+<li><a class="reference internal" href="#alias-tasks" id="id8">Alias Tasks</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="image-tasks">
+<h2>Image Tasks<a class="headerlink" href="#image-tasks" title="Permalink to this headline">¶</a></h2>
+<p>Each image resource has the following tasks.</p>
+<div class="section" id="build-default">
+<h3>Build (default)<a class="headerlink" href="#build-default" title="Permalink to this headline">¶</a></h3>
+<p>Build (<code class="docutils literal"><span class="pre">:build</span></code>) a Docker image from a Dockerfile.</p>
+<p>Push
+~~</p>
+<p>Push (<code class="docutils literal"><span class="pre">:push</span></code>) the image to a registry.</p>
+<p>The <code class="docutils literal"><span class="pre">push</span></code> task always depends on the <code class="docutils literal"><span class="pre">build</span></code> task for the image.</p>
+</div>
+<div class="section" id="pull">
+<h3>Pull<a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h3>
+<p>Pull (<code class="docutils literal"><span class="pre">:pull</span></code>) the image from a registry.</p>
+</div>
+<div class="section" id="remove">
+<h3>Remove<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<p>Remove (<code class="docutils literal"><span class="pre">:rm</span></code>) the image.</p>
+</div>
+</div>
+<div class="section" id="compose-tasks">
+<h2>Compose Tasks<a class="headerlink" href="#compose-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="up-default">
+<h3>Up (default)<a class="headerlink" href="#up-default" title="Permalink to this headline">¶</a></h3>
+<p>Up (<code class="docutils literal"><span class="pre">:up</span></code>) runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> with the files and project name from
+the resource to create a new isolated environment.</p>
+</div>
+<div class="section" id="down">
+<h3>Down<a class="headerlink" href="#down" title="Permalink to this headline">¶</a></h3>
+<p>Down (<code class="docutils literal"><span class="pre">:down</span></code>, or <code class="docutils literal"><span class="pre">:rm</span></code>) removes all the containers and networks created by
+Compose.</p>
+</div>
+<div class="section" id="attach">
+<h3>Attach<a class="headerlink" href="#attach" title="Permalink to this headline">¶</a></h3>
+<p>Attach (<code class="docutils literal"><span class="pre">:attach</span></code>) runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span></code> and attaches to the logs.</p>
+</div>
+</div>
+<div class="section" id="run-tasks">
+<h2>Run Tasks<a class="headerlink" href="#run-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="run-default">
+<h3>Run (default)<a class="headerlink" href="#run-default" title="Permalink to this headline">¶</a></h3>
+<p>Run (<code class="docutils literal"><span class="pre">:run</span></code>) runs a conatiner.</p>
+</div>
+</div>
+<div class="section" id="mount-tasks">
+<h2>Mount Tasks<a class="headerlink" href="#mount-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-default">
+<h3>Create (default)<a class="headerlink" href="#create-default" title="Permalink to this headline">¶</a></h3>
+<p>Create (<code class="docutils literal"><span class="pre">:create</span></code>) creates the host directory to be bind mounted.</p>
+</div>
+</div>
+<div class="section" id="alias-tasks">
+<h2>Alias Tasks<a class="headerlink" href="#alias-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Run (default)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Run (<code class="docutils literal"><span class="pre">:run</span></code>) runs all the tasks in the list of tasks</p>
+</div>
+<div class="section" id="id2">
+<h3>Remove<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Remove (<code class="docutils literal"><span class="pre">:rm</span></code>) runs the remove task for all the resources in the task list in
+reverse order.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dobi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Config Variables</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#image-tasks">Image Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compose-tasks">Compose Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-tasks">Run Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mount-tasks">Mount Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alias-tasks">Alias Tasks</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="variables.html" title="previous chapter">Config Variables</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/tasks.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

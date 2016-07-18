@@ -1,0 +1,20 @@
+
+
+alias
+-----------
+
+An **alias** resource is a list of other tasks which will be run in the order they are listed.
+
+
+
+
+
+**tasks**  (required) 
+
+    :type: list of tasks
+    
+    
+    :description: The list of tasks
+    
+
+

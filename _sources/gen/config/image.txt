@@ -1,0 +1,90 @@
+
+
+image
+-----------
+
+An **image** resource provides actions for working with a Docker image. If an image is buildable it is considered up-to-date if all files in the build context have a modified time older than the created time of the image.
+
+
+
+
+
+**image**  (required) 
+
+    :type: string
+    
+    
+    :description: The name of the **image** without any tags
+    
+
+
+
+**dockerfile** 
+
+    :type: string
+    
+    
+    :description: The path to the ``Dockerfile`` used to build the image. This path is relative to the **context**.
+    
+
+
+
+**context** 
+
+    :type: string
+    
+    :default: ``.`` 
+    :description: The build context used to build the image.
+    
+
+
+
+**args** 
+
+    :type: 
+    
+    
+    :description: Build args used to build the image.
+    
+
+
+
+**pull-base-image-on-build** 
+
+    :type: bool
+    
+    
+    :description: If **true** the base image used in the ``Dockerfile`` will be pulled before building the image.
+    
+
+
+
+**pull** 
+
+    :type: string
+    
+    
+    :description: Not implemented yet
+    
+
+
+
+**tags** 
+
+    :type: list of tags
+    
+    :default: ``{unique}`` 
+    :description: The image tags applied to the image before pushing the image to a registry.  The first tag in the list is used when the image is built.
+    
+
+
+
+**depends** 
+
+    :type: list of resources
+    
+    
+    :description: The list of resource dependencies
+    
+
+

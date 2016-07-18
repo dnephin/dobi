@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Config Variables &mdash; dobi 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dobi 0.2 documentation" href="index.html" />
+    <link rel="next" title="Tasks" href="tasks.html" />
+    <link rel="prev" title="Config Reference" href="config.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="config-variables">
+<h1>Config Variables<a class="headerlink" href="#config-variables" title="Permalink to this headline">¶</a></h1>
+<p>Some fields in <code class="docutils literal"><span class="pre">dobi.yaml</span></code> support variable interpolation from values provided
+by <strong>dobi</strong> or the shell environment.  Variables are wraped in braces, for example
+<code class="docutils literal"><span class="pre">{env.USER}</span></code> would inject the value of the <code class="docutils literal"><span class="pre">$USER</span></code> environment variable.</p>
+<div class="section" id="format">
+<h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
+<p>Environment variables have the following format:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="p">[</span><span class="n">section</span><span class="o">.</span><span class="p">]</span><span class="n">variable</span><span class="p">[:</span><span class="n">default</span><span class="p">]</span> <span class="p">}</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt><strong>{}</strong></dt>
+<dd>All variables are wrapped in braces</dd>
+<dt><strong>section</strong></dt>
+<dd>Some variables are grouped into sections (like <strong>git</strong> or <strong>env</strong>)</dd>
+<dt><strong>default</strong></dt>
+<dd>Variables can have default values. The value after the last colon is taken
+as the default value.</dd>
+</dl>
+</div>
+<div class="section" id="supported-variables">
+<h2>Supported Variables<a class="headerlink" href="#supported-variables" title="Permalink to this headline">¶</a></h2>
+<p>The following variables are made avariables:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">env.&lt;variable&gt;</span></code> - the value of an environment variable</li>
+<li><code class="docutils literal"><span class="pre">git.sha</span></code> - the current git sha</li>
+<li><code class="docutils literal"><span class="pre">git.branch</span></code> - the current git branch name</li>
+<li><code class="docutils literal"><span class="pre">time.&lt;format&gt;</span></code> - a date or time using <a class="reference external" href="https://github.com/metakeule/fmtdate#placeholders">fmtdate</a> (note: if your time
+format includes a <code class="docutils literal"><span class="pre">:</span></code> you must add another <code class="docutils literal"><span class="pre">:</span></code> to the end of the format,
+otherwise the string after the final <code class="docutils literal"><span class="pre">:</span></code> will be taken as the default value)</li>
+<li><code class="docutils literal"><span class="pre">unique</span></code> - a unique execution id generate from the project name and exec id</li>
+<li><code class="docutils literal"><span class="pre">exec-id</span></code> - an execution id (without project name)</li>
+<li><code class="docutils literal"><span class="pre">project</span></code> - the project name</li>
+</ul>
+</div>
+<div class="section" id="config-fields">
+<h2>Config Fields<a class="headerlink" href="#config-fields" title="Permalink to this headline">¶</a></h2>
+<p>The following config fields support variables:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">run.env</span></code></li>
+<li><code class="docutils literal"><span class="pre">image.tag</span></code></li>
+<li><code class="docutils literal"><span class="pre">compose.files</span></code></li>
+<li><code class="docutils literal"><span class="pre">compose.project</span></code></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dobi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Config Variables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#format">Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-variables">Supported Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-fields">Config Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="config.html" title="previous chapter">Config Reference</a></li>
+      <li>Next: <a href="tasks.html" title="next chapter">Tasks</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/variables.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

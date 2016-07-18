@@ -1,0 +1,40 @@
+
+
+compose
+-----------
+
+A compose resource runs ``docker-compose`` to create an isolated environment.
+
+
+
+
+
+**files** 
+
+    :type: list of filenames
+    
+    
+    :description: The Compose files used by Compose
+    
+
+
+
+**project**  (required) 
+
+    :type: string
+    
+    
+    :description: The project name used by Compose
+    
+
+
+
+**depends** 
+
+    :type: list of resource names
+    
+    
+    :description: The list of resource dependencies
+    
+
+

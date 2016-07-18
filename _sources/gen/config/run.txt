@@ -1,0 +1,110 @@
+
+
+run-config
+-----------
+
+A **run** resource runs a process in a container
+
+
+
+
+
+**use**  (required) 
+
+    :type: string
+    
+    
+    :description: 
+    
+
+
+
+**artifact** 
+
+    :type: string
+    
+    
+    :description: 
+    
+
+
+
+**command** 
+
+    :type: ShlexSlice
+    
+    
+    :description: 
+    
+
+
+
+**mounts** 
+
+    :type: 
+    
+    
+    :description: 
+    
+
+
+
+**privileged** 
+
+    :type: bool
+    
+    
+    :description: 
+    
+
+
+
+**interactive** 
+
+    :type: bool
+    
+    
+    :description: 
+    
+
+
+
+**depends** 
+
+    :type: 
+    
+    
+    :description: 
+    
+
+
+
+**env** 
+
+    :type: 
+    
+    
+    :description: 
+    
+
+
+
+**entrypoint** 
+
+    :type: ShlexSlice
+    
+    
+    :description: 
+    
+
+
+
+**provide-docker** 
+
+    :type: bool
+    
+    
+    :description: 
+    
+
+

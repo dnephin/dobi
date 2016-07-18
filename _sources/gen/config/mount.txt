@@ -1,0 +1,40 @@
+
+
+mount
+-----------
+
+A **mount** resource creates a host bind mount.
+
+
+
+
+
+**bind**  (required) 
+
+    :type: string
+    
+    
+    :description: The host path to create and mount
+    
+
+
+
+**path**  (required) 
+
+    :type: string
+    
+    
+    :description: The container path of the mount
+    
+
+
+
+**read-only** 
+
+    :type: bool
+    
+    
+    :description: Set the mount to be read-only
+    
+
+

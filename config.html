@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Config Reference &mdash; dobi 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dobi 0.2 documentation" href="index.html" />
+    <link rel="next" title="Config Variables" href="variables.html" />
+    <link rel="prev" title="Examples" href="examples.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="config-reference">
+<h1>Config Reference<a class="headerlink" href="#config-reference" title="Permalink to this headline">¶</a></h1>
+<p>Every section in a <code class="file docutils literal"><span class="pre">dobi.yaml</span></code> configuration file defines a resource (with the
+exception of <a class="reference internal" href="#meta">meta</a>, which is configuration for <strong>dobi</strong>).</p>
+<p>Each section in the file has the following form:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">type=name</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">field</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">value</span>
+    <span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+<p>Each resource must be one of the following resource types:</p>
+<div class="section" id="image">
+<h2>image<a class="headerlink" href="#image" title="Permalink to this headline">¶</a></h2>
+<p>An <strong>image</strong> resource provides actions for working with a Docker image. If an image is buildable it is considered up-to-date if all files in the build context have a modified time older than the created time of the image.</p>
+<p><strong>image</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The name of the <strong>image</strong> without any tags</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>dockerfile</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The path to the <code class="docutils literal"><span class="pre">Dockerfile</span></code> used to build the image. This path is relative to the <strong>context</strong>.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>context</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">.</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The build context used to build the image.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>args</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Build args used to build the image.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>pull-base-image-on-build</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">If <strong>true</strong> the base image used in the <code class="docutils literal"><span class="pre">Dockerfile</span></code> will be pulled before building the image.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>pull</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Not implemented yet</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>tags</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tags</td>
+</tr>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">{unique}</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The image tags applied to the image before pushing the image to a registry.  The first tag in the list is used when the image is built.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>depends</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resources</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of resource dependencies</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="run-config">
+<h2>run-config<a class="headerlink" href="#run-config" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>run</strong> resource runs a process in a container</p>
+<p><strong>use</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>artifact</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>command</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">ShlexSlice</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>mounts</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>privileged</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>interactive</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>depends</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>env</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>entrypoint</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">ShlexSlice</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>provide-docker</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Each run resource uses an image defined by an image resource.  By default, a
+run resource is never considered up-to-date, it will always run.  If a run
+resource has an <code class="docutils literal"><span class="pre">artifact</span></code> property, which is a path to a local file, the
+last modified time of that file will be used. A run resource is considered
+up-to-date if the modified time of the <code class="docutils literal"><span class="pre">artifact</span></code> is more recent then:</p>
+<ul class="simple">
+<li>the created time of the image it uses</li>
+<li>the last modified time of all files in any mounts used by the resource</li>
+</ul>
+<p>The image resource used by a run resource is automatically added
+as an implicit dependency.</p>
+<p>If a run resource depends on another run resource, the dependency will be run first.</p>
+<p>If a run resource uses <code class="docutils literal"><span class="pre">mounts</span></code>, the mounts resources will be run first.</p>
+<p>If a run resource uses a <code class="docutils literal"><span class="pre">network</span></code> resource it will be run first and the run
+resource will join the default network for the environment.</p>
+</div>
+<div class="section" id="mount">
+<h2>mount<a class="headerlink" href="#mount" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>mount</strong> resource creates a host bind mount.</p>
+<p><strong>bind</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The host path to create and mount</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>path</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The container path of the mount</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>read-only</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Set the mount to be read-only</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="alias">
+<h2>alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
+<p>An <strong>alias</strong> resource is a list of other tasks which will be run in the order they are listed.</p>
+<p><strong>tasks</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tasks</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of tasks</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="compose">
+<h2>compose<a class="headerlink" href="#compose" title="Permalink to this headline">¶</a></h2>
+<p>A compose resource runs <code class="docutils literal"><span class="pre">docker-compose</span></code> to create an isolated environment.</p>
+<p><strong>files</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filenames</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The Compose files used by Compose</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>project</strong>  (required)</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The project name used by Compose</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>depends</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resource names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of resource dependencies</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="meta">
+<h2>meta<a class="headerlink" href="#meta" title="Permalink to this headline">¶</a></h2>
+<p><strong>dobi</strong> meta config allows you to configure how <strong>dobi</strong> runs</p>
+<p><strong>default</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The name of a resource to run when no resource name is given.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>project</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><em>basename of the working directory</em></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The name of the project. Used to create unique identifiers for image tags and container names.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>include</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filepaths</td>
+</tr>
+<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">A list of other dobi configuration files to include. Paths are relative to the current working directory.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>exec-id</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">{env.USER}</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">A template value used as part of unique identifiers for image tags and container names. Supports variables.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dobi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Config Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#image">image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-config">run-config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mount">mount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alias">alias</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compose">compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#meta">meta</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Config Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="examples.html" title="previous chapter">Examples</a></li>
+      <li>Next: <a href="variables.html" title="next chapter">Config Variables</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/config.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

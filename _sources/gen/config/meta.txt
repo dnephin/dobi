@@ -1,0 +1,50 @@
+
+
+meta
+-----------
+
+**dobi** meta config allows you to configure how **dobi** runs
+
+
+
+
+
+**default** 
+
+    :type: string
+    
+    
+    :description: The name of a resource to run when no resource name is given.
+    
+
+
+
+**project** 
+
+    :type: string
+    
+    :default: *basename of the working directory* 
+    :description: The name of the project. Used to create unique identifiers for image tags and container names.
+    
+
+
+
+**include** 
+
+    :type: list of filepaths
+    
+    
+    :description: A list of other dobi configuration files to include. Paths are relative to the current working directory.
+    
+
+
+
+**exec-id** 
+
+    :type: string
+    
+    :default: ``{env.USER}`` 
+    :description: A template value used as part of unique identifiers for image tags and container names. Supports variables.
+    
+
+
