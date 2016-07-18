@@ -1,0 +1,25 @@
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  sha: 'v0.4.2'
+  hooks:
+    - id: check-merge-conflict
+    - id: end-of-file-fixer
+      files: '\.(go|md|sh|yml|yaml|Dockerfile|json|ini|rst)$'
+      exclude: '^vendor/'
+    - id: trailing-whitespace
+      files: '\.(go|sh|yml|yaml|Dockerfile|json|ini|rst)$'
+      exclude: '^vendor/'
+    - id: check-yaml
+      exclude: '^vendor/'
+    - id: check-json
+      exclude: '^vendor/'
+
+- repo: git://github.com/dnephin/pre-commit-golang
+  sha: HEAD
+  hooks:
+    - id: go-fmt
+      exclude: '^vendor/'
+      args: ['-s']
+    - id: go-lint
+      exclude: '^vendor/'
+    - id: go-vet
+      exclude: '^vendor/'
