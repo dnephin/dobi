@@ -8,7 +8,7 @@ import (
 	shlex "github.com/kballard/go-shellquote"
 )
 
-// RunConfig is a data object for a command resource
+// RunConfig A **run** resource runs a process in a container
 type RunConfig struct {
 	Use           string `config:"required"`
 	Artifact      string

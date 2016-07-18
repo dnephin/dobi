@@ -2,13 +2,10 @@
 #
 # dobi documentation build configuration file,
 
-import sphinx_bootstrap_theme
-
 # -- General configuration ------------------------------------------------
 
 needs_sphinx = '1.4.5'
 
-extensions = []
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
@@ -29,20 +26,27 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
+import alabaster
+
 html_theme = 'alabaster'
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-"""
-html_theme_options = {
-    'bootswatch_theme': 'yeti',
-    'bootstrap_version': "3",
+html_theme_path = [alabaster.get_path()]
+extensions = ['alabaster', 'sphinx.ext.githubpages']
 
-    'navbar_site_name': "Pages",
-    'navbar_sidebarrel': False,
-    'navbar_pagenav': False,
-
-
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+    ]
 }
+
 """
+import sphinx_rtd_theme
+html_theme = "sphinx_rtd_theme"
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+"""
+
 # html_title = u'dobi v0.2'
 # html_short_title = None
 # html_logo = None

@@ -32,20 +32,15 @@ Example
 {{ . }}
 {{ end }}
 
-Fields
-~~~~~~
-
 {{ range .Fields }}
 
 **{{ .Name }}** {{ if .IsRequired }} (required) {{ end }}
 
-    Type: {{ .Type }}{{ with .Format }} (format: {{ . }}) {{ end }}
-
-	{{ with .Default }}Default: {{ . }} {{ end }}
-
-	{{ .Description }}
-
-	{{ with .Example }}Example: {{ . }} {{ end }}
+    :type: {{ .Type }}
+    {{ with .Format }}:format: {{ . }}) {{ end }}
+    {{ with .Default }}:default: {{ . }} {{ end }}
+    :description: {{ .Description }}
+    {{ with .Example }}:example: {{ . }} {{ end }}
 
 {{ end }}
 `

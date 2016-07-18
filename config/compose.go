@@ -7,10 +7,17 @@ import (
 	"github.com/dnephin/dobi/execenv"
 )
 
-// ComposeConfig is a data object for a task compose
+// ComposeConfig A compose resource runs ``docker-compose`` to create an
+// isolated environment.
+// name: compose
 type ComposeConfig struct {
-	Files   []string
+	// Files The Compose files used by Compose
+	// type: list of filenames
+	Files []string
+	// Project The project name used by Compose
 	Project string `config:"required"`
+	// Depends The list of resource dependencies
+	// type: list of resource names
 	Depends []string
 }
 

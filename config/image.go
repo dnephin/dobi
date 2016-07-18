@@ -7,16 +7,35 @@ import (
 	"github.com/dnephin/dobi/execenv"
 )
 
-// ImageConfig ia a data object for image resource
+// ImageConfig An **image** resource provides actions for working with a Docker
+// image. If an image is buildable it is considered up-to-date if all files in
+// the build context have a modified time older than the created time of the
+// image.
+// name: image
 type ImageConfig struct {
-	Image                string `config:"required"`
-	Dockerfile           string
-	Context              string
-	Args                 map[string]string
+	// Image The name of the **image** without any tags
+	Image string `config:"required"`
+	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
+	// path is relative to the **context**.
+	Dockerfile string
+	// Context The build context used to build the image.
+	// default: ``.``
+	Context string
+	// Args Build args used to build the image.
+	Args map[string]string
+	// PullBaseImageOnBuild If **true** the base image used in the
+	// ``Dockerfile`` will be pulled before building the image.
 	PullBaseImageOnBuild bool
-	Pull                 string
-	Tags                 []string
-	Depends              []string
+	// Pull Not implemented yet
+	Pull string
+	// Tags The image tags applied to the image before pushing the image to a
+	// registry.  The first tag in the list is used when the image is built.
+	// default: ``{unique}``
+	// type: list of tags
+	Tags []string
+	// Depends The list of resource dependencies
+	// type: list of resources
+	Depends []string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies

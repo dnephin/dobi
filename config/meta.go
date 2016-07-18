@@ -2,7 +2,7 @@ package config
 
 import "fmt"
 
-// MetaConfig dobi meta configuration that does not relate to a resource
+// MetaConfig **dobi** meta config allows you to configure how **dobi** runs
 // name: meta
 type MetaConfig struct {
 	// Default The name of a resource to run when no resource name is given.
@@ -10,7 +10,7 @@ type MetaConfig struct {
 
 	// Project The name of the project. Used to create unique identifiers for
 	// image tags and container names.
-	// default: *the basename of the working directory*
+	// default: *basename of the working directory*
 	Project string
 
 	// Include A list of other dobi configuration files to include. Paths are
@@ -20,7 +20,7 @@ type MetaConfig struct {
 
 	// ExecID A template value used as part of unique identifiers for image tags
 	// and container names. Supports variables.
-	// default: '{env.USER}'
+	// default: ``{env.USER}``
 	ExecID string `config:"exec-id"`
 }
 

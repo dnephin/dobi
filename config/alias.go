@@ -7,8 +7,12 @@ import (
 	"github.com/dnephin/dobi/execenv"
 )
 
-// AliasConfig is a data object for a task alias
+// AliasConfig An **alias** resource is a list of other tasks which will be run
+// in the order they are listed.
+// name: alias
 type AliasConfig struct {
+	// Tasks The list of tasks
+	// type: list of tasks
 	Tasks []string `config:"required"`
 }
 

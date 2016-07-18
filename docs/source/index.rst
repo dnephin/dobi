@@ -7,7 +7,7 @@ A build automation tool for Docker applications.
 Getting Started
 ---------------
 
-**dobi** uses a YAML config file (``dobi.yaml`` by default) to store the project
+**dobi** uses a YAML config file (:doc:`dobi.yaml <config>` by default) to store the project
 tasks required to build, test, and deploy your application.  The first step is
 to create a ``dobi.yaml``.
 
