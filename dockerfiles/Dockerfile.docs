@@ -1,0 +1,21 @@
+
+FROM    alpine:3.4
+
+RUN     apk -U add \
+            python \
+            py-pip \
+            go \
+            bash \
+            git
+
+ENV     GOPATH=/go
+RUN     go get github.com/dnephin/filewatcher && \
+        cp /go/bin/filewatcher /usr/bin/ && \
+        rm -rf /go/src/* /go/pkg/* /go/bin/*
+
+RUN     pip install \
+            sphinx==1.4.5 \
+            sphinx_bootstrap_theme==0.4.11
+
+WORKDIR /go/src/github.com/dnephin/dobi
+ENV     PS1="# "

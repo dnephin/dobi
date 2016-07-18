@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	basePath = "docs/gen/config/"
+	basePath = "docs/source/gen/config/"
 )
 
 func write(filepath string, source interface{}) error {

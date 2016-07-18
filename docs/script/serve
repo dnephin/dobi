@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -eu
+
+ipaddr=$(ip addr show dev eth0 |
+         grep 'inet ' | awk '{print $2}' | awk -F/ '{print $1}')
+
+
+echo "Serving docs: http://$ipaddr:8080"
+cd docs/build/html
+python -m SimpleHTTPServer 8080

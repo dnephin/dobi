@@ -1,3 +1,5 @@
 vendor
 dist
-docs/gen
+docs/source/gen
+docs/build
+docs/doctrees

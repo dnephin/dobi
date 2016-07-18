@@ -40,6 +40,11 @@ image=releaser:
     image: dobi-release
     dockerfile: dockerfiles/Dockerfile.release
 
+image=docs-img:
+    image: dobi-docs-dev
+    dockerfile: dockerfiles/Dockerfile.docs
+
+
 #
 # Run
 #
@@ -81,6 +86,31 @@ run=release:
      - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
      - "DOBI_VERSION={env.CIRCLE_TAG}"
 
+run=docs-build:
+    use: docs-img
+    artifact: ./docs/build/html
+    mounts: [source]
+    command: ./docs/script/build
+
+run=docs-shell:
+    use: docs-img
+    mounts: [source]
+    interactive: true
+    command: bash
+
+run=docs-watch:
+    use: docs-img
+    mounts: [source]
+    interactive: true
+    command: ./docs/script/watch
+
+run=docs:
+    use: docs-img
+    mounts: [source]
+    interactive: true
+    command: ./docs/script/serve
+    depends: ['docs-build']
+
 #
 # Aliases
 #
@@ -89,4 +119,4 @@ alias=test:
     tasks: [test-unit]
 
 alias=all:
-    tasks: [lint, test, binary]
+    tasks: [lint, test, docs-build, binary]

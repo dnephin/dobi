@@ -1,0 +1,8 @@
+#!/bin/bash
+
+exec filewatcher \
+    -d 'docs/source' \
+    -x '**/*.swp' \
+    -x 'docs/source/gen' \
+    -- \
+    docs/script/build
