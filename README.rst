@@ -44,7 +44,7 @@ See `Examples <https://dnephin.github.io/dobi/examples.html>`_.
 Documentation
 -------------
 
-See `Documentantion <https://dnephin.github.io/dobi/>`_
+See `Documentation <https://dnephin.github.io/dobi/>`_
 
 
 Contributing
