@@ -5,99 +5,119 @@ Each resource defined in the ``dobi.yml`` provides one or more tasks. Each
 resource has a default task, which is usually the "create" or "build" action
 associated with that resource (build an image, run a container, etc).
 
-Each resource also defines a "remove" task which can be used to remove the
-artifact the resource created.
+Each resource also defines a ``remove`` task which can be used to remove
+anything that was created by the create action of the resource.
 
 Tasks are run using ``dobi RESOURCE[:ACTION]`` where ``RESOURCE:ACTION`` is the
 name of the task.
 
 
-.. contents::
-    :backlinks: none
-    :depth: 2
-
-
 Image Tasks
 -----------
 
-Each image resource has the following tasks.
+`image <./config.html#image>`_ resources have the following tasks:
 
-Build (default)
-~~~~~~~~~~~~~~~
+``:build`` *(default)*
+~~~~~~~~~~~~~~~~~~~~~~
 
-Build (``:build``) a Docker image from a Dockerfile.
-
-
-Push
-~~
-
-Push (``:push``) the image to a registry.
-
-The ``push`` task always depends on the ``build`` task for the image.
+Build a Docker image from a Dockerfile. The image is tagged using the **image**
+field and the first tag from the list of **tags** in the image resource.
 
 
-Pull
-~~~~
+``:push``
+~~~~~~~~~
+
+Push the image tags to a registry.
+
+The ``:push`` action always depends on the ``:build`` action for the image.
 
 
-Pull (``:pull``) the image from a registry.
+``:pull``
+~~~~~~~~~
 
 
-Remove
-~~~~~~
+.. note::
 
-Remove (``:rm``) the image.
+    This action is planned, but not implemented yet.
 
 
-Compose Tasks
--------------
+Pull the image from a registry.
 
-Up (default)
-~~~~~~~~~~~~
 
-Up (``:up``) runs ``docker-compose up -d`` with the files and project name from
-the resource to create a new isolated environment.
+``:remove``
+~~~~~~~~~~~
 
-Down
-~~~~
+:alias: ``:rm``
 
-Down (``:down``, or ``:rm``) removes all the containers and networks created by
-Compose.
-
-Attach
-~~~~~~
-
-Attach (``:attach``) runs ``docker-compose up`` and attaches to the logs.
+Remove all the image tags, and the image.
 
 
 Run Tasks
 ---------
 
-Run (default)
-~~~~~~~~~~~~~
+``:run`` *(default)*
+~~~~~~~~~~~~~~~~~~~~
 
-Run (``:run``) runs a conatiner.
+Run a process in a container.
 
+``:remove``
+~~~~~~~~~~~
+
+:alias: ``:rm``
+
+Remove the container (if it exists), and remove the artifact (if one is defined).
 
 Mount Tasks
 -----------
 
-Create (default)
-~~~~~~~~~~~~~~~~
+``:create`` *(default)*
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Create (``:create``) creates the host directory to be bind mounted.
+Create the host directory to be bind mounted, if it doesn't already exist.
 
+
+``:remove``
+~~~~~~~~~~~
+
+:alias: ``:rm``
+
+Does nothing. This action exists because all resources have have a remove task.
 
 Alias Tasks
 -----------
 
-Run (default)
-~~~~~~~~~~~~~
+``:run``` *(default)*
+~~~~~~~~~~~~~~~~~~~~~
 
-Run (``:run``) runs all the tasks in the list of tasks
+Run all the tasks in the list of tasks.
 
-Remove
-~~~~~~
+``:remove``
+~~~~~~~~~~~
 
-Remove (``:rm``) runs the remove task for all the resources in the task list in
+:alias: ``:rm``
+
+Remove runs the remove task for all the resources in the task list in
 reverse order.
+
+
+Compose Tasks
+-------------
+
+``:up`` *(default)*
+~~~~~~~~~~~~~~~~~~~
+
+Up runs ``docker-compose up -d`` with the files and project name from
+the resource to create a new isolated environment.
+
+``:down``
+~~~~~~~~~
+
+:alias: ``:rm``, ``:remove``
+
+Down runs ``docker-compose down`` to remove all the containers and networks created
+by Compose.
+
+``:attach``
+~~~~~~~~~~~
+
+Attach runs ``docker-compose up`` and attaches to the logs.
