@@ -6,5 +6,6 @@ exec filewatcher \
     -x '**/*.swp' \
     -x 'dist' \
     -x 'script' \
+    -x 'docs' \
     -- \
     go test -v './${dir}'

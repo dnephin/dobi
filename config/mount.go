@@ -8,6 +8,14 @@ import (
 
 // MountConfig A **mount** resource creates a host bind mount.
 // name: mount
+// example: A mount named ``source`` that mounts the current host directory as
+// ``/app/code`` in the container.
+//
+// .. code-block:: yaml
+//
+//     mount=source:
+//       bind: .
+//       path: /app/code
 type MountConfig struct {
 	// Bind The host path to create and mount
 	Bind string `config:"required"`

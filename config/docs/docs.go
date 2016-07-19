@@ -101,22 +101,22 @@ func (c parsedComment) Get(key, def string) string {
 // TODO: support multi-line examples by keeping track of the last field that was
 // added to values, and adding the line to it.
 func parseComment(name, comment string) parsedComment {
-	lines := strings.Split(comment, "\n")
-	parsed := parsedComment{values: make(map[string]string)}
-	parsed.description = strings.TrimSpace(strings.TrimPrefix(lines[0], name)) + " "
+	lines := strings.Split(strings.TrimSpace(comment), "\n")
 
+	parsed := parsedComment{values: make(map[string]string)}
+	parsed.description = strings.TrimPrefix(lines[0], name+" ")
+
+	var lastValue string
 	for _, line := range lines[1:] {
 		parts := strings.SplitN(line, ":", 2)
 		switch {
 		case len(parts) == 2 && isAnnotation(parts[0]):
-			parsed.values[strings.ToLower(parts[0])] = strings.TrimSpace(parts[1])
+			lastValue = strings.ToLower(parts[0])
+			parsed.values[lastValue] = strings.TrimPrefix(parts[1], " ")
 		case len(parsed.values) == 0:
-			switch line {
-			case "":
-				parsed.description += "\n\n"
-			default:
-				parsed.description += line + " "
-			}
+			parsed.description += "\n" + line
+		case lastValue != "":
+			parsed.values[lastValue] += "\n" + line
 		}
 	}
 
