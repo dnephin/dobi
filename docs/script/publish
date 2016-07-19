@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# Publish docs to github
+#
+
+set -eu
+
+dobi docs-build
+
+git fetch --all --tags -p
+git checkout gh-pages || git checkout -b gh-pages origin/gh-pages
+git pull origin gh-pages
+
+cp -r docs/build/html/* .
+
+git status
+
+git add \
+    *.html \
+    _sources \
+    _static \
+    objects.inv \
+    searchindex.js
+
+git commit -m "Update to docs." --signoff
+
+echo
+echo
+echo "If everything looks ok, run 'git push origin'"
