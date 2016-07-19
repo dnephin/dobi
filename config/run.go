@@ -8,17 +8,47 @@ import (
 	shlex "github.com/kballard/go-shellquote"
 )
 
-// RunConfig A **run** resource runs a process in a container
+// RunConfig A **run** resource uses an `image`_ to run a conatiner.
+// A **run** resource that doesn't have an **artifact** is never considered
+// up-to-date and will always run.  If a run resource has an **artifact**
+// the last modified time of that file will be used as the modified time for the
+// **run** resource.
+//
+// The `image`_ specified in **use** and any `mount`_ resources listed in
+// **mounts** are automatically added as dependencies and will always be
+// created first.
+// name: run
 type RunConfig struct {
-	Use           string `config:"required"`
-	Artifact      string
-	Command       ShlexSlice
-	Mounts        []string
-	Privileged    bool
-	Interactive   bool
-	Depends       []string
-	Env           []string
-	Entrypoint    ShlexSlice
+	// Use The name of an `image`_ resource. The referenced image is used
+	// to created the container for the **run**.
+	Use string `config:"required"`
+	// Artifact A host path to a file or directory that is the output of this
+	// **run**. Paths are relative to the current working directory.
+	Artifact string
+	// Command The command to run in the container.
+	// type: shell quoted string
+	// example: ``"bash -c 'echo something'"``
+	Command ShlexSlice
+	// Entrypoint Override the image entrypoint
+	// type: shell quoted string
+	Entrypoint ShlexSlice
+	// Mounts A list of `mount`_ resources to use when creating the container.
+	// type: list of mount resources
+	Mounts []string
+	// Privileged Gives extended privileges to the container
+	Privileged bool
+	// Interactive Makes the container interative and enables a tty.
+	Interactive bool
+	// Depends The list of resources dependencies
+	// type: list of resource names
+	Depends []string
+	// Env Environment variables to pass to the container. This field
+	// supports :doc:`variables`.
+	// type: list of ``key=value`` strings
+	Env []string
+	// ProvideDocker Exposes the docker engine to the container by either
+	// mounting the unix socket or setting the **DOCKER_HOST** environment
+	// variable.
 	ProvideDocker bool
 }
 

@@ -103,17 +103,20 @@ func (c parsedComment) Get(key, def string) string {
 func parseComment(name, comment string) parsedComment {
 	lines := strings.Split(comment, "\n")
 	parsed := parsedComment{values: make(map[string]string)}
-	parsed.description = strings.TrimSpace(strings.TrimPrefix(lines[0], name))
+	parsed.description = strings.TrimSpace(strings.TrimPrefix(lines[0], name)) + " "
 
 	for _, line := range lines[1:] {
 		parts := strings.SplitN(line, ":", 2)
 		switch {
-		case line == "":
-			continue
-		case len(parts) == 2 || isAnnotation(parts[0]):
+		case len(parts) == 2 && isAnnotation(parts[0]):
 			parsed.values[strings.ToLower(parts[0])] = strings.TrimSpace(parts[1])
 		case len(parsed.values) == 0:
-			parsed.description += " " + line
+			switch line {
+			case "":
+				parsed.description += "\n\n"
+			default:
+				parsed.description += line + " "
+			}
 		}
 	}
 

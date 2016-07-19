@@ -22,6 +22,7 @@ type ImageConfig struct {
 	// default: ``.``
 	Context string
 	// Args Build args used to build the image.
+	// type: mapping ``key: value``
 	Args map[string]string
 	// PullBaseImageOnBuild If **true** the base image used in the
 	// ``Dockerfile`` will be pulled before building the image.
@@ -30,7 +31,8 @@ type ImageConfig struct {
 	Pull string
 	// Tags The image tags applied to the image before pushing the image to a
 	// registry.  The first tag in the list is used when the image is built.
-	// default: ``{unique}``
+	// Each item in the list supports :doc:`variables`.
+	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string
 	// Depends The list of resource dependencies

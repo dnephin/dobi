@@ -2,10 +2,11 @@ package config
 
 import "fmt"
 
-// MetaConfig **dobi** meta config allows you to configure how **dobi** runs
+// MetaConfig Configure **dobi** and include other config files.
 // name: meta
 type MetaConfig struct {
-	// Default The name of a resource to run when no resource name is given.
+	// Default The name of a task from the ``dobi.yml`` to run when no
+	// task name is specified on the command line.
 	Default string
 
 	// Project The name of the project. Used to create unique identifiers for
@@ -19,7 +20,7 @@ type MetaConfig struct {
 	Include []string
 
 	// ExecID A template value used as part of unique identifiers for image tags
-	// and container names. Supports variables.
+	// and container names. This field supports :doc:`variables`.
 	// default: ``{env.USER}``
 	ExecID string `config:"exec-id"`
 }

@@ -11,9 +11,9 @@ Format
 Environment variables have the following format:
 
 
-.. code::
+.. code-block:: default
 
-    { [section.]variable[:default] }
+    "{" [section.]variable[:default] "}"
 
 **{}**
     All variables are wrapped in braces
@@ -24,6 +24,21 @@ Environment variables have the following format:
 **default**
     Variables can have default values. The value after the last colon is taken
     as the default value.
+
+Example
+~~~~~~~
+
+To use the value of ``$VERSION`` from the host use the variable:
+
+.. code-block:: none
+
+    {env.VERSION}
+
+and to use a default value of ``v1.0``:
+
+.. code-block:: none
+
+    {env.VERSION:v1.0}
 
 
 Supported Variables
@@ -52,3 +67,4 @@ The following config fields support variables:
 * ``image.tag``
 * ``compose.files``
 * ``compose.project``
+* ``meta.exec-id``

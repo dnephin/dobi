@@ -1,6 +1,25 @@
 
 @import url(https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic);
+@import url(https://fonts.googleapis.com/css?family=PT+Serif:400,700);
 
 body {
     font-family: 'PT Sans', sans-serif;
 }
+
+div.body {
+    padding: 10px 30px 50px 30px;
+}
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    font-family: 'PT Serif', serif;
+}
+
+div.body h3 { font-size: 130%; }
+div.body h4 { font-size: 110%; }
+div.body h5 { font-size: 100%; }
+div.body h6 { font-size: 100%; }

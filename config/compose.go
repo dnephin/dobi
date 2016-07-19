@@ -7,14 +7,17 @@ import (
 	"github.com/dnephin/dobi/execenv"
 )
 
-// ComposeConfig A compose resource runs ``docker-compose`` to create an
-// isolated environment.
+// ComposeConfig A **compose** resource runs ``docker-compose`` to create an
+// isolated environment. The **compose** resource keeps containers running
+// until **dobi** exits so the containers can be used by other tasks that depend
+// on the **compose** resource, or are listed after it in an `alias`_.
 // name: compose
 type ComposeConfig struct {
-	// Files The Compose files used by Compose
+	// Files The Compose files to use. This field supports :doc:`variables`.
 	// type: list of filenames
 	Files []string
-	// Project The project name used by Compose
+	// Project The project name used by Compose. This field supports
+	// :doc:`variables`.
 	Project string `config:"required"`
 	// Depends The list of resource dependencies
 	// type: list of resource names

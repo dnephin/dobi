@@ -2,6 +2,6 @@
 
 set -eu
 
-mkdir -p docs/source/gen/config
+mkdir -p docs/gen/config
 go run docs/script/configtypes.go
 sphinx-build -b html -d docs/doctrees docs/source docs/build/html
