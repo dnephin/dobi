@@ -34,7 +34,7 @@ Features
 Install
 -------
 
-See `Install <https://dnephin.github.io/dobi/#install>`_.
+See `Install <https://dnephin.github.io/dobi/install.html>`_.
 
 Examples
 --------
