@@ -15,8 +15,7 @@ Resources are defined in a ``dobi.yaml`` file, and are run using the command
 ``dobi`` differs from other build automation tools by making the Docker
 containers, images, mounts, and environments a first-class resource.
 
-# TODO: link to readthedocs
-See `Getting Started <./docs/source/index.rst>`_
+See `Getting Started <https://dnephin.github.io/dobi/>`_
 
 .. image:: https://circleci.com/gh/dnephin/dobi/tree/master.svg?style=svg
     :target: https://circleci.com/gh/dnephin/dobi/tree/master
@@ -35,18 +34,17 @@ Features
 Install
 -------
 
-# TODO: link to install page
+See `Install <https://dnephin.github.io/dobi/#install>`_.
 
 Examples
 --------
 
-# TODO: link to examples page
-
+See `Examples <https://dnephin.github.io/dobi/examples.html>`_.
 
 Documentation
 -------------
 
-# TODO: link to docs index
+See `Documentantion <https://dnephin.github.io/dobi/>`_
 
 
 Contributing

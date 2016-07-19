@@ -41,11 +41,14 @@ html_sidebars = {
     ]
 }
 
-"""
-import sphinx_rtd_theme
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-"""
+html_theme_options = {
+    'description': "A build automation tool for Docker applications",
+    'github_user': 'dnephin',
+    'github_repo': 'dobi',
+    'github_button': True,
+    'github_type': 'star',
+    'github_banner': True,
+}
 
 # html_title = u'dobi v0.2'
 # html_short_title = None
