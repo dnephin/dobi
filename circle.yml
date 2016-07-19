@@ -3,22 +3,22 @@ machine:
   services:
     - docker
   environment:
-    DOCKER_API_VERSION: '1.20'
+    DOCKER_API_VERSION: '1.21'
+
+general:
+  branches:
+    ignore: [gh-pages]
 
 dependencies:
-  override:
-    - ./script/ci-deps
+  override: [./script/ci-deps]
   cache_directories:
     - vendor
     - ~/docker
 
 test:
-  override:
-    - ./dist/bin/dobi
-
+  override: [./circle/dobi]
 
 deployment:
   release:
     tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - ./dist/bin/dobi release
+    commands: ['./circle/dobi release']

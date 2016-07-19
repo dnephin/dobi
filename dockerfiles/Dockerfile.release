@@ -8,4 +8,4 @@ RUN     export VERSION="v0.4.0"; \
         mv ghr /usr/bin/ghr && \
         rm -rf *.zip
 
-CMD     ghr -u dnephin -r dobi $DOBI_VERSION /go/bin/dobi
+CMD     ghr -u dnephin -r dobi $DOBI_VERSION /go/bin/
