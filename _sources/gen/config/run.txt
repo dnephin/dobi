@@ -1,9 +1,9 @@
 
 
-run-config
+run
 -----------
 
-A **run** resource runs a process in a container
+A **run** resource uses an `image`_ to run a conatiner. A **run** resource that doesn't have an **artifact** is never considered up-to-date and will always run.  If a run resource has an **artifact** the last modified time of that file will be used as the modified time for the **run** resource.
 
 
 
@@ -14,7 +14,7 @@ A **run** resource runs a process in a container
     :type: string
     
     
-    :description: 
+    :description: The name of an `image`_ resource. The referenced image is used to created the container for the **run**.
     
 
 

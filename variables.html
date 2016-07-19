@@ -48,7 +48,7 @@ by <strong>dobi</strong> or the shell environment.  Variables are wraped in brac
 <div class="section" id="format">
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
 <p>Environment variables have the following format:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="p">[</span><span class="n">section</span><span class="o">.</span><span class="p">]</span><span class="n">variable</span><span class="p">[:</span><span class="n">default</span><span class="p">]</span> <span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;{&quot;</span> <span class="p">[</span><span class="n">section</span><span class="o">.</span><span class="p">]</span><span class="n">variable</span><span class="p">[:</span><span class="n">default</span><span class="p">]</span> <span class="s2">&quot;}&quot;</span>
 </pre></div>
 </div>
 <dl class="docutils">
@@ -60,6 +60,17 @@ by <strong>dobi</strong> or the shell environment.  Variables are wraped in brac
 <dd>Variables can have default values. The value after the last colon is taken
 as the default value.</dd>
 </dl>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>To use the value of <code class="docutils literal"><span class="pre">$VERSION</span></code> from the host use the variable:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{env.VERSION}
+</pre></div>
+</div>
+<p>and to use a default value of <code class="docutils literal"><span class="pre">v1.0</span></code>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{env.VERSION:v1.0}
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="supported-variables">
 <h2>Supported Variables<a class="headerlink" href="#supported-variables" title="Permalink to this headline">¶</a></h2>
@@ -84,6 +95,7 @@ otherwise the string after the final <code class="docutils literal"><span class=
 <li><code class="docutils literal"><span class="pre">image.tag</span></code></li>
 <li><code class="docutils literal"><span class="pre">compose.files</span></code></li>
 <li><code class="docutils literal"><span class="pre">compose.project</span></code></li>
+<li><code class="docutils literal"><span class="pre">meta.exec-id</span></code></li>
 </ul>
 </div>
 </div>
