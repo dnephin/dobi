@@ -32,7 +32,8 @@ type ImageConfig struct {
 	// Context The build context used to build the image.
 	// default: ``.``
 	Context string
-	// Args Build args used to build the image.
+	// Args Build args used to build the image. Values in the mapping support
+	// :doc:`variables`.
 	// type: mapping ``key: value``
 	Args map[string]string
 	// PullBaseImageOnBuild If **true** the base image used in the
@@ -88,7 +89,17 @@ func (c *ImageConfig) String() string {
 func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
 	c.Tags, err = env.ResolveSlice(c.Tags)
-	return c, err
+	if err != nil {
+		return c, err
+	}
+
+	for key, value := range c.Args {
+		c.Args[key], err = env.Resolve(value)
+		if err != nil {
+			return c, err
+		}
+	}
+	return c, nil
 }
 
 // NewImageConfig creates a new ImageConfig with default values
