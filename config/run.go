@@ -18,6 +18,16 @@ import (
 // **mounts** are automatically added as dependencies and will always be
 // created first.
 // name: run
+// example: Run a container using the ``builder`` image to compile some source
+// code to ``./dist/app-binary``.
+//
+// .. code-block:: yaml
+//
+//     run=compile:
+//         use: builder
+//         mounts: [source, dist]
+//         artifact: dist/app-binary
+//
 type RunConfig struct {
 	// Use The name of an `image`_ resource. The referenced image is used
 	// to created the container for the **run**.

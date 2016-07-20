@@ -9,6 +9,13 @@ import (
 
 // AliasConfig An **alias** resource is a list of other tasks which will be run
 // in the order they are listed.
+// example: An alias that runs three other tasks:
+//
+// .. code-block:: yaml
+//
+//     alias=test
+//         tasks: [test-unit, test-integration, test-acceptance]
+//
 // name: alias
 type AliasConfig struct {
 	// Tasks The list of tasks

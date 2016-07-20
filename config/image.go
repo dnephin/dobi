@@ -12,6 +12,17 @@ import (
 // the build context have a modified time older than the created time of the
 // image.
 // name: image
+// example: An image with build args:
+//
+// .. code-block:: yaml
+//
+//     image=project-dev:
+//         image: myproject-dev
+//         context: .
+//         args:
+//           version: '3.1.4'
+//           url: http://example.com/foo
+//
 type ImageConfig struct {
 	// Image The name of the **image** without any tags
 	Image string `config:"required"`

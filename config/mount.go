@@ -14,8 +14,9 @@ import (
 // .. code-block:: yaml
 //
 //     mount=source:
-//       bind: .
-//       path: /app/code
+//         bind: .
+//         path: /app/code
+//
 type MountConfig struct {
 	// Bind The host path to create and mount
 	Bind string `config:"required"`

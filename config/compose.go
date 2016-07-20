@@ -18,6 +18,15 @@ import (
 //     and available in ``$PATH`` to use this resource.
 //
 // name: compose
+// example: Start a Compose environment setting the project name to ``web-devenv``
+// and using two Compose files.
+//
+// .. code-block:: yaml
+//
+//     compose=devenv:
+//         files: [docker-compose.yml, docker-compose-dev.yml]
+//         project: 'web-devenv'
+//
 type ComposeConfig struct {
 	// Files The Compose files to use. This field supports :doc:`variables`.
 	// type: list of filenames
