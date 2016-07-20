@@ -11,6 +11,12 @@ import (
 // isolated environment. The **compose** resource keeps containers running
 // until **dobi** exits so the containers can be used by other tasks that depend
 // on the **compose** resource, or are listed after it in an `alias`_.
+//
+// .. note::
+//
+//     `Docker Compose <https://github.com/docker/compose>`_ must be installed
+//     and available in ``$PATH`` to use this resource.
+//
 // name: compose
 type ComposeConfig struct {
 	// Files The Compose files to use. This field supports :doc:`variables`.
