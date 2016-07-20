@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	startTag = "{"
-	endTag   = "}"
+	startTag     = "{"
+	endTag       = "}"
+	execIDEnvVar = "DOBI_EXEC_ID"
 )
 
 // ExecEnv is a data object which contains variables for an ExecuteContext
@@ -164,10 +165,6 @@ func splitPrefix(tag string) (string, string) {
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
 func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) {
 	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir))
-
-	if execID == "" {
-		return env, nil
-	}
 	var err error
 	env.ExecID, err = getExecID(execID, env)
 	return env, err
@@ -194,6 +191,14 @@ func getProjectName(project, workingDir string) string {
 
 func getExecID(execID string, env *ExecEnv) (string, error) {
 	var err error
+
+	if value, exists := os.LookupEnv(execIDEnvVar); exists {
+		return validateExecID(value)
+	}
+	if execID == "" {
+		return env.ExecID, nil
+	}
+
 	execID, err = env.Resolve(execID)
 	if err != nil {
 		return "", err
