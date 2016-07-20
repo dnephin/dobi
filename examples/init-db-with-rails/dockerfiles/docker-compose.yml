@@ -1,0 +1,8 @@
+
+version: '2.0'
+services:
+    app:
+        image: example/web:examplerailsdb
+
+    postgres:
+        image: example/database:examplerailsdb

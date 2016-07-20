@@ -1,0 +1,5 @@
+
+version: '2.0'
+services:
+    postgres:
+      image: postgres:9.4.8

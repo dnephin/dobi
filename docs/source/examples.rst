@@ -37,3 +37,7 @@ Use Cases
   <https://github.com/dnephin/dobi/blob/master/examples/project-setup/>`_
   - prompt users for configuration and generate a ``.env`` file if it doesn't
   exist.
+* `examples/init-db-with-rails
+  <https://github.com/dnephin/dobi/blob/master/examples/init-db-with-rails/>`_
+  - load database tables and fixtures from rails models and create a database
+  image and development environment.

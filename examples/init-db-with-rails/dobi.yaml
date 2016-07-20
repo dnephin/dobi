@@ -1,0 +1,52 @@
+#
+# dobi.yaml example - Initialize a database
+# See README.md for a full description of this example.
+#
+
+meta:
+    project: examplerailsdb
+
+
+mount=dbsource:
+    bind: ./db
+    path: /db
+
+
+image=rails:
+    image: example/web
+    dockerfile: Dockerfile
+    context: ./app
+    tags: ['{unique}', '{project}']
+
+image=database-img:
+    image: example/database
+    dockerfile: Dockerfile
+    context: db/
+    depends: [export-models]
+    tags: ['{unique}', '{project}']
+
+
+compose=empty-db-env:
+    files: [dockerfiles/empty-db.yaml]
+    project: '{project}export'
+    stop-grace: 2
+
+compose=dev-environment:
+    files: [dockerfiles/docker-compose.yml]
+    project: '{project}'
+    depends: ['rails:tag', 'database-img:tag']
+
+
+job=export-models:
+    use: rails
+    mounts: [dbsource]
+    artifact: db/export.sql
+    command: /db/export.sh
+    # Connect the container to the `empty-db-env` network created by Compose
+    net-mode: '{project}export_default'
+    # Cleanup any old environment before starting a new one
+    depends: ['empty-db-env:rm', 'empty-db-env']
+
+
+alias=dev:
+    tasks: ['dev-environment:down', 'dev-environment:attach']
