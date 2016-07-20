@@ -8,8 +8,21 @@ associated with that resource (build an image, run a container, etc).
 Each resource also defines a ``remove`` task which can be used to remove
 anything that was created by the create action of the resource.
 
-Tasks are run using ``dobi RESOURCE[:ACTION]`` where ``RESOURCE:ACTION`` is the
-name of the task.
+To run a task use the name of the resource, an optionally an action name.
+
+.. code-block:: sh
+
+    # Run the test resource
+    dobi test
+
+    # Run the remove action for the builder resource
+    dobi builder:rm
+
+To list all the tasks in a project run
+
+.. code-block:: sh
+
+    dobi list
 
 
 Image Tasks
@@ -55,6 +68,8 @@ Remove all the image tags, and the image.
 Run Tasks
 ---------
 
+`run <./config.html#run>`_ resources have the following tasks:
+
 ``:run`` *(default)*
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -69,6 +84,8 @@ Remove the container (if it exists), and remove the artifact (if one is defined)
 
 Mount Tasks
 -----------
+
+`mount <./config.html#mount>`_ resources have the following tasks:
 
 ``:create`` *(default)*
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,7 +103,9 @@ Does nothing. This action exists because all resources have have a remove task.
 Alias Tasks
 -----------
 
-``:run``` *(default)*
+`alias <./config.html#alias>`_ resources have the following tasks:
+
+``:run`` *(default)*
 ~~~~~~~~~~~~~~~~~~~~~
 
 Run all the tasks in the list of tasks.
@@ -102,6 +121,8 @@ reverse order.
 
 Compose Tasks
 -------------
+
+`compose <./config.html#compose>`_ resources have the following tasks:
 
 ``:up`` *(default)*
 ~~~~~~~~~~~~~~~~~~~

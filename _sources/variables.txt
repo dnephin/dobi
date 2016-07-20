@@ -65,6 +65,7 @@ The following config fields support variables:
 
 * ``run.env``
 * ``image.tag``
+* ``image.args``
 * ``compose.files``
 * ``compose.project``
 * ``meta.exec-id``

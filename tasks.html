@@ -46,8 +46,18 @@ resource has a default task, which is usually the &#8220;create&#8221; or &#8220
 associated with that resource (build an image, run a container, etc).</p>
 <p>Each resource also defines a <code class="docutils literal"><span class="pre">remove</span></code> task which can be used to remove
 anything that was created by the create action of the resource.</p>
-<p>Tasks are run using <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">RESOURCE[:ACTION]</span></code> where <code class="docutils literal"><span class="pre">RESOURCE:ACTION</span></code> is the
-name of the task.</p>
+<p>To run a task use the name of the resource, an optionally an action name.</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span><span class="c1"># Run the test resource</span>
+dobi <span class="nb">test</span>
+
+<span class="c1"># Run the remove action for the builder resource</span>
+dobi builder:rm
+</pre></div>
+</div>
+<p>To list all the tasks in a project run</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>dobi list
+</pre></div>
+</div>
 <div class="section" id="image-tasks">
 <h2>Image Tasks<a class="headerlink" href="#image-tasks" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="./config.html#image">image</a> resources have the following tasks:</p>
@@ -84,6 +94,7 @@ field and the first tag from the list of <strong>tags</strong> in the image reso
 </div>
 <div class="section" id="run-tasks">
 <h2>Run Tasks<a class="headerlink" href="#run-tasks" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="./config.html#run">run</a> resources have the following tasks:</p>
 <div class="section" id="run-default">
 <h3><code class="docutils literal"><span class="pre">:run</span></code> <em>(default)</em><a class="headerlink" href="#run-default" title="Permalink to this headline">¶</a></h3>
 <p>Run a process in a container.</p>
@@ -103,6 +114,7 @@ field and the first tag from the list of <strong>tags</strong> in the image reso
 </div>
 <div class="section" id="mount-tasks">
 <h2>Mount Tasks<a class="headerlink" href="#mount-tasks" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="./config.html#mount">mount</a> resources have the following tasks:</p>
 <div class="section" id="create-default">
 <h3><code class="docutils literal"><span class="pre">:create</span></code> <em>(default)</em><a class="headerlink" href="#create-default" title="Permalink to this headline">¶</a></h3>
 <p>Create the host directory to be bind mounted, if it doesn&#8217;t already exist.</p>
@@ -122,8 +134,9 @@ field and the first tag from the list of <strong>tags</strong> in the image reso
 </div>
 <div class="section" id="alias-tasks">
 <h2>Alias Tasks<a class="headerlink" href="#alias-tasks" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="./config.html#alias">alias</a> resources have the following tasks:</p>
 <div class="section" id="id3">
-<h3><code class="docutils literal"><span class="pre">:run`</span></code> <em>(default)</em><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal"><span class="pre">:run</span></code> <em>(default)</em><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Run all the tasks in the list of tasks.</p>
 </div>
 <div class="section" id="id4">
@@ -142,6 +155,7 @@ reverse order.</p>
 </div>
 <div class="section" id="compose-tasks">
 <h2>Compose Tasks<a class="headerlink" href="#compose-tasks" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="./config.html#compose">compose</a> resources have the following tasks:</p>
 <div class="section" id="up-default">
 <h3><code class="docutils literal"><span class="pre">:up</span></code> <em>(default)</em><a class="headerlink" href="#up-default" title="Permalink to this headline">¶</a></h3>
 <p>Up runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> with the files and project name from

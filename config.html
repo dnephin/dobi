@@ -53,7 +53,21 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <p>Each resource must be one of the following resource types:</p>
 <div class="section" id="image">
 <h2>image<a class="headerlink" href="#image" title="Permalink to this headline">¶</a></h2>
-<p>An <strong>image</strong> resource provides actions for working with a Docker image. If an image is buildable it is considered up-to-date if all files in the build context have a modified time older than the created time of the image.</p>
+<p>An <strong>image</strong> resource provides actions for working with a Docker
+image. If an image is buildable it is considered up-to-date if all files in
+the build context have a modified time older than the created time of the
+image.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>An image with build args:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">image=project-dev</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">myproject-dev</span>
+    <span class="l l-Scalar l-Scalar-Plain">context</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
+    <span class="l l-Scalar l-Scalar-Plain">args</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">version</span><span class="p p-Indicator">:</span> <span class="s">&#39;3.1.4&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">url</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">http://example.com/foo</span>
+</pre></div>
+</div>
 <p><strong>image</strong>  (required)</p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -62,10 +76,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The name of the <strong>image</strong> without any tags</td>
-</tr>
 </tbody>
 </table>
+<p>The name of the <strong>image</strong> without any tags</p>
 </div></blockquote>
 <p><strong>dockerfile</strong></p>
 <blockquote>
@@ -75,10 +88,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The path to the <code class="docutils literal"><span class="pre">Dockerfile</span></code> used to build the image. This path is relative to the <strong>context</strong>.</td>
-</tr>
 </tbody>
 </table>
+<p>The path to the <code class="docutils literal"><span class="pre">Dockerfile</span></code> used to build the image. This    path is relative to the <strong>context</strong>.</p>
 </div></blockquote>
 <p><strong>context</strong></p>
 <blockquote>
@@ -90,10 +102,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 </tr>
 <tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">.</span></code></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The build context used to build the image.</td>
-</tr>
 </tbody>
 </table>
+<p>The build context used to build the image.</p>
 </div></blockquote>
 <p><strong>args</strong></p>
 <blockquote>
@@ -103,10 +114,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">mapping <code class="docutils literal"><span class="pre">key:</span> <span class="pre">value</span></code></td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Build args used to build the image.</td>
-</tr>
 </tbody>
 </table>
+<p>Build args used to build the image. Values in the mapping support    <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>pull-base-image-on-build</strong></p>
 <blockquote>
@@ -116,10 +126,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">If <strong>true</strong> the base image used in the <code class="docutils literal"><span class="pre">Dockerfile</span></code> will be pulled before building the image.</td>
-</tr>
 </tbody>
 </table>
+<p>If <strong>true</strong> the base image used in the    <code class="docutils literal"><span class="pre">Dockerfile</span></code> will be pulled before building the image.</p>
 </div></blockquote>
 <p><strong>pull</strong></p>
 <blockquote>
@@ -129,10 +138,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Not implemented yet</td>
-</tr>
 </tbody>
 </table>
+<p>Not implemented yet</p>
 </div></blockquote>
 <p><strong>tags</strong></p>
 <blockquote>
@@ -144,10 +152,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 </tr>
 <tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">['{unique}']</span></code></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The image tags applied to the image before pushing the image to a registry.  The first tag in the list is used when the image is built. Each item in the list supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</td>
-</tr>
 </tbody>
 </table>
+<p>The image tags applied to the image before pushing the image to a    registry.  The first tag in the list is used when the image is built.    Each item in the list supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>depends</strong></p>
 <blockquote>
@@ -157,16 +164,32 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resources</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of resource dependencies</td>
-</tr>
 </tbody>
 </table>
+<p>The list of resource dependencies</p>
 </div></blockquote>
+</div>
 </div>
 <div class="section" id="run">
 <h2>run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>run</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a conatiner. A <strong>run</strong> resource that doesn&#8217;t have an <strong>artifact</strong> is never considered up-to-date and will always run.  If a run resource has an <strong>artifact</strong> the last modified time of that file will be used as the modified time for the <strong>run</strong> resource.</p>
-<p>The <a class="reference internal" href="#image">image</a> specified in <strong>use</strong> and any <a class="reference internal" href="#mount">mount</a> resources listed in <strong>mounts</strong> are automatically added as dependencies and will always be created first.</p>
+<p>A <strong>run</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a conatiner.
+A <strong>run</strong> resource that doesn&#8217;t have an <strong>artifact</strong> is never considered
+up-to-date and will always run.  If a run resource has an <strong>artifact</strong>
+the last modified time of that file will be used as the modified time for the
+<strong>run</strong> resource.</p>
+<p>The <a class="reference internal" href="#image">image</a> specified in <strong>use</strong> and any <a class="reference internal" href="#mount">mount</a> resources listed in
+<strong>mounts</strong> are automatically added as dependencies and will always be
+created first.</p>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Run a container using the <code class="docutils literal"><span class="pre">builder</span></code> image to compile some source
+code to <code class="docutils literal"><span class="pre">./dist/app-binary</span></code>.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">run=compile</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">use</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">builder</span>
+    <span class="l l-Scalar l-Scalar-Plain">mounts</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span> <span class="nv">dist</span><span class="p p-Indicator">]</span>
+    <span class="l l-Scalar l-Scalar-Plain">artifact</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dist/app-binary</span>
+</pre></div>
+</div>
 <p><strong>use</strong>  (required)</p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -175,10 +198,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The name of an <a class="reference internal" href="#image">image</a> resource. The referenced image is used to created the container for the <strong>run</strong>.</td>
-</tr>
 </tbody>
 </table>
+<p>The name of an <a class="reference internal" href="#image">image</a> resource. The referenced image is used    to created the container for the <strong>run</strong>.</p>
 </div></blockquote>
 <p><strong>artifact</strong></p>
 <blockquote>
@@ -188,10 +210,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">A host path to a file or directory that is the output of this <strong>run</strong>. Paths are relative to the current working directory.</td>
-</tr>
 </tbody>
 </table>
+<p>A host path to a file or directory that is the output of this    <strong>run</strong>. Paths are relative to the current working directory.</p>
 </div></blockquote>
 <p><strong>command</strong></p>
 <blockquote>
@@ -201,12 +222,10 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">shell quoted string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The command to run in the container.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">example:</th><td class="field-body"><code class="docutils literal"><span class="pre">&quot;bash</span> <span class="pre">-c</span> <span class="pre">'echo</span> <span class="pre">something'&quot;</span></code></td>
-</tr>
 </tbody>
 </table>
+<p>The command to run in the container.</p>
+<p><code class="docutils literal"><span class="pre">&quot;bash</span> <span class="pre">-c</span> <span class="pre">'echo</span> <span class="pre">something'&quot;</span></code></p>
 </div></blockquote>
 <p><strong>entrypoint</strong></p>
 <blockquote>
@@ -216,10 +235,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">shell quoted string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Override the image entrypoint</td>
-</tr>
 </tbody>
 </table>
+<p>Override the image entrypoint</p>
 </div></blockquote>
 <p><strong>mounts</strong></p>
 <blockquote>
@@ -229,10 +247,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of mount resources</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">A list of <a class="reference internal" href="#mount">mount</a> resources to use when creating the container.</td>
-</tr>
 </tbody>
 </table>
+<p>A list of <a class="reference internal" href="#mount">mount</a> resources to use when creating the container.</p>
 </div></blockquote>
 <p><strong>privileged</strong></p>
 <blockquote>
@@ -242,10 +259,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Gives extended privileges to the container</td>
-</tr>
 </tbody>
 </table>
+<p>Gives extended privileges to the container</p>
 </div></blockquote>
 <p><strong>interactive</strong></p>
 <blockquote>
@@ -255,10 +271,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Makes the container interative and enables a tty.</td>
-</tr>
 </tbody>
 </table>
+<p>Makes the container interative and enables a tty.</p>
 </div></blockquote>
 <p><strong>depends</strong></p>
 <blockquote>
@@ -268,10 +283,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resource names</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of resources dependencies</td>
-</tr>
 </tbody>
 </table>
+<p>The list of resources dependencies</p>
 </div></blockquote>
 <p><strong>env</strong></p>
 <blockquote>
@@ -281,10 +295,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of <code class="docutils literal"><span class="pre">key=value</span></code> strings</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Environment variables to pass to the container. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</td>
-</tr>
 </tbody>
 </table>
+<p>Environment variables to pass to the container. This field    supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>provide-docker</strong></p>
 <blockquote>
@@ -294,15 +307,24 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Exposes the docker engine to the container by either mounting the unix socket or setting the <strong>DOCKER_HOST</strong> environment variable.</td>
-</tr>
 </tbody>
 </table>
+<p>Exposes the docker engine to the container by either    mounting the unix socket or setting the <strong>DOCKER_HOST</strong> environment    variable.</p>
 </div></blockquote>
+</div>
 </div>
 <div class="section" id="mount">
 <h2>mount<a class="headerlink" href="#mount" title="Permalink to this headline">¶</a></h2>
 <p>A <strong>mount</strong> resource creates a host bind mount.</p>
+<div class="section" id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>A mount named <code class="docutils literal"><span class="pre">source</span></code> that mounts the current host directory as
+<code class="docutils literal"><span class="pre">/app/code</span></code> in the container.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">mount=source</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">bind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
+    <span class="l l-Scalar l-Scalar-Plain">path</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/app/code</span>
+</pre></div>
+</div>
 <p><strong>bind</strong>  (required)</p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -311,10 +333,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The host path to create and mount</td>
-</tr>
 </tbody>
 </table>
+<p>The host path to create and mount</p>
 </div></blockquote>
 <p><strong>path</strong>  (required)</p>
 <blockquote>
@@ -324,10 +345,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The container path of the mount</td>
-</tr>
 </tbody>
 </table>
+<p>The container path of the mount</p>
 </div></blockquote>
 <p><strong>read-only</strong></p>
 <blockquote>
@@ -337,15 +357,23 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">bool</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">Set the mount to be read-only</td>
-</tr>
 </tbody>
 </table>
+<p>Set the mount to be read-only</p>
 </div></blockquote>
+</div>
 </div>
 <div class="section" id="alias">
 <h2>alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
-<p>An <strong>alias</strong> resource is a list of other tasks which will be run in the order they are listed.</p>
+<p>An <strong>alias</strong> resource is a list of other tasks which will be run
+in the order they are listed.</p>
+<div class="section" id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>An alias that runs three other tasks:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">alias=test</span>
+    <span class="l l-Scalar l-Scalar-Plain">tasks</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">test-unit</span><span class="p p-Indicator">,</span> <span class="nv">test-integration</span><span class="p p-Indicator">,</span> <span class="nv">test-acceptance</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
 <p><strong>tasks</strong>  (required)</p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -354,15 +382,32 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tasks</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of tasks</td>
-</tr>
 </tbody>
 </table>
+<p>The list of tasks</p>
 </div></blockquote>
+</div>
 </div>
 <div class="section" id="compose">
 <h2>compose<a class="headerlink" href="#compose" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>compose</strong> resource runs <code class="docutils literal"><span class="pre">docker-compose</span></code> to create an isolated environment. The <strong>compose</strong> resource keeps containers running until <strong>dobi</strong> exits so the containers can be used by other tasks that depend on the <strong>compose</strong> resource, or are listed after it in an <a class="reference internal" href="#alias">alias</a>.</p>
+<p>A <strong>compose</strong> resource runs <code class="docutils literal"><span class="pre">docker-compose</span></code> to create an
+isolated environment. The <strong>compose</strong> resource keeps containers running
+until <strong>dobi</strong> exits so the containers can be used by other tasks that depend
+on the <strong>compose</strong> resource, or are listed after it in an <a class="reference internal" href="#alias">alias</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="https://github.com/docker/compose">Docker Compose</a> must be installed
+and available in <code class="docutils literal"><span class="pre">$PATH</span></code> to use this resource.</p>
+</div>
+<div class="section" id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Start a Compose environment setting the project name to <code class="docutils literal"><span class="pre">web-devenv</span></code>
+and using two Compose files.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">compose=devenv</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">files</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">docker-compose.yml</span><span class="p p-Indicator">,</span> <span class="nv">docker-compose-dev.yml</span><span class="p p-Indicator">]</span>
+    <span class="l l-Scalar l-Scalar-Plain">project</span><span class="p p-Indicator">:</span> <span class="s">&#39;web-devenv&#39;</span>
+</pre></div>
+</div>
 <p><strong>files</strong></p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -371,10 +416,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filenames</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The Compose files to use. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</td>
-</tr>
 </tbody>
 </table>
+<p>The Compose files to use. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>project</strong>  (required)</p>
 <blockquote>
@@ -384,10 +428,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The project name used by Compose. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</td>
-</tr>
 </tbody>
 </table>
+<p>The project name used by Compose. This field supports    <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>depends</strong></p>
 <blockquote>
@@ -397,15 +440,24 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resource names</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The list of resource dependencies</td>
-</tr>
 </tbody>
 </table>
+<p>The list of resource dependencies</p>
 </div></blockquote>
+</div>
 </div>
 <div class="section" id="meta">
 <h2>meta<a class="headerlink" href="#meta" title="Permalink to this headline">¶</a></h2>
 <p>Configure <strong>dobi</strong> and include other config files.</p>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Set the the project name to <code class="docutils literal"><span class="pre">mywebapp</span></code> and run the <code class="docutils literal"><span class="pre">all</span></code> task by
+default.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">meta</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">project</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">mywebapp</span>
+    <span class="l l-Scalar l-Scalar-Plain">default</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
+</pre></div>
+</div>
 <p><strong>default</strong></p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -414,10 +466,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">The name of a task from the <code class="docutils literal"><span class="pre">dobi.yml</span></code> to run when no task name is specified on the command line.</td>
-</tr>
 </tbody>
 </table>
+<p>The name of a task from the <code class="docutils literal"><span class="pre">dobi.yml</span></code> to run when no    task name is specified on the command line.</p>
 </div></blockquote>
 <p><strong>project</strong></p>
 <blockquote>
@@ -429,10 +480,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 </tr>
 <tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><em>basename of the working directory</em></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">The name of the project. Used to create unique identifiers for image tags and container names.</td>
-</tr>
 </tbody>
 </table>
+<p>The name of the project. Used to create unique identifiers for    image tags and container names.</p>
 </div></blockquote>
 <p><strong>include</strong></p>
 <blockquote>
@@ -442,10 +492,9 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filepaths</td>
 </tr>
-<tr class="field-even field"><th class="field-name">description:</th><td class="field-body">A list of other dobi configuration files to include. Paths are relative to the current working directory.</td>
-</tr>
 </tbody>
 </table>
+<p>A list of other dobi configuration files to include. Paths are    relative to the current working directory.</p>
 </div></blockquote>
 <p><strong>exec-id</strong></p>
 <blockquote>
@@ -457,11 +506,11 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 </tr>
 <tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">{env.USER}</span></code></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">description:</th><td class="field-body">A template value used as part of unique identifiers for image tags and container names. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</td>
-</tr>
 </tbody>
 </table>
+<p>A template value used as part of unique identifiers for image tags    and container names. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>. This value can    be overridden with the <code class="docutils literal"><span class="pre">$DOBI_EXEC_ID</span></code> environment variable.</p>
 </div></blockquote>
+</div>
 </div>
 </div>
 
