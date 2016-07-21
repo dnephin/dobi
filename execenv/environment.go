@@ -184,9 +184,9 @@ func getProjectName(project, workingDir string) string {
 	if project != "" {
 		return project
 	}
-	logging.Log.Warn(
-		"meta.project is not set. Defauling to working directory basename.")
-	return filepath.Base(workingDir)
+	project = filepath.Base(workingDir)
+	logging.Log.Warnf("meta.project is not set. Using default %q.", project)
+	return project
 }
 
 func getExecID(execID string, env *ExecEnv) (string, error) {

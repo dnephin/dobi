@@ -20,11 +20,12 @@ type MetaConfig struct {
 
 	// Project The name of the project. Used to create unique identifiers for
 	// image tags and container names.
-	// default: *basename of the working directory*
+	// default: *basename of ``dobi.yml``*
 	Project string
 
-	// Include A list of other dobi configuration files to include. Paths are
-	// relative to the current working directory.
+	// Include A list of dobi configuration files to include. Paths are
+	// relative to the current working directory. Includs can be partial
+	// configs that depend on resources in any of the other included files.
 	// type: list of filepaths
 	Include []string
 
