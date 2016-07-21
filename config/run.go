@@ -60,6 +60,8 @@ type RunConfig struct {
 	// mounting the unix socket or setting the **DOCKER_HOST** environment
 	// variable.
 	ProvideDocker bool
+	// NetMode The network mode to use
+	NetMode string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies

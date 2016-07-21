@@ -211,8 +211,9 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			Entrypoint:   t.config.Entrypoint.Value(),
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:      t.bindMounts(ctx),
-			Privileged: t.config.Privileged,
+			Binds:       t.bindMounts(ctx),
+			Privileged:  t.config.Privileged,
+			NetworkMode: t.config.NetMode,
 		},
 	}
 	opts = provideDocker(opts)
