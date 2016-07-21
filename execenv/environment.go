@@ -108,7 +108,7 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 
 	writeWithError := func(err error) (int, error) {
 		if defValue == "" {
-			return 0, err
+			return 0, fmt.Errorf("Failed resolving variable {git.%s}: %s", tag, err)
 		}
 
 		logging.Log.Warnf("Failed to get variable \"git.%s\", using default", tag)
