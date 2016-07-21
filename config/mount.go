@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dnephin/dobi/execenv"
+	"github.com/dnephin/dobi/utils/fs"
 )
 
 // MountConfig A **mount** resource creates a host bind mount.
@@ -42,7 +43,9 @@ func (c *MountConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
-	return c, nil
+	var err error
+	c.Bind, err = fs.ExpandUser(c.Bind)
+	return c, err
 }
 
 func mountFromConfig(name string, values map[string]interface{}) (Resource, error) {
