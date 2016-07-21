@@ -51,9 +51,10 @@ func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
 	return nil
 }
 
-// Dependencies returns the list of dependencies
+// Dependencies returns the list of dependencies. The remove task doesn't depend
+// on anything.
 func (t *RemoveTask) Dependencies() []string {
-	return t.config.Dependencies()
+	return []string{}
 }
 
 // Stop the task
