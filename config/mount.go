@@ -25,6 +25,12 @@ type MountConfig struct {
 	Path string `config:"required"`
 	// ReadOnly Set the mount to be read-only
 	ReadOnly bool
+	// File When true create an empty file instead of a directory
+	File bool
+	// Mode The file mode to set on the host file or directory when it is
+	// created.
+	// default: ``0777`` *(for directories)*, ``0644`` *(for files)*
+	Mode int
 }
 
 // Dependencies returns an empty list, Mount resources have no dependencies
@@ -38,7 +44,14 @@ func (c *MountConfig) Validate(path Path, config *Config) *PathError {
 }
 
 func (c *MountConfig) String() string {
-	return fmt.Sprintf("Create directory '%s' to be mounted at '%s'", c.Bind, c.Path)
+	var filetype string
+	switch c.File {
+	case true:
+		filetype = "file"
+	default:
+		filetype = "directory"
+	}
+	return fmt.Sprintf("Create %s %q to be mounted at %q", filetype, c.Bind, c.Path)
 }
 
 // Resolve resolves variables in the resource

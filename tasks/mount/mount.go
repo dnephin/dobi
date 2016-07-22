@@ -2,6 +2,7 @@ package mount
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
@@ -32,7 +33,7 @@ func (t *CreateTask) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *CreateTask) Repr() string {
-	return fmt.Sprintf("[mount:create %s] %s:%s", t.name, t.config.Bind, t.config.Path)
+	return fmt.Sprintf("[mount:create %s] %s (%s)", t.name, t.config.Bind, t.config.Mode)
 }
 
 // Run creates the host path if it doesn't already exist
@@ -44,13 +45,30 @@ func (t *CreateTask) Run(ctx *context.ExecuteContext) error {
 		return nil
 	}
 
-	err := os.MkdirAll(AbsBindPath(t.config, ctx.WorkingDir), 0777)
-	if err != nil {
+	if err := t.create(ctx); err != nil {
 		return err
 	}
 	ctx.SetModified(t.name)
 	t.logger().Info("Created")
 	return nil
+}
+
+func (t *CreateTask) create(ctx *context.ExecuteContext) error {
+	path := AbsBindPath(t.config, ctx.WorkingDir)
+	mode := t.config.Mode
+
+	switch t.config.File {
+	case true:
+		if mode == 0 {
+			mode = 0644
+		}
+		return ioutil.WriteFile(path, []byte{}, os.FileMode(mode))
+	default:
+		if mode == 0 {
+			mode = 0777
+		}
+		return os.MkdirAll(path, os.FileMode(mode))
+	}
 }
 
 // Dependencies returns the list of dependencies
