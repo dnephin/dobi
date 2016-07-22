@@ -86,6 +86,7 @@ func (t *Task) execCompose(ctx *context.ExecuteContext, args ...string) error {
 func (t *Task) composeCommand(ctx *context.ExecuteContext, args ...string) *exec.Cmd {
 	args = append(buildCommandArgs(ctx, t.config), args...)
 	cmd := exec.Command("docker-compose", args...)
+	t.logger().Debugf("Args: %s", args)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd

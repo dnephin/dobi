@@ -105,9 +105,10 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	image, err := image.GetImage(ctx, ctx.Resources.Image(t.config.Use))
+	imageName := ctx.Resources.Image(t.config.Use)
+	image, err := image.GetImage(ctx, imageName)
 	if err != nil {
-		return true, err
+		return true, fmt.Errorf("Failed to get image %q: %s", imageName, err)
 	}
 	if artifactLastModified.Before(image.Created) {
 		t.logger().Debug("artifact older than image")
@@ -196,12 +197,15 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
 	interactive := t.config.Interactive
+
+	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
+	t.logger().Debugf("Image name %q", imageName)
 	// TODO: only set Tty if running in a tty
 	opts := docker.CreateContainerOptions{
 		Name: name,
 		Config: &docker.Config{
 			Cmd:          t.config.Command.Value(),
-			Image:        image.GetImageName(ctx, ctx.Resources.Image(t.config.Use)),
+			Image:        imageName,
 			OpenStdin:    interactive,
 			Tty:          interactive,
 			AttachStdin:  interactive,

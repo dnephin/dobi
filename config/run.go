@@ -60,7 +60,7 @@ type RunConfig struct {
 	// mounting the unix socket or setting the **DOCKER_HOST** environment
 	// variable.
 	ProvideDocker bool
-	// NetMode The network mode to use
+	// NetMode The network mode to use. This field supports :doc:`variables`.
 	NetMode string
 }
 
@@ -131,6 +131,10 @@ func (c *RunConfig) String() string {
 func (c *RunConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
 	c.Env, err = env.ResolveSlice(c.Env)
+	if err != nil {
+		return c, err
+	}
+	c.NetMode, err = env.Resolve(c.NetMode)
 	return c, err
 }
 
