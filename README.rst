@@ -10,8 +10,11 @@ a ``dobi.yaml`` and run them with ``dobi TASK``.
 
 See `Getting Started <https://dnephin.github.io/dobi/>`_
 
-.. image:: https://circleci.com/gh/dnephin/dobi/tree/master.svg?style=svg
+.. image:: https://circleci.com/gh/dnephin/dobi/tree/master.svg?style=shield
     :target: https://circleci.com/gh/dnephin/dobi/tree/master
+
+.. image:: https://img.shields.io/github/release/dnephin/dobi.svg?maxAge=2592000
+    :target: https://github.com/dnephin/dobi/releases/latest
 
 Features
 --------
