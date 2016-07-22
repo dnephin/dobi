@@ -15,7 +15,7 @@ project = u'dobi'
 copyright = u'2016, Daniel Nephin'
 author = u'Daniel Nephin'
 
-version = release = u'0.3-dev'
+version = release = u'0.3'
 language = None
 exclude_patterns = []
 
