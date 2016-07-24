@@ -66,10 +66,15 @@ dobi builder:rm
 <p>Build a Docker image from a Dockerfile. The image is tagged using the <strong>image</strong>
 field and the first tag from the list of <strong>tags</strong> in the image resource.</p>
 </div>
+<div class="section" id="tag">
+<h3><code class="docutils literal"><span class="pre">:tag</span></code><a class="headerlink" href="#tag" title="Permalink to this headline">¶</a></h3>
+<p>Tag the image with all the tags in the <strong>tags</strong> field.</p>
+<p>The <code class="docutils literal"><span class="pre">:tag</span></code> action always depends on the <code class="docutils literal"><span class="pre">:build</span></code> action for the image.</p>
+</div>
 <div class="section" id="push">
 <h3><code class="docutils literal"><span class="pre">:push</span></code><a class="headerlink" href="#push" title="Permalink to this headline">¶</a></h3>
 <p>Push the image tags to a registry.</p>
-<p>The <code class="docutils literal"><span class="pre">:push</span></code> action always depends on the <code class="docutils literal"><span class="pre">:build</span></code> action for the image.</p>
+<p>The <code class="docutils literal"><span class="pre">:push</span></code> action always depends on the <code class="docutils literal"><span class="pre">:tag</span></code> action for the image.</p>
 </div>
 <div class="section" id="pull">
 <h3><code class="docutils literal"><span class="pre">:pull</span></code><a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h3>
