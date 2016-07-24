@@ -1,0 +1,35 @@
+#
+# Build a minimal docker image for a static go binary.
+# See README.md for a full description.
+#
+
+meta:
+    project: example-hello
+
+mount=source:
+    bind: .
+    path: /go/src/github.com/example/hello
+
+mount=dist:
+    bind: ./dist/bin/
+    path: /go/bin/
+
+image=builder:
+    image: minimal-dev
+    context: .
+    dockerfile: Dockerfile.build
+
+run=binary:
+    use: builder
+    artifact: ./dist/bin/hello
+    mounts: [source, dist]
+
+image=dist-img:
+    image: example/hello
+    dockerfile: Dockerfile.dist
+    tags: ['{env.USER}']
+    depends: [binary]
+
+run=run-dist:
+    use: dist-img
+    interactive: true
