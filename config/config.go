@@ -11,6 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/common"
 )
 
 // Resource is an interface for each configurable type
@@ -121,8 +122,9 @@ func validate(config *Config) error {
 func ValidateResourcesExist(path Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
-		if _, ok := c.Resources[name]; !ok {
-			missing = append(missing, name)
+		resource, _ := common.SplitTaskActionName(name)
+		if _, ok := c.Resources[resource]; !ok {
+			missing = append(missing, resource)
 		}
 	}
 	if len(missing) != 0 {

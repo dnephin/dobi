@@ -36,13 +36,19 @@ Image Tasks
 Build a Docker image from a Dockerfile. The image is tagged using the **image**
 field and the first tag from the list of **tags** in the image resource.
 
+``:tag``
+~~~~~~~~
+
+Tag the image with all the tags in the **tags** field.
+
+The ``:tag`` action always depends on the ``:build`` action for the image.
 
 ``:push``
 ~~~~~~~~~
 
 Push the image tags to a registry.
 
-The ``:push`` action always depends on the ``:build`` action for the image.
+The ``:push`` action always depends on the ``:tag`` action for the image.
 
 
 ``:pull``

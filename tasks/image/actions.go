@@ -21,7 +21,17 @@ func getAction(name string, task string) (action, error) {
 	case "", "build":
 		return action{name: "build", Run: RunBuild}, nil
 	case "push":
-		return action{name: "push", Run: RunPush}, nil
+		return action{
+			name:               "push",
+			Run:                RunPush,
+			ActionDependencies: []string{"tag"},
+		}, nil
+	case "tag":
+		return action{
+			name:               "tag",
+			Run:                RunTag,
+			ActionDependencies: []string{"build"},
+		}, nil
 	case "remove", "rm":
 		return action{name: "remove", Run: RunRemove}, nil
 	default:

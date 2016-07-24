@@ -20,8 +20,9 @@ type Task struct {
 }
 
 type action struct {
-	name string
-	Run  func(ctx *context.ExecuteContext, task *Task) error
+	name               string
+	Run                func(ctx *context.ExecuteContext, task *Task) error
+	ActionDependencies []string
 }
 
 // NewTask creates a new Task object
@@ -56,7 +57,11 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 
 // Dependencies returns the list of dependencies
 func (t *Task) Dependencies() []string {
-	return t.config.Dependencies()
+	deps := t.config.Dependencies()
+	for _, actionDep := range t.action.ActionDependencies {
+		deps = append(deps, t.Name()+":"+actionDep)
+	}
+	return deps
 }
 
 // ForEachTag runs a function for each tag
