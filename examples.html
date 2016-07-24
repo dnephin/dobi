@@ -47,12 +47,27 @@
 <h2>Full Configs<a class="headerlink" href="#full-configs" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/dnephin/dobi/blob/master/dobi.yaml">dobi</a> - a Golang
-command line tool (<code class="docutils literal"><span class="pre">dobi</span></code> uses itself!)</li>
+command line tool (<code class="docutils literal"><span class="pre">dobi</span></code> uses itself!). This example demonstrates:<ul>
+<li><code class="docutils literal"><span class="pre">dist-img</span></code> - building a minimal image (that doesn&#8217;t contain build dependencies)
+for distributing an application.</li>
+<li>building multiple images for different tasks (<code class="docutils literal"><span class="pre">builder</span></code>, <code class="docutils literal"><span class="pre">linter</span></code>, <code class="docutils literal"><span class="pre">releaser</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">watch</span></code> - watching code for changes and auto-running unit tests and
+<code class="docutils literal"><span class="pre">docs-watch</span></code> for watching docs changes and auto-building the docs.</li>
+<li><code class="docutils literal"><span class="pre">shell</span></code> (and <code class="docutils literal"><span class="pre">docs-shell</span></code>) - getting an interactive shell that contains
+all the dependencies required to build or test the project.</li>
+<li>combinding tasks with an alias so they can be run together (<code class="docutils literal"><span class="pre">test</span></code>, and
+<code class="docutils literal"><span class="pre">all</span></code>).</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="fragments">
 <h2>Fragments<a class="headerlink" href="#fragments" title="Permalink to this headline">¶</a></h2>
-<p>TODO</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/dnephin/dobi/blob/master/examples/minimal-docker-image/">examples/minimal-docker-image</a>
+- building a minimal docker image, that does not contain build/compile
+dependencies. This is sometimes referred to as &#8220;squashing&#8221; an image.</li>
+</ul>
 </div>
 </div>
 
