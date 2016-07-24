@@ -1,0 +1,33 @@
+
+meta:
+    project: example-tagging
+    default: tag-images
+
+image=app:
+    image: example/tagged-app
+    dockerfile: Dockerfile.app
+    context: .
+    tags:
+      - '{git.short-sha}'
+      - '{git.sha}'
+      - '{git.branch}'
+      - '{time.YYYY-MM-DDThh-mmZZZZ:}'
+      - '{env.APP_VERSION}'
+
+image=db:
+    image: example/tagged-db
+    dockerfile: Dockerfile.db
+    context: .
+    tags:
+      - '{git.short-sha}'
+      - '{git.sha}'
+      - '{git.branch}'
+      - '{time.YYYY-MM-DDThh-mmZZZZ:}'
+      - '{env.DB_VERSION:latest}'
+
+
+alias=tag-images:
+    tasks: ['app:tag', 'db:tag']
+
+alias=clean:
+    tasks: ['app:rm', 'db:rm']

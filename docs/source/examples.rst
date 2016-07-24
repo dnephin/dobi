@@ -23,10 +23,13 @@ Full Configs
 
 
 
-Fragments
+Use Cases
 ---------
 
 * `examples/minimal-docker-image
   <https://github.com/dnephin/dobi/blob/master/examples/minimal-docker-image/>`_
   - building a minimal docker image, that does not contain build/compile
   dependencies. This is sometimes referred to as "squashing" an image.
+* `examples/tag-images
+  <https://github.com/dnephin/dobi/blob/master/examples/tag-images/>`_
+  - tag images with metadata (git sha, git branch, datetime, and version)
