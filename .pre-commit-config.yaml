@@ -6,7 +6,8 @@
       files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
       exclude: '^vendor/'
     - id: trailing-whitespace
-      files: '(\.(go|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
+      files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
+      args: ['--no-markdown-linebreak-ext']
       exclude: '^vendor/'
     - id: check-yaml
       exclude: '^vendor/'

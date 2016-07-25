@@ -1,0 +1,24 @@
+
+meta:
+    project: example-setup
+
+mount=.env:
+    bind: .env
+    path: /code/.env
+    file: true
+
+image=bash:
+    image: example/bash
+    context: .
+
+run=setup:
+    use: bash
+    artifact: '.env'
+    mounts: ['.env']
+    interactive: true
+    env: ['HOST_USER={env.USER:}']
+
+run=app:
+    use: bash
+    command: "nc -l 0.0.0.0 8080"
+    depends: [setup]

@@ -33,3 +33,7 @@ Use Cases
 * `examples/tag-images
   <https://github.com/dnephin/dobi/blob/master/examples/tag-images/>`_
   - tag images with metadata (git sha, git branch, datetime, and version)
+* `examples/project-setup
+  <https://github.com/dnephin/dobi/blob/master/examples/project-setup/>`_
+  - prompt users for configuration and generate a ``.env`` file if it doesn't
+  exist.
