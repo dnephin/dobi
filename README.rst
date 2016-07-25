@@ -34,12 +34,12 @@ Features
 Install
 -------
 
-See `Install <https://dnephin.github.io/dobi/install.html>`_.
+See `Install <https://dnephin.github.io/dobi/install.html>`_
 
 Examples
 --------
 
-See `Examples <https://dnephin.github.io/dobi/examples.html>`_.
+See `Examples <https://dnephin.github.io/dobi/examples.html>`_
 
 Documentation
 -------------
