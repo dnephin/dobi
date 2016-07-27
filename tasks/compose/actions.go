@@ -39,18 +39,11 @@ func RunUp(ctx *context.ExecuteContext, t *Task) error {
 // StopUp stops the project
 func StopUp(ctx *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project stop")
-	return t.execCompose(ctx, "stop", "-d")
+	return t.execCompose(ctx, "stop", "-t", t.config.StopGraceString())
 }
 
 // RunDown removes all the project resources
 func RunDown(ctx *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project down")
 	return t.execCompose(ctx, "down")
-}
-
-// RunUpAttached starts the Compose project
-func RunUpAttached(ctx *context.ExecuteContext, t *Task) error {
-	t.logger().Info("project up")
-	// TODO: forward signals
-	return t.execCompose(ctx, "up")
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/dnephin/dobi/execenv"
@@ -34,9 +35,17 @@ type ComposeConfig struct {
 	// Project The project name used by Compose. This field supports
 	// :doc:`variables`.
 	Project string `config:"required"`
-	// Depends The list of resource dependencies
+	// StopGrace Seconds to wait for containers to stop before killing them.
+	// default: ``5``
+	StopGrace int
+	// Depends The list of resource dependencies.
 	// type: list of resource names
 	Depends []string
+}
+
+// StopGraceString returns StopGrace as a string
+func (c *ComposeConfig) StopGraceString() string {
+	return strconv.FormatInt(int64(c.StopGrace), 10)
 }
 
 // Dependencies returns the list of tasks
@@ -66,7 +75,7 @@ func (c *ComposeConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 }
 
 func composeFromConfig(name string, values map[string]interface{}) (Resource, error) {
-	compose := &ComposeConfig{Project: "{unique}"}
+	compose := &ComposeConfig{Project: "{unique}", StopGrace: 5}
 	return compose, Transform(name, values, compose)
 }
 

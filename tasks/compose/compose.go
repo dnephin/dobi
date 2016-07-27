@@ -76,13 +76,17 @@ func buildCommandArgs(ctx *context.ExecuteContext, conf *config.ComposeConfig) [
 }
 
 func (t *Task) execCompose(ctx *context.ExecuteContext, args ...string) error {
-	args = append(buildCommandArgs(ctx, t.config), args...)
-	cmd := exec.Command("docker-compose", args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
+	if err := t.composeCommand(ctx, args...).Run(); err != nil {
 		return err
 	}
 	t.logger().Info("Done")
 	return nil
+}
+
+func (t *Task) composeCommand(ctx *context.ExecuteContext, args ...string) *exec.Cmd {
+	args = append(buildCommandArgs(ctx, t.config), args...)
+	cmd := exec.Command("docker-compose", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd
 }
