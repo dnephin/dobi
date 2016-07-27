@@ -43,7 +43,7 @@ Use a default value of ``v1.0``:
 
 Use a variable with an empty default value as an optional value:
 
-.. code-blcok:: none
+.. code-block:: none
 
     {env.VERSION:}
 
