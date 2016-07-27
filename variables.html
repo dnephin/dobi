@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Variables &mdash; dobi 0.3 documentation</title>
+    <title>Config Variables &mdash; dobi 0.4 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.3 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.4 documentation" href="index.html" />
     <link rel="next" title="Tasks" href="tasks.html" />
     <link rel="prev" title="Config Reference" href="config.html" />
    
@@ -43,7 +43,7 @@
   <div class="section" id="config-variables">
 <h1>Config Variables<a class="headerlink" href="#config-variables" title="Permalink to this headline">¶</a></h1>
 <p>Some fields in <code class="docutils literal"><span class="pre">dobi.yaml</span></code> support variable interpolation from values provided
-by <strong>dobi</strong> or the shell environment.  Variables are wraped in braces, for example
+by <strong>dobi</strong> or the shell environment.  Variables are wrapped in braces, for example
 <code class="docutils literal"><span class="pre">{env.USER}</span></code> would inject the value of the <code class="docutils literal"><span class="pre">$USER</span></code> environment variable.</p>
 <div class="section" id="format">
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
@@ -58,16 +58,21 @@ by <strong>dobi</strong> or the shell environment.  Variables are wraped in brac
 <dd>Some variables are grouped into sections (like <strong>git</strong> or <strong>env</strong>)</dd>
 <dt><strong>default</strong></dt>
 <dd>Variables can have default values. The value after the last colon is taken
-as the default value.</dd>
+as the default value. An empty default value makes the variable act like an
+optional variable.</dd>
 </dl>
 <div class="section" id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
-<p>To use the value of <code class="docutils literal"><span class="pre">$VERSION</span></code> from the host use the variable:</p>
+<p>Use the value of <code class="docutils literal"><span class="pre">$VERSION</span></code> from the host use the variable:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>{env.VERSION}
 </pre></div>
 </div>
-<p>and to use a default value of <code class="docutils literal"><span class="pre">v1.0</span></code>:</p>
+<p>Use a default value of <code class="docutils literal"><span class="pre">v1.0</span></code>:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>{env.VERSION:v1.0}
+</pre></div>
+</div>
+<p>Use a variable with an empty default value as an optional value:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>{env.VERSION:}
 </pre></div>
 </div>
 </div>
@@ -78,6 +83,7 @@ as the default value.</dd>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">env.&lt;variable&gt;</span></code> - the value of an environment variable</li>
 <li><code class="docutils literal"><span class="pre">git.sha</span></code> - the current git sha</li>
+<li><code class="docutils literal"><span class="pre">git.short-sha</span></code> - the first 10 characters of the current git sha</li>
 <li><code class="docutils literal"><span class="pre">git.branch</span></code> - the current git branch name</li>
 <li><code class="docutils literal"><span class="pre">time.&lt;format&gt;</span></code> - a date or time using <a class="reference external" href="https://github.com/metakeule/fmtdate#placeholders">fmtdate</a> (note: if your time
 format includes a <code class="docutils literal"><span class="pre">:</span></code> you must add another <code class="docutils literal"><span class="pre">:</span></code> to the end of the format,
