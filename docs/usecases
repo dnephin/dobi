@@ -1,12 +1,8 @@
 http://stackoverflow.com/questions/33547564/docker-separate-containers-for-node-mongo-how-to-populate-mongo-from-node-cont
 https://github.com/docker/compose/issues/2324
-http://stackoverflow.com/questions/34155716/like-make-for-any-language
 http://stackoverflow.com/questions/34403112/import-data-on-mongodb-from-docker-compose
-http://stackoverflow.com/questions/34517439/building-a-compiled-application-with-docker
-https://github.com/docker/compose/issues/295
 https://github.com/docker/docker/issues/14298#issuecomment-185404706
 https://github.com/docker/compose/issues/3660
-https://github.com/docker/compose/issues/3684
-https://github.com/docker/compose/issues/1294
 https://github.com/docker/compose/pull/3725#issuecomment-232606656
-https://github.com/docker/compose/issues/213#issuecomment-235237422
+http://stackoverflow.com/questions/34517439/building-a-compiled-application-with-docker
+https://github.com/docker/compose/issues/1896
