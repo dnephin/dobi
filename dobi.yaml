@@ -37,7 +37,7 @@ image=dist-img:
     dockerfile: dockerfiles/Dockerfile.dist
 
 image=releaser:
-    image: dobi-release
+    image: foo/dobi-release
     dockerfile: dockerfiles/Dockerfile.release
 
 image=docs-img:

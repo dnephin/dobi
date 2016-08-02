@@ -34,7 +34,32 @@ Image Tasks
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Build a Docker image from a Dockerfile. The image is tagged using the **image**
-field and the first tag from the list of **tags** in the image resource.
+field and the first tag from the list of **tags** in the image resource. If the
+**tags** field is not set, the value of ``{unique}`` will be used as the time. See
+:doc:`variables` for more information about how to set the unique value.
+
+
+.. note::
+
+   For every image built by **dobi** a small file is created in the ``./.dobi/images/``
+   directory (relative to the directory which contains the ``dobi.yaml``). This
+   file is used to track the modified time of the image. This file is necessary
+   because Docker does not store the "last built" time of an image, only the first
+   time it was built. If the image is built again, and the build is completely cached,
+   no new image id gets created, so the "created time" of the image is actually the
+   original created time.
+
+   Without this file images often appear as stale, because the original created time
+   of the image is earlier than the last attempted build. This will happen when a file
+   in the image context is modified, but that modification doesn't change the docker
+   build cache (which is the case if the modified file is never added to the image
+   using ``COPY`` or ``ADD``). By saving the image id in a local file, and using the
+   modified time of that file as the "last build time", **dobi** is able to skip
+   the build of an image in many cases.
+
+   If Docker adds a "last modified" time to the image data, **dobi** will be able
+   to use that time instead of tracking the time itself.
+
 
 ``:tag``
 ~~~~~~~~
