@@ -7,16 +7,18 @@ A build automation tool for Docker applications.
 Getting Started
 ---------------
 
-**dobi** uses a YAML config file (:doc:`dobi.yaml <config>` by default) to store the project
-tasks required to build, test, and deploy your application.  The first step is
-to create a ``dobi.yaml``.
+This is a short guide for getting started with **dobi**.
 
-Once you've created a ``dobi.yaml`` you can install the **dobi** command and run
-the tasks.
+1. :doc:`install` **dobi**.
+2. Create a ``dobi.yaml`` at the root of your project repository.
+3. Add a mount, image, and run resource to the ``dobi.yaml``. See :doc:`examples` and
+   :doc:`config` for more information about how to define a resource.
+4. Run a task using the name of the resource, and an optional action name. See
+   :doc:`tasks` for a full list of tasks.
 
-.. code:: sh
+   .. code:: sh
 
-    dobi <resource>
+       dobi TASK [TASK...]
 
 Documentation
 -------------

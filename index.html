@@ -28,6 +28,7 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
@@ -44,14 +45,22 @@
 <p>A build automation tool for Docker applications.</p>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<p><strong>dobi</strong> uses a YAML config file (<a class="reference internal" href="config.html"><span class="doc">dobi.yaml</span></a> by default) to store the project
-tasks required to build, test, and deploy your application.  The first step is
-to create a <code class="docutils literal"><span class="pre">dobi.yaml</span></code>.</p>
-<p>Once you&#8217;ve created a <code class="docutils literal"><span class="pre">dobi.yaml</span></code> you can install the <strong>dobi</strong> command and run
-the tasks.</p>
-<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">dobi</span> <span class="o">&lt;</span><span class="n">resource</span><span class="o">&gt;</span>
+<p>This is a short guide for getting started with <strong>dobi</strong>.</p>
+<ol class="arabic">
+<li><p class="first"><a class="reference internal" href="install.html"><span class="doc">Install</span></a> <strong>dobi</strong>.</p>
+</li>
+<li><p class="first">Create a <code class="docutils literal"><span class="pre">dobi.yaml</span></code> at the root of your project repository.</p>
+</li>
+<li><p class="first">Add a mount, image, and run resource to the <code class="docutils literal"><span class="pre">dobi.yaml</span></code>. See <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> and
+<a class="reference internal" href="config.html"><span class="doc">Config Reference</span></a> for more information about how to define a resource.</p>
+</li>
+<li><p class="first">Run a task using the name of the resource, and an optional action name. See
+<a class="reference internal" href="tasks.html"><span class="doc">Tasks</span></a> for a full list of tasks.</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">dobi</span> <span class="n">TASK</span> <span class="p">[</span><span class="n">TASK</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
+</li>
+</ol>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
@@ -156,7 +165,7 @@ the tasks.</p>
       
       
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="_sources/index.txt"
