@@ -4,16 +4,9 @@ dobi
 
 A build automation tool for Docker applications.
 
-``dobi`` allows you to define the resources required to build,
-test, and deploy your application.  Each resource may depend on other resource.
-When a resource is stale ``dobi`` runs the appropriate tasks to re-build it.
-
-Resources are defined in a ``dobi.yaml`` file, and are run using the command
-``dobi <resource name>``. Multiple tasks can be joined together with an
-``alias`` resource to define the high level operations.
-
-``dobi`` differs from other build automation tools by making the Docker
-containers, images, mounts, and environments a first-class resource.
+Keep your project tasks organized, portable, repeatable, and fast with ``dobi``.
+Define the resources and tasks required to build, test, and release your project in
+a ``dobi.yaml`` and run them with ``dobi TASK``.
 
 See `Getting Started <https://dnephin.github.io/dobi/>`_
 
@@ -23,12 +16,21 @@ See `Getting Started <https://dnephin.github.io/dobi/>`_
 Features
 --------
 
-* only re-build out-of-date resources, so operations are fast.
-* everything runs in a container, so operations are portable and reliable.
-* dependencies are automatically run first, and out-of-date dependencies force
-  dependents to be re-built.
-* tasks are grouped together to create high-level operations. Developer
-  operations are encoded in an easy to read configuration file.
+Key features of ``dobi``:
+
+* **fast** - tasks are only run when the resource is stale. If a resource
+  hasn't changed the task is skipped.
+* **portable** - all tasks run in a container, so developers are free to use
+  different operating systems and environments.
+* **repeatable** - tasks are defined in a ``dobi.yaml`` so new contributers can
+  get started quickly, and a task will always produce the same results.
+  Variables are supported, but must be explicitly defined, so there's no hidden
+  environment variables that could change the behaviour of a task.
+* **organized** - tasks can be chained together using an ``alias`` resource to
+  produce entire workflows like ``test`` or ``release``, which may involve
+  multiple independent tasks.
+* **dependencies** - tasks can depend on other tasks using ``depends``. When a
+  task is run, its dependencies are checked first, and run if they are stale.
 
 
 Install

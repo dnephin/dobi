@@ -66,7 +66,7 @@ type RunConfig struct {
 
 // Dependencies returns the list of implicit and explicit dependencies
 func (c *RunConfig) Dependencies() []string {
-	return append([]string{c.Use}, append(c.Mounts, c.Depends...)...)
+	return append([]string{c.Use}, append(c.Depends, c.Mounts...)...)
 }
 
 // Validate checks that all fields have acceptable values
