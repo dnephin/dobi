@@ -1,18 +1,18 @@
 package context
 
 import (
-	docker "github.com/fsouza/go-dockerclient"
-
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/client"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
 	modified    map[string]bool
 	Resources   *config.ResourceCollection
-	Client      *docker.Client
+	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
 	Env         *execenv.ExecEnv
@@ -47,7 +47,7 @@ func (ctx *ExecuteContext) GetAuthConfig(repo string) docker.AuthConfiguration {
 // NewExecuteContext craetes a new empty ExecuteContext
 func NewExecuteContext(
 	config *config.Config,
-	client *docker.Client,
+	client client.DockerClient,
 	execEnv *execenv.ExecEnv,
 	quiet bool,
 ) *ExecuteContext {

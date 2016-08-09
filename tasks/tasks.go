@@ -8,6 +8,7 @@ import (
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
+	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
@@ -16,7 +17,6 @@ import (
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/tasks/run"
 	"github.com/dnephin/dobi/utils/stack"
-	docker "github.com/fsouza/go-dockerclient"
 )
 
 // TaskCollection is a collection of Task objects
@@ -171,7 +171,7 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 
 // RunOptions are the options supported by Run
 type RunOptions struct {
-	Client *docker.Client
+	Client client.DockerClient
 	Config *config.Config
 	Tasks  []string
 	Quiet  bool
@@ -210,6 +210,10 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	ctx := context.NewExecuteContext(options.Config, options.Client, execEnv, options.Quiet)
+	ctx := context.NewExecuteContext(
+		options.Config,
+		options.Client,
+		execEnv,
+		options.Quiet)
 	return executeTasks(ctx, tasks)
 }

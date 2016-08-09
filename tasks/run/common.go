@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/context"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -14,7 +15,7 @@ func ContainerName(ctx *context.ExecuteContext, name string) string {
 }
 
 // RemoveContainer removes a container
-func RemoveContainer(logger *log.Entry, client *docker.Client, containerID string) {
+func RemoveContainer(logger *log.Entry, client client.DockerClient, containerID string) {
 	logger.Debug("Removing container")
 	if err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,

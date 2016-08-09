@@ -12,6 +12,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
@@ -232,7 +233,7 @@ func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOpt
 	return opts
 }
 
-func (t *Task) wait(client *docker.Client, containerID string) error {
+func (t *Task) wait(client client.DockerClient, containerID string) error {
 	status, err := client.WaitContainer(containerID)
 	if err != nil {
 		return fmt.Errorf("Failed to wait on container exit: %s", err)
@@ -243,7 +244,7 @@ func (t *Task) wait(client *docker.Client, containerID string) error {
 	return nil
 }
 
-func (t *Task) forwardSignals(client *docker.Client, containerID string) chan<- os.Signal {
+func (t *Task) forwardSignals(client client.DockerClient, containerID string) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
 	// TODO: not all of these exist on windows?

@@ -8,6 +8,7 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks"
+	"github.com/dnephin/dobi/tasks/client"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
 )
@@ -102,7 +103,7 @@ func initLogging(verbose, quiet bool) {
 	logger.Formatter = formatter
 }
 
-func buildClient() (*docker.Client, error) {
+func buildClient() (client.DockerClient, error) {
 	apiVersion := os.Getenv("DOCKER_API_VERSION")
 	if apiVersion == "" {
 		apiVersion = DefaultDockerAPIVersion
