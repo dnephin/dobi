@@ -4,6 +4,8 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+//go:generate mockgen -source iface.go -destination mock_iface.go -package client
+
 // DockerClient is the Docker API Client interface used by tasks
 type DockerClient interface {
 	BuildImage(docker.BuildImageOptions) error

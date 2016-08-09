@@ -1,5 +1,5 @@
-hash: 0e64f95685a092204131dccbc69ceabd183295bb6672606d06c04bd45edc46e9
-updated: 2016-06-29T04:47:26.129243752Z
+hash: 69c3eb43fa4e6f6899ec96027c6dbfd3da05864e4c6891d1b83c95b90d6d7ba7
+updated: 2016-08-09T02:29:38.596103205Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -8,12 +8,14 @@ imports:
 - name: github.com/docker/docker
   version: 487931902c1177352e4eceec1b5ef558a5ba24cc
   subpackages:
+  - pkg/jsonmessage
   - pkg/term
   - opts
   - pkg/archive
   - pkg/fileutils
   - pkg/homedir
   - pkg/stdcopy
+  - pkg/jsonlog
   - pkg/system
   - pkg/term/windows
   - pkg/idtools
@@ -32,6 +34,10 @@ imports:
   version: 107dc3807d24e581e874212dd9a7ba35599b893d
 - name: github.com/gogits/git-module
   version: 1dad9765c0adf04fe1eabadfb1a9189157dc50af
+- name: github.com/golang/mock
+  version: bd3c8e81be01eef76d4b503f5e687d2d1354d2d9
+  subpackages:
+  - gomock
 - name: github.com/hashicorp/go-cleanhttp
   version: ad28ea4487f05916463e2423a55166280e8254b5
 - name: github.com/inconshreveable/mousetrap

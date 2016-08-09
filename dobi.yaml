@@ -62,6 +62,7 @@ run=watch:
     mounts: [source]
     command: "script/watch"
     interactive: true
+    depends: [mocks]
 
 run=shell:
     use: builder
@@ -74,6 +75,7 @@ run=test-unit:
     use: builder
     mounts: [source]
     command: "bash -c 'go test -v $(glide novendor)'"
+    depends: [mocks]
 
 run=lint:
     use: linter
@@ -111,6 +113,11 @@ run=docs:
     interactive: true
     command: ./docs/script/serve
     depends: ['docs-build']
+
+run=mocks:
+    use: builder
+    mounts: [source]
+    command: "bash -c 'go generate $(glide nv)'"
 
 #
 # Aliases

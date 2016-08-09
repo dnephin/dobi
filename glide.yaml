@@ -13,3 +13,6 @@ import:
 - package: github.com/gogits/git-module
 - package: github.com/mcuadros/go-version
 - package: github.com/metakeule/fmtdate
+- package: github.com/golang/mock
+  subpackages:
+  - gomock

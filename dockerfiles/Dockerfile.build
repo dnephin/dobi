@@ -17,6 +17,10 @@ RUN     go get github.com/mitchellh/gox && \
         cp /go/bin/gox /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
+RUN     go get github.com/golang/mock/mockgen && \
+        cp /go/bin/mockgen /usr/bin && \
+        rm -rf /go/src/* /go/pkg/* /go/bin/*
+
 WORKDIR /go/src/github.com/dnephin/dobi
 ENV     PS1="# "
 ENV     CGO_ENABLED=0
