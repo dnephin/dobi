@@ -30,7 +30,7 @@ type MountConfig struct {
 	// Mode The file mode to set on the host file or directory when it is
 	// created.
 	// default: ``0777`` *(for directories)*, ``0644`` *(for files)*
-	Mode int
+	Mode int `config:"validate"`
 }
 
 // Dependencies returns an empty list, Mount resources have no dependencies
@@ -40,6 +40,20 @@ func (c *MountConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *MountConfig) Validate(path Path, config *Config) *PathError {
+	return nil
+}
+
+// ValidateMode validates Mode and sets a default
+func (c *MountConfig) ValidateMode() error {
+	if c.Mode != 0 {
+		return nil
+	}
+	switch c.File {
+	case true:
+		c.Mode = 0644
+	default:
+		c.Mode = 0777
+	}
 	return nil
 }
 

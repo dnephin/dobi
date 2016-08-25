@@ -119,6 +119,12 @@ run=mocks:
     mounts: [source]
     command: "bash -c 'go generate $(glide nv)'"
 
+run=deps:
+    use: builder
+    mounts: [source]
+    command: "glide install"
+    artifact: vendor/
+
 #
 # Aliases
 #

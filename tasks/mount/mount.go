@@ -33,7 +33,7 @@ func (t *CreateTask) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *CreateTask) Repr() string {
-	return fmt.Sprintf("[mount:create %s] %s (%s)", t.name, t.config.Bind, t.config.Mode)
+	return fmt.Sprintf("[mount:create %s] %s (%#o)", t.name, t.config.Bind, t.config.Mode)
 }
 
 // Run creates the host path if it doesn't already exist
@@ -55,19 +55,13 @@ func (t *CreateTask) Run(ctx *context.ExecuteContext) error {
 
 func (t *CreateTask) create(ctx *context.ExecuteContext) error {
 	path := AbsBindPath(t.config, ctx.WorkingDir)
-	mode := t.config.Mode
+	mode := os.FileMode(t.config.Mode)
 
 	switch t.config.File {
 	case true:
-		if mode == 0 {
-			mode = 0644
-		}
-		return ioutil.WriteFile(path, []byte{}, os.FileMode(mode))
+		return ioutil.WriteFile(path, []byte{}, mode)
 	default:
-		if mode == 0 {
-			mode = 0777
-		}
-		return os.MkdirAll(path, os.FileMode(mode))
+		return os.MkdirAll(path, mode)
 	}
 }
 
