@@ -43,7 +43,7 @@ func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
 
 	if t.config.Artifact != "" {
 		if err := os.RemoveAll(t.config.Artifact); err != nil {
-			t.logger().Warn("failed to remove artifact %s: %s", t.config.Artifact, err)
+			t.logger().Warnf("failed to remove artifact %s: %s", t.config.Artifact, err)
 		}
 	}
 
