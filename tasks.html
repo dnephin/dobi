@@ -65,7 +65,28 @@ dobi builder:rm
 <div class="section" id="build-default">
 <h3><code class="docutils literal"><span class="pre">:build</span></code> <em>(default)</em><a class="headerlink" href="#build-default" title="Permalink to this headline">¶</a></h3>
 <p>Build a Docker image from a Dockerfile. The image is tagged using the <strong>image</strong>
-field and the first tag from the list of <strong>tags</strong> in the image resource.</p>
+field and the first tag from the list of <strong>tags</strong> in the image resource. If the
+<strong>tags</strong> field is not set, the value of <code class="docutils literal"><span class="pre">{unique}</span></code> will be used as the time. See
+<a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a> for more information about how to set the unique value.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>For every image built by <strong>dobi</strong> a small file is created in the <code class="docutils literal"><span class="pre">./.dobi/images/</span></code>
+directory (relative to the directory which contains the <code class="docutils literal"><span class="pre">dobi.yaml</span></code>). This
+file is used to track the modified time of the image. This file is necessary
+because Docker does not store the &#8220;last built&#8221; time of an image, only the first
+time it was built. If the image is built again, and the build is completely cached,
+no new image id gets created, so the &#8220;created time&#8221; of the image is actually the
+original created time.</p>
+<p>Without this file images often appear as stale, because the original created time
+of the image is earlier than the last attempted build. This will happen when a file
+in the image context is modified, but that modification doesn&#8217;t change the docker
+build cache (which is the case if the modified file is never added to the image
+using <code class="docutils literal"><span class="pre">COPY</span></code> or <code class="docutils literal"><span class="pre">ADD</span></code>). By saving the image id in a local file, and using the
+modified time of that file as the &#8220;last build time&#8221;, <strong>dobi</strong> is able to skip
+the build of an image in many cases.</p>
+<p class="last">If Docker adds a &#8220;last modified&#8221; time to the image data, <strong>dobi</strong> will be able
+to use that time instead of tracking the time itself.</p>
+</div>
 </div>
 <div class="section" id="tag">
 <h3><code class="docutils literal"><span class="pre">:tag</span></code><a class="headerlink" href="#tag" title="Permalink to this headline">¶</a></h3>

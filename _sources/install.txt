@@ -15,7 +15,12 @@ Install from source
 
 .. code:: sh
 
-    go get github.com/dnephin/dobi
+    git clone git@github.com:dnephin/dobi && cd dobi
+    docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        dnephin/dobi:0.4 deps binary
+
+The binaries will be in ``./dist/bin``
 
 Usage
 -----

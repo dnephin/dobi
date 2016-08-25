@@ -51,9 +51,13 @@
 </div>
 <div class="section" id="install-from-source">
 <h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
-<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">go</span> <span class="n">get</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">dnephin</span><span class="o">/</span><span class="n">dobi</span>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span>git clone git@github.com:dnephin/dobi &amp;&amp; cd dobi
+docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    dnephin/dobi:0.4 deps binary
 </pre></div>
 </div>
+<p>The binaries will be in <code class="docutils literal"><span class="pre">./dist/bin</span></code></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
