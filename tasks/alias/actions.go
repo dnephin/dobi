@@ -30,8 +30,8 @@ func RemoveDeps(t *Task) []string {
 	confDeps := t.config.Dependencies()
 	deps := []string{}
 	for i := len(confDeps); i > 0; i-- {
-		res, _ := common.SplitTaskActionName(confDeps[i-1])
-		deps = append(deps, res+":"+"rm")
+		taskname := common.ParseTaskName(confDeps[i-1])
+		deps = append(deps, taskname.Resource()+":"+"rm")
 	}
 	return deps
 }

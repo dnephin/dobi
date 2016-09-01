@@ -9,6 +9,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
 )
 
@@ -31,8 +32,8 @@ func NewTask(name string, conf *config.ComposeConfig, act action) *Task {
 }
 
 // Name returns the name of the task
-func (t *Task) Name() string {
-	return t.name
+func (t *Task) Name() common.TaskName {
+	return common.NewTaskName(t.name, t.action.name)
 }
 
 func (t *Task) logger() *log.Entry {

@@ -22,7 +22,7 @@ func getAction(name string, task string) (action, error) {
 	case "", "up":
 		return action{name: "up", Run: RunUp, Stop: StopUp}, nil
 	case "remove", "rm", "down":
-		return action{name: "down", Run: StopNothing}, nil
+		return action{name: "down", Run: RunDown, Stop: StopNothing}, nil
 	case "attach":
 		return action{name: "attach", Run: RunUpAttached, Stop: StopNothing}, nil
 	default:

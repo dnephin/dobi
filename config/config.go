@@ -122,7 +122,7 @@ func validate(config *Config) error {
 func ValidateResourcesExist(path Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
-		resource, _ := common.SplitTaskActionName(name)
+		resource := common.ParseTaskName(name).Resource()
 		if _, ok := c.Resources[resource]; !ok {
 			missing = append(missing, resource)
 		}

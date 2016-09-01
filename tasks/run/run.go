@@ -13,6 +13,7 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/client"
+	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
@@ -35,8 +36,8 @@ func NewTask(name string, conf *config.RunConfig) *Task {
 }
 
 // Name returns the name of the task
-func (t *Task) Name() string {
-	return t.name
+func (t *Task) Name() common.TaskName {
+	return common.NewTaskName(t.name, "run")
 }
 
 func (t *Task) logger() *log.Entry {

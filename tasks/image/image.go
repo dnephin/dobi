@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
@@ -31,8 +32,8 @@ func NewTask(name string, conf *config.ImageConfig, act action) *Task {
 }
 
 // Name returns the name of the task
-func (t *Task) Name() string {
-	return t.name
+func (t *Task) Name() common.TaskName {
+	return common.NewTaskName(t.name, t.action.name)
 }
 
 func (t *Task) logger() *log.Entry {
@@ -59,7 +60,7 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 func (t *Task) Dependencies() []string {
 	deps := t.config.Dependencies()
 	for _, actionDep := range t.action.ActionDependencies {
-		deps = append(deps, t.Name()+":"+actionDep)
+		deps = append(deps, t.Name().Resource()+":"+actionDep)
 	}
 	return deps
 }

@@ -52,7 +52,7 @@ func (c *MountConfig) ValidateMode() error {
 	case true:
 		c.Mode = 0644
 	default:
-		c.Mode = 0777
+		c.Mode = 0755
 	}
 	return nil
 }

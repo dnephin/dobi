@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
 )
 
@@ -23,8 +24,8 @@ func NewRemoveTask(name string, conf *config.RunConfig) *RemoveTask {
 }
 
 // Name returns the name of the task
-func (t *RemoveTask) Name() string {
-	return t.name
+func (t *RemoveTask) Name() common.TaskName {
+	return common.NewTaskName(t.name, "rm")
 }
 
 func (t *RemoveTask) logger() *log.Entry {

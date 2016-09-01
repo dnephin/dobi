@@ -24,13 +24,13 @@ type TaskCollection struct {
 	tasks []iface.Task
 }
 
-func (c *TaskCollection) add(task iface.Task, resource config.Resource) {
+func (c *TaskCollection) add(task iface.Task) {
 	c.tasks = append(c.tasks, task)
 }
 
-func (c *TaskCollection) contains(name string) bool {
+func (c *TaskCollection) contains(name common.TaskName) bool {
 	for _, task := range c.tasks {
-		if task.Name() == name {
+		if task.Name().Name() == name.Name() {
 			return true
 		}
 	}
@@ -70,17 +70,9 @@ type collectionState struct {
 }
 
 func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
-	for _, name := range options.Tasks {
-		if state.tasks.contains(name) {
-			continue
-		}
-
-		if state.taskStack.Contains(name) {
-			return nil, fmt.Errorf(
-				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Items(), ", "))
-		}
-
-		name, action := common.SplitTaskActionName(name)
+	for _, taskname := range options.Tasks {
+		taskname := common.ParseTaskName(taskname)
+		name := taskname.Resource()
 		resource, ok := options.Config.Resources[name]
 		if !ok {
 			return nil, fmt.Errorf("Resource %q does not exist", name)
@@ -91,16 +83,27 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 			return nil, err
 		}
 
-		task, err := buildTaskFromResource(name, action, resource)
+		task, err := buildTaskFromResource(name, taskname.Action(), resource)
 		if err != nil {
 			return nil, err
 		}
-		state.taskStack.Push(name)
+
+		if state.tasks.contains(task.Name()) {
+			logging.Log.Debugf("%q already in task list, skipping", task.Name())
+			continue
+		}
+
+		if state.taskStack.Contains(task.Name().Name()) {
+			return nil, fmt.Errorf(
+				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Items(), ", "))
+		}
+		state.taskStack.Push(task.Name().Name())
+
 		options.Tasks = task.Dependencies()
 		if _, err := collect(options, state); err != nil {
 			return nil, err
 		}
-		state.tasks.add(task, resource)
+		state.tasks.add(task)
 		state.taskStack.Pop()
 	}
 	return state.tasks, nil
