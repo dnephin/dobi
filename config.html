@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Reference &mdash; dobi 0.4 documentation</title>
+    <title>Config Reference &mdash; dobi 0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4',
+        VERSION:     '0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.4 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.5 documentation" href="index.html" />
     <link rel="next" title="Config Variables" href="variables.html" />
     <link rel="prev" title="Examples" href="examples.html" />
    
@@ -171,13 +171,13 @@ image.</p>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="run">
-<h2>run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>run</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a conatiner.
-A <strong>run</strong> resource that doesn&#8217;t have an <strong>artifact</strong> is never considered
-up-to-date and will always run.  If a run resource has an <strong>artifact</strong>
+<div class="section" id="job">
+<h2>job<a class="headerlink" href="#job" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>job</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a job in a conatiner.
+A <strong>job</strong> resource that doesn&#8217;t have an <strong>artifact</strong> is never considered
+up-to-date and will always run.  If a job resource has an <strong>artifact</strong>
 the last modified time of that file will be used as the modified time for the
-<strong>run</strong> resource.</p>
+<strong>job</strong>.</p>
 <p>The <a class="reference internal" href="#image">image</a> specified in <strong>use</strong> and any <a class="reference internal" href="#mount">mount</a> resources listed in
 <strong>mounts</strong> are automatically added as dependencies and will always be
 created first.</p>
@@ -185,7 +185,7 @@ created first.</p>
 <h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Run a container using the <code class="docutils literal"><span class="pre">builder</span></code> image to compile some source
 code to <code class="docutils literal"><span class="pre">./dist/app-binary</span></code>.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">run=compile</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">job=compile</span><span class="p p-Indicator">:</span>
     <span class="l l-Scalar l-Scalar-Plain">use</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">builder</span>
     <span class="l l-Scalar l-Scalar-Plain">mounts</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span> <span class="nv">dist</span><span class="p p-Indicator">]</span>
     <span class="l l-Scalar l-Scalar-Plain">artifact</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dist/app-binary</span>
@@ -201,7 +201,7 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>The name of an <a class="reference internal" href="#image">image</a> resource. The referenced image is used    to created the container for the <strong>run</strong>.</p>
+<p>The name of an <a class="reference internal" href="#image">image</a> resource. The referenced image is used    to created the container for the <strong>job</strong>.</p>
 </div></blockquote>
 <p><strong>artifact</strong></p>
 <blockquote>
@@ -213,7 +213,7 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>A host path to a file or directory that is the output of this    <strong>run</strong>. Paths are relative to the current working directory.</p>
+<p>A host path to a file or directory that is the output of this    <strong>job</strong>. Paths are relative to the current working directory.</p>
 </div></blockquote>
 <p><strong>command</strong></p>
 <blockquote>
@@ -239,6 +239,18 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tbody>
 </table>
 <p>Override the image entrypoint</p>
+</div></blockquote>
+<p><strong>sources</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of files or directories</td>
+</tr>
+</tbody>
+</table>
+<p>A list of files or directories which are used to create the    artifact. The modified time of these files are compared to the modified time    of the artifact to determine if the <strong>job</strong> is stale. If the <strong>sources</strong>    list is defined the modified time of <strong>mounts</strong> and the <strong>use</strong> image are    ignored.</p>
 </div></blockquote>
 <p><strong>mounts</strong></p>
 <blockquote>
@@ -597,7 +609,7 @@ default.</p>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Config Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#image">image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run">run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#job">job</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mount">mount</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#alias">alias</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compose">compose</a></li>

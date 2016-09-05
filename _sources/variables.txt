@@ -71,8 +71,8 @@ Config Fields
 
 The following config fields support variables:
 
-* ``run.env``
-* ``run.net-mode``
+* ``job.env``
+* ``job.net-mode``
 * ``image.tag``
 * ``image.args``
 * ``compose.files``
