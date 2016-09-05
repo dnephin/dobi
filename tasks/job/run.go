@@ -57,7 +57,7 @@ func (t *Task) Repr() string {
 	if t.config.Artifact != "" {
 		buff.WriteString(" " + t.config.Artifact)
 	}
-	return fmt.Sprintf("[run %v]%v", t.name, buff.String())
+	return fmt.Sprintf("[job:run %v]%v", t.name, buff.String())
 }
 
 // Run creates the host path if it doesn't already exist

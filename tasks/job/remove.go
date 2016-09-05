@@ -34,7 +34,7 @@ func (t *RemoveTask) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *RemoveTask) Repr() string {
-	return fmt.Sprintf("[run:rm %v] %v", t.name, t.config.Artifact)
+	return fmt.Sprintf("[job:rm %v] %v", t.name, t.config.Artifact)
 }
 
 // Run creates the host path if it doesn't already exist
