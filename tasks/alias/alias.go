@@ -43,8 +43,6 @@ func (t *Task) Repr() string {
 
 // Run does nothing. Dependencies were already run.
 func (t *Task) Run(ctx *context.ExecuteContext) error {
-	t.logger().Debug("Run")
-
 	if ctx.IsModified(t.config.Tasks...) {
 		ctx.SetModified(t.name)
 	}

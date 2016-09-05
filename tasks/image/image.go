@@ -47,7 +47,6 @@ func (t *Task) Repr() string {
 
 // Run builds or pulls an image if it is out of date
 func (t *Task) Run(ctx *context.ExecuteContext) error {
-	t.logger().Debug("Run")
 	return t.action.Run(ctx, t)
 }
 

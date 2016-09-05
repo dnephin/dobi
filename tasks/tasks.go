@@ -3,7 +3,9 @@ package tasks
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
@@ -165,9 +167,19 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 
 	logging.Log.Debug("executing tasks")
 	for _, task := range tasks.All() {
+		start := time.Now()
+		logging.Log.WithFields(log.Fields{
+			"time": start,
+			"task": task,
+		}).Debug("Start")
+
 		if err := task.Run(ctx); err != nil {
 			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
 		}
+		logging.Log.WithFields(log.Fields{
+			"elapsed": time.Since(start),
+			"task":    task,
+		}).Debug("Complete")
 	}
 	return nil
 }

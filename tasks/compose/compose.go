@@ -48,7 +48,6 @@ func (t *Task) Repr() string {
 
 // Run runs the action
 func (t *Task) Run(ctx *context.ExecuteContext) error {
-	t.logger().Debug("Run")
 	return t.action.Run(ctx, t)
 }
 

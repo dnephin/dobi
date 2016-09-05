@@ -62,7 +62,6 @@ func (t *Task) Repr() string {
 
 // Run creates the host path if it doesn't already exist
 func (t *Task) Run(ctx *context.ExecuteContext) error {
-	t.logger().Debug("Run")
 	stale, err := t.isStale(ctx)
 	if !stale || err != nil {
 		t.logger().Info("is fresh")

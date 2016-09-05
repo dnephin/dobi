@@ -37,7 +37,6 @@ func (t *RemoveTask) Repr() string {
 
 // Run does nothing
 func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
-	t.logger().Debug("Run")
 	t.logger().Warn("Bind mounts are not removable")
 	return nil
 }
