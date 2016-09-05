@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
-// LastModified returns the latest modified time for all the files in all of
-// the directories
+// LastModified returns the latest modified time for all the files and
+// directories. The files in each directory are checked for their last modified
+// time.
 // TODO: use go routines to speed this up
-func LastModified(dirs ...string) (time.Time, error) {
+func LastModified(fileOrDir ...string) (time.Time, error) {
 	var latest time.Time
 
 	// TODO: does this error contain enough context?
@@ -23,9 +24,21 @@ func LastModified(dirs ...string) (time.Time, error) {
 		return nil
 	}
 
-	for _, dir := range dirs {
-		if err := filepath.Walk(dir, walker); err != nil {
+	for _, file := range fileOrDir {
+		info, err := os.Stat(file)
+		if err != nil {
 			return latest, err
+		}
+		switch info.IsDir() {
+		case false:
+			if info.ModTime().After(latest) {
+				latest = info.ModTime()
+				continue
+			}
+		default:
+			if err := filepath.Walk(file, walker); err != nil {
+				return latest, err
+			}
 		}
 	}
 	return latest, nil

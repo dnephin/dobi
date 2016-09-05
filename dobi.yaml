@@ -123,6 +123,7 @@ job=deps:
     use: builder
     mounts: [source]
     command: "glide install"
+    sources: ['glide.yaml', 'glide.lock']
     artifact: vendor/
 
 #

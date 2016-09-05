@@ -94,6 +94,18 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 		return true, err
 	}
 
+	if len(t.config.Sources) != 0 {
+		sourcesLastModified, err := fs.LastModified(t.config.Sources...)
+		if err != nil {
+			return true, err
+		}
+		if artifactLastModified.Before(sourcesLastModified) {
+			t.logger().Debug("artifact older than sources")
+			return true, nil
+		}
+		return false, nil
+	}
+
 	mountsLastModified, err := t.mountsLastModified(ctx)
 	if err != nil {
 		t.logger().Warnf("Failed to get mounts last modified: %s", err)
@@ -118,16 +130,10 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 }
 
 func (t *Task) artifactLastModified() (time.Time, error) {
-	info, err := os.Stat(t.config.Artifact)
 	// File or directory doesn't exist
-	if err != nil {
+	if _, err := os.Stat(t.config.Artifact); err != nil {
 		return time.Time{}, nil
 	}
-
-	if !info.IsDir() {
-		return info.ModTime(), nil
-	}
-
 	return fs.LastModified(t.config.Artifact)
 }
 

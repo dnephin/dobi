@@ -42,6 +42,13 @@ type JobConfig struct {
 	// Entrypoint Override the image entrypoint
 	// type: shell quoted string
 	Entrypoint ShlexSlice
+	// Sources A list of files or directories which are used to create the
+	// artifact. The modified time of these files are compared to the modified time
+	// of the artifact to determine if the **job** is stale. If the **sources**
+	// list is defined the modified time of **mounts** and the **use** image are
+	// ignored.
+	// type: list of files or directories
+	Sources []string
 	// Mounts A list of `mount`_ resources to use when creating the container.
 	// type: list of mount resources
 	Mounts []string
