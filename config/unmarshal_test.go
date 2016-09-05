@@ -22,7 +22,7 @@ func TestLoadFromBytes(t *testing.T) {
 		  bind: dist/
 		  path: /target
 
-		run=cmd-def:
+		job=cmd-def:
 		  use: image-dev
 		  mounts: [vol-def]
 
@@ -38,7 +38,7 @@ func TestLoadFromBytes(t *testing.T) {
 	assert.Equal(t, 5, len(config.Resources))
 	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
 	assert.IsType(t, &MountConfig{}, config.Resources["vol-def"])
-	assert.IsType(t, &RunConfig{}, config.Resources["cmd-def"])
+	assert.IsType(t, &JobConfig{}, config.Resources["cmd-def"])
 	assert.IsType(t, &AliasConfig{}, config.Resources["alias-def"])
 
 	// Test default value and override

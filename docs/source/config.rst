@@ -17,7 +17,7 @@ Each resource must be one of the following resource types:
 .. include:: ../gen/config/image.rst
 
 
-.. include:: ../gen/config/run.rst
+.. include:: ../gen/config/job.rst
 
 
 .. include:: ../gen/config/mount.rst

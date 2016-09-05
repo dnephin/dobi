@@ -15,11 +15,11 @@ import (
 // artifact created by the run task.
 type RemoveTask struct {
 	name   string
-	config *config.RunConfig
+	config *config.JobConfig
 }
 
 // NewRemoveTask creates a new RemoveTask object
-func NewRemoveTask(name string, conf *config.RunConfig) *RemoveTask {
+func NewRemoveTask(name string, conf *config.JobConfig) *RemoveTask {
 	return &RemoveTask{name: name, config: conf}
 }
 

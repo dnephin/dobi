@@ -96,10 +96,10 @@ Pull the image from a registry.
 Remove all the image tags, and the image.
 
 
-Run Tasks
+Job Tasks
 ---------
 
-`run <./config.html#run>`_ resources have the following tasks:
+`job <./config.html#job>`_ resources have the following tasks:
 
 ``:run`` *(default)*
 ~~~~~~~~~~~~~~~~~~~~

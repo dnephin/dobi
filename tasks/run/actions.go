@@ -8,7 +8,7 @@ import (
 )
 
 // GetTask returns a new task for the action
-func GetTask(name, action string, conf *config.RunConfig) (iface.Task, error) {
+func GetTask(name, action string, conf *config.JobConfig) (iface.Task, error) {
 	switch action {
 	case "", "run":
 		return NewTask(name, conf), nil

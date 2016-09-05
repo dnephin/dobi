@@ -46,10 +46,10 @@ image=docs-img:
 
 
 #
-# Run
+# Jobs
 #
 
-run=binary:
+job=binary:
     use: builder
     artifact: ./dist/bin/
     mounts: [source, dist]
@@ -57,31 +57,31 @@ run=binary:
     env:
       - "DOBI_BUILD_OS={env.DOBI_BUILD_OS:}"
 
-run=watch:
+job=watch:
     use: builder
     mounts: [source]
     command: "script/watch"
     interactive: true
     depends: [mocks]
 
-run=shell:
+job=shell:
     use: builder
     mounts: [source, dist]
     interactive: true
     provide-docker: true
     command: bash
 
-run=test-unit:
+job=test-unit:
     use: builder
     mounts: [source]
     command: "bash -c 'go test -v $(glide novendor)'"
     depends: [mocks]
 
-run=lint:
+job=lint:
     use: linter
     mounts: [source]
 
-run=release:
+job=release:
     use: releaser
     mounts: [dist]
     env:
@@ -89,37 +89,37 @@ run=release:
      - "DOBI_VERSION={env.CIRCLE_TAG}"
     depends: [binary]
 
-run=docs-build:
+job=docs-build:
     use: docs-img
     artifact: ./docs/build/html
     mounts: [source]
     command: ./docs/script/build
 
-run=docs-shell:
+job=docs-shell:
     use: docs-img
     mounts: [source]
     interactive: true
     command: bash
 
-run=docs-watch:
+job=docs-watch:
     use: docs-img
     mounts: [source]
     interactive: true
     command: ./docs/script/watch
 
-run=docs:
+job=docs:
     use: docs-img
     mounts: [source]
     interactive: true
     command: ./docs/script/serve
     depends: ['docs-build']
 
-run=mocks:
+job=mocks:
     use: builder
     mounts: [source]
     command: "bash -c 'go generate $(glide nv)'"
 
-run=deps:
+job=deps:
     use: builder
     mounts: [source]
     command: "glide install"

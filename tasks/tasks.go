@@ -139,7 +139,7 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
 		return image.GetTask(name, action, conf)
-	case *config.RunConfig:
+	case *config.JobConfig:
 		return run.GetTask(name, action, conf)
 	case *config.MountConfig:
 		return mount.GetTask(name, action, conf)

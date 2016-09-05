@@ -19,7 +19,7 @@ image=builder:
     context: .
     dockerfile: Dockerfile.build
 
-run=binary:
+job=binary:
     use: builder
     artifact: ./dist/bin/hello
     mounts: [source, dist]
@@ -30,6 +30,6 @@ image=dist-img:
     tags: ['{env.USER}']
     depends: [binary]
 
-run=run-dist:
+job=run-dist:
     use: dist-img
     interactive: true

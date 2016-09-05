@@ -27,11 +27,11 @@ import (
 // file or set of files.
 type Task struct {
 	name   string
-	config *config.RunConfig
+	config *config.JobConfig
 }
 
 // NewTask creates a new Task object
-func NewTask(name string, conf *config.RunConfig) *Task {
+func NewTask(name string, conf *config.JobConfig) *Task {
 	return &Task{name: name, config: conf}
 }
 

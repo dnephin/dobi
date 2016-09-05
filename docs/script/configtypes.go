@@ -32,7 +32,7 @@ func writeDocs() error {
 		{"compose.rst", config.ComposeConfig{}},
 		{"image.rst", config.ImageConfig{}},
 		{"mount.rst", config.MountConfig{}},
-		{"run.rst", config.RunConfig{}},
+		{"job.rst", config.JobConfig{}},
 	} {
 		fmt.Printf("Generating doc %q\n", basePath+item.filename)
 		if err := write(basePath+item.filename, item.source); err != nil {

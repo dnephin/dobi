@@ -11,14 +11,14 @@ image=bash:
     image: example/bash
     context: .
 
-run=setup:
+job=setup:
     use: bash
     artifact: '.env'
     mounts: ['.env']
     interactive: true
     env: ['HOST_USER={env.USER:}']
 
-run=app:
+job=app:
     use: bash
     command: "nc -l 0.0.0.0 8080"
     depends: [setup]

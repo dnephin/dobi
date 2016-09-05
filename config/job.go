@@ -8,32 +8,32 @@ import (
 	shlex "github.com/kballard/go-shellquote"
 )
 
-// RunConfig A **run** resource uses an `image`_ to run a conatiner.
-// A **run** resource that doesn't have an **artifact** is never considered
-// up-to-date and will always run.  If a run resource has an **artifact**
+// JobConfig A **job** resource uses an `image`_ to run a job in a conatiner.
+// A **job** resource that doesn't have an **artifact** is never considered
+// up-to-date and will always run.  If a job resource has an **artifact**
 // the last modified time of that file will be used as the modified time for the
-// **run** resource.
+// **job**.
 //
 // The `image`_ specified in **use** and any `mount`_ resources listed in
 // **mounts** are automatically added as dependencies and will always be
 // created first.
-// name: run
+// name: job
 // example: Run a container using the ``builder`` image to compile some source
 // code to ``./dist/app-binary``.
 //
 // .. code-block:: yaml
 //
-//     run=compile:
+//     job=compile:
 //         use: builder
 //         mounts: [source, dist]
 //         artifact: dist/app-binary
 //
-type RunConfig struct {
+type JobConfig struct {
 	// Use The name of an `image`_ resource. The referenced image is used
-	// to created the container for the **run**.
+	// to created the container for the **job**.
 	Use string `config:"required"`
 	// Artifact A host path to a file or directory that is the output of this
-	// **run**. Paths are relative to the current working directory.
+	// **job**. Paths are relative to the current working directory.
 	Artifact string
 	// Command The command to run in the container.
 	// type: shell quoted string
@@ -65,12 +65,12 @@ type RunConfig struct {
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
-func (c *RunConfig) Dependencies() []string {
+func (c *JobConfig) Dependencies() []string {
 	return append([]string{c.Use}, append(c.Depends, c.Mounts...)...)
 }
 
 // Validate checks that all fields have acceptable values
-func (c *RunConfig) Validate(path Path, config *Config) *PathError {
+func (c *JobConfig) Validate(path Path, config *Config) *PathError {
 	if err := c.validateUse(config); err != nil {
 		return PathErrorf(path.add("use"), err.Error())
 	}
@@ -80,7 +80,7 @@ func (c *RunConfig) Validate(path Path, config *Config) *PathError {
 	return nil
 }
 
-func (c *RunConfig) validateUse(config *Config) error {
+func (c *JobConfig) validateUse(config *Config) error {
 	err := fmt.Errorf("%s is not an image resource", c.Use)
 
 	res, ok := config.Resources[c.Use]
@@ -97,7 +97,7 @@ func (c *RunConfig) validateUse(config *Config) error {
 	return nil
 }
 
-func (c *RunConfig) validateMounts(config *Config) error {
+func (c *JobConfig) validateMounts(config *Config) error {
 	for _, mount := range c.Mounts {
 		err := fmt.Errorf("%s is not a mount resource", mount)
 
@@ -115,7 +115,7 @@ func (c *RunConfig) validateMounts(config *Config) error {
 	return nil
 }
 
-func (c *RunConfig) String() string {
+func (c *JobConfig) String() string {
 	artifact, command := "", ""
 	if c.Artifact != "" {
 		artifact = fmt.Sprintf(" to create '%s'", c.Artifact)
@@ -128,7 +128,7 @@ func (c *RunConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *RunConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *JobConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
 	c.Env, err = env.ResolveSlice(c.Env)
 	if err != nil {
@@ -176,11 +176,13 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 	return nil
 }
 
-func runFromConfig(name string, values map[string]interface{}) (Resource, error) {
-	cmd := &RunConfig{}
+func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
+	cmd := &JobConfig{}
 	return cmd, Transform(name, values, cmd)
 }
 
 func init() {
-	RegisterResource("run", runFromConfig)
+	RegisterResource("job", jobFromConfig)
+	// Backwards compatibility for v0.4, remove in v0.6
+	RegisterResource("run", jobFromConfig)
 }
