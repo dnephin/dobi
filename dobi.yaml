@@ -35,6 +35,7 @@ image=dist-img:
     image: dnephin/dobi
     tags: ["{env.DOBI_VERSION}"]
     dockerfile: dockerfiles/Dockerfile.dist
+    depends: [deps, binary]
 
 image=releaser:
     image: foo/dobi-release
