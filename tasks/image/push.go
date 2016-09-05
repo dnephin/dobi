@@ -10,7 +10,6 @@ import (
 
 // RunPush builds or pulls an image if it is out of date
 func RunPush(ctx *context.ExecuteContext, t *Task) error {
-	t.logger().Info("Pushing")
 	pushTag := func(tag string) error {
 		return pushImage(ctx, t, tag)
 	}

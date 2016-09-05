@@ -9,7 +9,6 @@ import (
 
 // RunTag builds or pulls an image if it is out of date
 func RunTag(ctx *context.ExecuteContext, t *Task) error {
-	t.logger().Info("Tagging")
 	tag := func(tag string) error {
 		return tagImage(ctx, t, tag)
 	}

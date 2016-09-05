@@ -6,8 +6,6 @@ import (
 
 // RunRemove builds or pulls an image if it is out of date
 func RunRemove(ctx *context.ExecuteContext, t *Task) error {
-	t.logger().Info("Removing")
-
 	removeTag := func(tag string) error {
 		if err := ctx.Client.RemoveImage(tag); err != nil {
 			t.logger().Warnf("failed to remove %q: %s", tag, err)

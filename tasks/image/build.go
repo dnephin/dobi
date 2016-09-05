@@ -28,7 +28,6 @@ func RunBuild(ctx *context.ExecuteContext, t *Task) error {
 	}
 	t.logger().Debug("is stale")
 
-	t.logger().Info("Building")
 	if err := buildImage(ctx, t); err != nil {
 		return err
 	}
