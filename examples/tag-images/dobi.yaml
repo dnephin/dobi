@@ -11,7 +11,7 @@ image=app:
       - '{git.short-sha}'
       - '{git.sha}'
       - '{git.branch}'
-      - '{time.YYYY-MM-DDThh-mmZZZZ:}'
+      - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.APP_VERSION}'
 
 image=db:
@@ -22,7 +22,7 @@ image=db:
       - '{git.short-sha}'
       - '{git.sha}'
       - '{git.branch}'
-      - '{time.YYYY-MM-DDThh-mmZZZZ:}'
+      - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.DB_VERSION:latest}'
 
 
@@ -31,3 +31,7 @@ alias=tag-images:
 
 alias=clean:
     tasks: ['app:rm', 'db:rm']
+
+# alias used by dobi test suite to test this example
+alias=test:
+    tasks: [tag-images, clean]

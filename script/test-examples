@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eux
+
+dobi="/go/bin/dobi-linux"
+
+for example in examples/*; do
+    pushd "$example"
+    $dobi test
+    popd
+done

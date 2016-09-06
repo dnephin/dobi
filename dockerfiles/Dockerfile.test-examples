@@ -1,0 +1,5 @@
+
+FROM    docker/compose:1.8.0
+
+RUN     apk add -U bash git
+ENV     USER user
