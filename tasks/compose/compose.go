@@ -20,12 +20,6 @@ type Task struct {
 	action action
 }
 
-type action struct {
-	name string
-	Run  func(ctx *context.ExecuteContext, task *Task) error
-	Stop func(ctx *context.ExecuteContext, task *Task) error
-}
-
 // NewTask creates a new Task object
 func NewTask(name string, conf *config.ComposeConfig, act action) *Task {
 	return &Task{name: name, config: conf, action: act}
@@ -59,7 +53,12 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 
 // Dependencies returns the list of dependencies
 func (t *Task) Dependencies() []string {
-	return t.config.Dependencies()
+	switch t.action.withDeps {
+	case true:
+		return t.config.Dependencies()
+	default:
+		return []string{}
+	}
 }
 
 // StopNothing implements the Stop interface but does nothing

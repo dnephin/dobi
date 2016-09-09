@@ -17,14 +17,30 @@ func GetTask(name, action string, conf *config.ComposeConfig) (iface.Task, error
 	return NewTask(name, conf, composeAction), nil
 }
 
+type actionFunc func(ctx *context.ExecuteContext, task *Task) error
+
+type action struct {
+	name     string
+	Run      actionFunc
+	Stop     actionFunc
+	withDeps bool
+}
+
+func newAction(name string, run actionFunc, stop actionFunc, withDeps bool) (action, error) {
+	if stop == nil {
+		stop = StopNothing
+	}
+	return action{name: name, Run: run, Stop: stop, withDeps: withDeps}, nil
+}
+
 func getAction(name string, task string) (action, error) {
 	switch name {
 	case "", "up":
-		return action{name: "up", Run: RunUp, Stop: StopUp}, nil
+		return newAction("up", RunUp, StopUp, true)
 	case "remove", "rm", "down":
-		return action{name: "down", Run: RunDown, Stop: StopNothing}, nil
+		return newAction("down", RunDown, nil, false)
 	case "attach":
-		return action{name: "attach", Run: RunUpAttached, Stop: StopNothing}, nil
+		return newAction("attach", RunUpAttached, nil, false)
 	default:
 		return action{}, fmt.Errorf("Invalid compose action %q for task %q", name, task)
 	}
