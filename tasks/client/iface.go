@@ -11,6 +11,7 @@ type DockerClient interface {
 	BuildImage(docker.BuildImageOptions) error
 	InspectImage(string) (*docker.Image, error)
 	PushImage(docker.PushImageOptions, docker.AuthConfiguration) error
+	PullImage(docker.PullImageOptions, docker.AuthConfiguration) error
 	RemoveImage(string) error
 	TagImage(string, docker.TagImageOptions) error
 

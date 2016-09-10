@@ -1,8 +1,11 @@
 package config
 
 import (
+	"reflect"
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -44,4 +47,15 @@ func (s *ImageConfigSuite) TestValidateMissingOneOfRequired() {
 	s.Error(err)
 	s.Contains(err.Error(), "one of dockerfile, context, or pull is required")
 
+}
+
+func TestPullWithDuration(t *testing.T) {
+	p := pull{}
+	now := time.Now()
+	old := now.Add(-time.Duration(32 * 60 * 10e9))
+	p.TransformConfig(reflect.ValueOf("30m"))
+
+	assert.Equal(t, p.Required(&now), false)
+	assert.Equal(t, p.Required(&old), true)
+	assert.Equal(t, p.Required(nil), true)
 }

@@ -61,6 +61,13 @@ field and the first tag from the list of **tags** in the image resource. If the
    to use that time instead of tracking the time itself.
 
 
+``:pull``
+~~~~~~~~~
+
+Pull the image from a registry based on the **pull** policy. **pull** is the
+default action if the image resource does not have a **context** or **dockerfile**
+field defined.
+
 ``:tag``
 ~~~~~~~~
 

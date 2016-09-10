@@ -1,0 +1,61 @@
+package image
+
+import (
+	"io"
+	"os"
+	"time"
+
+	"github.com/dnephin/dobi/tasks/context"
+	docker "github.com/fsouza/go-dockerclient"
+)
+
+// RunPull builds or pulls an image if it is out of date
+func RunPull(ctx *context.ExecuteContext, t *Task) error {
+	record, err := getImageRecord(recordPath(ctx, t.config))
+	if err != nil {
+		t.logger().Warnf("Failed to get image record: %s", err)
+	}
+	if !t.config.Pull.Required(record.LastPull) {
+		t.logger().Debugf("Pull not required")
+		return nil
+	}
+
+	pullTag := func(tag string) error {
+		return pullImage(ctx, t, tag)
+	}
+	if err := t.ForEachTag(ctx, pullTag); err != nil {
+		return err
+	}
+
+	record = imageModifiedRecord{LastPull: now()}
+	if err := updateImageRecord(recordPath(ctx, t.config), record); err != nil {
+		t.logger().Warnf("Failed to update image record: %s", err)
+	}
+
+	ctx.SetModified(t.name)
+	t.logger().Info("Pulled")
+	return nil
+}
+
+func now() *time.Time {
+	now := time.Now()
+	return &now
+}
+
+func pullImage(ctx *context.ExecuteContext, t *Task, imageTag string) error {
+	registry, err := parseRepo(t.config.Image)
+	if err != nil {
+		return err
+	}
+
+	repo, tag := docker.ParseRepositoryTag(imageTag)
+	return Stream(os.Stdout, func(out io.Writer) error {
+		return ctx.Client.PullImage(docker.PullImageOptions{
+			Repository:    repo,
+			Tag:           tag,
+			OutputStream:  out,
+			RawJSONStream: true,
+			// TODO: timeout
+		}, ctx.GetAuthConfig(registry))
+	})
+}

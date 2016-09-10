@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"path/filepath"
+	"reflect"
+	"time"
 
 	"github.com/dnephin/dobi/execenv"
 )
@@ -39,8 +41,15 @@ type ImageConfig struct {
 	// PullBaseImageOnBuild If **true** the base image used in the
 	// ``Dockerfile`` will be pulled before building the image.
 	PullBaseImageOnBuild bool
-	// Pull Not implemented yet
-	Pull string
+	// Pull Pull an image instead of building it. The value may be one of:
+	// * ``once`` - only pull if the image:tag does not exist
+	// * ``always`` - always pull the image
+	// * ``<duration>`` - pull if the image hasn't been pulled in at least
+	//   ``duration``. The format of duration is a number followed by a single
+	//   character time unit (ex: ``40s``, ``2h``, ``30min``)
+	// type: string
+	// default: ``always``
+	Pull pull
 	// Tags The image tags applied to the image before pushing the image to a
 	// registry.  The first tag in the list is used when the image is built.
 	// Each item in the list supports :doc:`variables`.
@@ -68,7 +77,7 @@ func (c *ImageConfig) Validate(path Path, config *Config) *PathError {
 }
 
 func (c *ImageConfig) validateBuildOrPull() error {
-	if c.Dockerfile == "" && c.Context == "" && c.Pull == "" {
+	if c.Dockerfile == "" && c.Context == "" && !c.Pull.IsSet() {
 		return fmt.Errorf("one of dockerfile, context, or pull is required")
 	}
 	switch {
@@ -105,6 +114,63 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 // NewImageConfig creates a new ImageConfig with default values
 func NewImageConfig() *ImageConfig {
 	return &ImageConfig{}
+}
+
+type pullAction func(*time.Time) bool
+
+type pull struct {
+	action pullAction
+}
+
+func (p *pull) TransformConfig(raw reflect.Value) error {
+	switch value := raw.Interface().(type) {
+	case string:
+		switch value {
+		case "once":
+			p.action = pullOnce
+		case "always":
+			p.action = pullAlways
+		default:
+			duration, err := time.ParseDuration(value)
+			if err != nil {
+				return fmt.Errorf("invalid pull value %q: %s", value, err)
+			}
+			p.action = pullAfter{duration: duration}.doPull
+		}
+	default:
+		return fmt.Errorf("must be a string, not %T", value)
+	}
+	return nil
+}
+
+func (p *pull) Required(lastPull *time.Time) bool {
+	if !p.IsSet() {
+		return true
+	}
+	return p.action(lastPull)
+}
+
+func (p *pull) IsSet() bool {
+	return p.action != nil
+}
+
+func pullAlways(lastPull *time.Time) bool {
+	return true
+}
+
+func pullOnce(lastPull *time.Time) bool {
+	return lastPull == nil
+}
+
+type pullAfter struct {
+	duration time.Duration
+}
+
+func (p pullAfter) doPull(lastPull *time.Time) bool {
+	if lastPull == nil {
+		return true
+	}
+	return lastPull.Before(time.Now().Add(-p.duration))
 }
 
 func imageFromConfig(name string, values map[string]interface{}) (Resource, error) {

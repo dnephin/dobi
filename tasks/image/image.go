@@ -20,12 +20,6 @@ type Task struct {
 	action action
 }
 
-type action struct {
-	name               string
-	Run                func(ctx *context.ExecuteContext, task *Task) error
-	ActionDependencies []string
-}
-
 // NewTask creates a new Task object
 func NewTask(name string, conf *config.ImageConfig, act action) *Task {
 	return &Task{name: name, config: conf, action: act}
@@ -58,7 +52,7 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 // Dependencies returns the list of dependencies
 func (t *Task) Dependencies() []string {
 	deps := t.config.Dependencies()
-	for _, actionDep := range t.action.ActionDependencies {
+	for _, actionDep := range t.action.Dependencies {
 		deps = append(deps, t.Name().Resource()+":"+actionDep)
 	}
 	return deps

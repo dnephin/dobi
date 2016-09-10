@@ -24,7 +24,7 @@ func TestCollectTasksErrorsOnCyclicDependencies(t *testing.T) {
 	assert.Nil(t, tasks)
 	assert.Error(t, err)
 	assert.Contains(t,
-		err.Error(), "Invalid dependency cycle: one:build, two:build, three:build")
+		err.Error(), "Invalid dependency cycle: one:pull, two:pull, three:pull")
 }
 
 func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {

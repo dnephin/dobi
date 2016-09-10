@@ -8,7 +8,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// RunPush builds or pulls an image if it is out of date
+// RunPush pushes an image to the registry
 func RunPush(ctx *context.ExecuteContext, t *Task) error {
 	pushTag := func(tag string) error {
 		return pushImage(ctx, t, tag)

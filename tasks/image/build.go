@@ -2,24 +2,14 @@ package image
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
-	"path/filepath"
-	"strings"
 
-	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	docker "github.com/fsouza/go-dockerclient"
-	yaml "gopkg.in/yaml.v2"
 )
 
-const (
-	imageRecordDir = ".dobi/images"
-	all            = -1
-)
-
-// RunBuild builds or pulls an image if it is out of date
+// RunBuild builds an image if it is out of date
 func RunBuild(ctx *context.ExecuteContext, t *Task) error {
 	stale, err := buildIsStale(ctx, t)
 	if !stale || err != nil {
@@ -36,7 +26,9 @@ func RunBuild(ctx *context.ExecuteContext, t *Task) error {
 	if err != nil {
 		return err
 	}
-	if err := updateImageRecord(recordPath(ctx, t.config), image.ID); err != nil {
+
+	record := imageModifiedRecord{ImageID: image.ID}
+	if err := updateImageRecord(recordPath(ctx, t.config), record); err != nil {
 		t.logger().Warnf("Failed to update image record: %s", err)
 	}
 	ctx.SetModified(t.name)
@@ -82,47 +74,6 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	return false, nil
 }
 
-type imageModifiedRecord struct {
-	ImageID string
-	Info    os.FileInfo `yaml:",omitempty"`
-}
-
-func updateImageRecord(path string, imageID string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		return err
-	}
-
-	record := imageModifiedRecord{ImageID: imageID}
-	bytes, err := yaml.Marshal(record)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, bytes, 0644)
-}
-
-// TODO: verify error message are sufficient
-func getImageRecord(filepath string) (*imageModifiedRecord, error) {
-	record := &imageModifiedRecord{}
-	var err error
-
-	record.Info, err = os.Stat(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	recordBytes, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	return record, yaml.Unmarshal(recordBytes, record)
-}
-
-func recordPath(ctx *context.ExecuteContext, conf *config.ImageConfig) string {
-	imageName := strings.Replace(GetImageName(ctx, conf), "/", " ", all)
-	return filepath.Join(ctx.WorkingDir, imageRecordDir, imageName)
-}
-
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
 	if err := Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.BuildImage(docker.BuildImageOptions{
@@ -144,7 +95,8 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 	if err != nil {
 		return err
 	}
-	return updateImageRecord(recordPath(ctx, t.config), image.ID)
+	record := imageModifiedRecord{ImageID: image.ID}
+	return updateImageRecord(recordPath(ctx, t.config), record)
 }
 
 func buildArgs(args map[string]string) []docker.BuildArg {
