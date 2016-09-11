@@ -21,6 +21,12 @@ Full Configs
   * combinding tasks with an alias so they can be run together (``test``, and
     ``all``).
 
+* `PyStaticConfiguration
+  <https://github.com/dnephin/PyStaticConfiguration/blob/master/dobi.yaml>`_ - a
+  python library. This example demonstrates:
+
+  * ``pypiconf`` - providing secrets to containers by mounting a file
+  * ``release`` - automating the steps of the release process
 
 
 Use Cases
