@@ -80,4 +80,5 @@ The following config fields support variables:
 * ``image.args``
 * ``compose.files``
 * ``compose.project``
+* ``mount.path``
 * ``meta.exec-id``

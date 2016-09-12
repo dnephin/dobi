@@ -71,6 +71,10 @@ func (c *MountConfig) String() string {
 // Resolve resolves variables in the resource
 func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
+	c.Path, err = env.Resolve(c.Path)
+	if err != nil {
+		return c, err
+	}
 	c.Bind, err = fs.ExpandUser(c.Bind)
 	return c, err
 }
