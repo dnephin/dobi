@@ -69,6 +69,9 @@ type JobConfig struct {
 	ProvideDocker bool
 	// NetMode The network mode to use. This field supports :doc:`variables`.
 	NetMode string
+	// WorkingDir The directory to set as the active working directory in the
+	// container. This field supports :doc:`variables`.
+	WorkingDir string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
@@ -138,6 +141,10 @@ func (c *JobConfig) String() string {
 func (c *JobConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	var err error
 	c.Env, err = env.ResolveSlice(c.Env)
+	if err != nil {
+		return c, err
+	}
+	c.WorkingDir, err = env.Resolve(c.WorkingDir)
 	if err != nil {
 		return c, err
 	}

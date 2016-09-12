@@ -23,10 +23,11 @@ const (
 
 // ExecEnv is a data object which contains variables for an ExecuteContext
 type ExecEnv struct {
-	ExecID    string
-	Project   string
-	tmplCache map[string]string
-	startTime time.Time
+	ExecID     string
+	Project    string
+	tmplCache  map[string]string
+	workingDir string
+	startTime  time.Time
 }
 
 // Unique returns a unique id for this execution
@@ -87,6 +88,12 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		return valueFromGit(out, suffix, defValue)
 	case "time":
 		return write(fmtdate.Format(suffix, e.startTime))
+	case "fs":
+		val, err := valueFromFilesystem(suffix, e.workingDir)
+		if err != nil {
+			return 0, err
+		}
+		return write(val)
 	}
 
 	switch tag {
@@ -98,6 +105,17 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		return write(e.ExecID)
 	default:
 		return 0, fmt.Errorf("Unknown variable %q", tag)
+	}
+}
+
+func valueFromFilesystem(name string, workingdir string) (string, error) {
+	switch name {
+	case "cwd":
+		return os.Getwd()
+	case "projectdir":
+		return workingdir, nil
+	default:
+		return "", fmt.Errorf("Unknown variable asdf \"fs.%s\"", name)
 	}
 }
 
@@ -154,29 +172,31 @@ func splitDefault(tag string) (string, string, bool) {
 }
 
 func splitPrefix(tag string) (string, string) {
-	for _, prefix := range []string{"env", "git", "time"} {
-		if strings.HasPrefix(tag, prefix+".") {
-			return prefix, tag[len(prefix)+1:]
-		}
+	index := strings.Index(tag, ".")
+	switch index {
+	case -1, 0, len(tag) - 1:
+		return "", tag
+	default:
+		return tag[:index], tag[index+1:]
 	}
-	return "", tag
 }
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
 func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) {
-	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir))
+	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir), workingDir)
 	var err error
 	env.ExecID, err = getExecID(execID, env)
 	return env, err
 }
 
 // NewExecEnv returns a new ExecEnv from values
-func NewExecEnv(execID, project string) *ExecEnv {
+func NewExecEnv(execID, project string, workingDir string) *ExecEnv {
 	return &ExecEnv{
-		ExecID:    execID,
-		Project:   project,
-		tmplCache: make(map[string]string),
-		startTime: time.Now(),
+		ExecID:     execID,
+		Project:    project,
+		tmplCache:  make(map[string]string),
+		startTime:  time.Now(),
+		workingDir: workingDir,
 	}
 }
 

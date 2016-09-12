@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -80,7 +81,7 @@ func (s *ExecEnvSuite) TestValidateExecIDValid() {
 }
 
 func (s *ExecEnvSuite) TestResolveUnique() {
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	tmpl := "ok-{unique}"
 	expected := "ok-" + execEnv.Unique()
 	value, err := execEnv.Resolve(tmpl)
@@ -91,7 +92,7 @@ func (s *ExecEnvSuite) TestResolveUnique() {
 }
 
 func (s *ExecEnvSuite) TestResolveUnknown() {
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("{bogus}")
 
 	s.Error(err)
@@ -99,7 +100,7 @@ func (s *ExecEnvSuite) TestResolveUnknown() {
 }
 
 func (s *ExecEnvSuite) TestResolveBadTemplate() {
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("{bogus{")
 
 	s.Error(err)
@@ -107,7 +108,7 @@ func (s *ExecEnvSuite) TestResolveBadTemplate() {
 }
 
 func (s *ExecEnvSuite) TestResolveEnvironmentNoDefault() {
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("thing-{env.foo}")
 
 	s.Error(err)
@@ -120,7 +121,7 @@ func (s *ExecEnvSuite) TestResolveEnvironment() {
 	tmpl := "thing-{env.FOO}"
 	expected := "thing-stars"
 
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve(tmpl)
 
 	s.Nil(err)
@@ -132,7 +133,7 @@ func (s *ExecEnvSuite) TestResolveTime() {
 	tmpl := "build-{time.YYYY-MM-DD}"
 	expected := "build-2016-04-05"
 
-	execEnv := NewExecEnv("exec", "project")
+	execEnv := NewExecEnv("exec", "project", "cwd")
 	execEnv.startTime = time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC)
 	value, err := execEnv.Resolve(tmpl)
 
@@ -155,4 +156,18 @@ func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
 	s.Equal(value, "env.FOO")
 	s.Equal(defVal, "")
 	s.Equal(hasDefault, false)
+}
+
+func TestSplitPrefixNoPrefix(t *testing.T) {
+	for _, tag := range []string{".foo", "foo.", "foo"} {
+		prefix, suffix := splitPrefix(tag)
+		assert.Equal(t, prefix, "")
+		assert.Equal(t, suffix, tag)
+	}
+}
+
+func TestSplitPrefix(t *testing.T) {
+	prefix, suffix := splitPrefix("fo.o")
+	assert.Equal(t, prefix, "fo")
+	assert.Equal(t, suffix, "o")
 }

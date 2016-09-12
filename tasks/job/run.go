@@ -220,6 +220,7 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			AttachStdout: true,
 			Env:          t.config.Env,
 			Entrypoint:   t.config.Entrypoint.Value(),
+			WorkingDir:   t.config.WorkingDir,
 		},
 		HostConfig: &docker.HostConfig{
 			Binds:       t.bindMounts(ctx),
