@@ -21,4 +21,4 @@ or
 
 To remove the binary and the image run:
 
-    dobi binary:rm dist-img:rm
+    dobi dist-img:rm builder:rm
