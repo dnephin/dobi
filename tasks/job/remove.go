@@ -39,7 +39,7 @@ func (t *RemoveTask) Repr() string {
 
 // Run creates the host path if it doesn't already exist
 func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
-	RemoveContainer(t.logger(), ctx.Client, ContainerName(ctx, t.name))
+	RemoveContainer(t.logger(), ctx.Client, ContainerName(ctx, t.name), false)
 
 	if t.config.Artifact != "" {
 		if err := os.RemoveAll(t.config.Artifact); err != nil {
