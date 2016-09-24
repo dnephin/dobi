@@ -164,7 +164,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
-	defer RemoveContainer(t.logger(), ctx.Client, container.ID)
+	defer RemoveContainer(t.logger(), ctx.Client, container.ID, true)
 
 	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,

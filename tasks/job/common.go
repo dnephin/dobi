@@ -15,13 +15,20 @@ func ContainerName(ctx *context.ExecuteContext, name string) string {
 }
 
 // RemoveContainer removes a container
-func RemoveContainer(logger *log.Entry, client client.DockerClient, containerID string) {
+func RemoveContainer(logger *log.Entry, client client.DockerClient, containerID string, expectContainer bool) {
 	logger.Debug("Removing container")
-	if err := client.RemoveContainer(docker.RemoveContainerOptions{
+	err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,
 		RemoveVolumes: true,
-	}); err != nil {
-		logger.WithFields(log.Fields{"container": containerID}).Warnf(
-			"Failed to remove container: %s", err)
+	})
+	switch err.(type) {
+	case *docker.NoSuchContainer:
+		if !expectContainer {
+			return
+		}
+	case nil:
+		return
 	}
+	logger.WithFields(log.Fields{"container": containerID}).Warnf(
+		"Failed to remove container: %s", err)
 }
