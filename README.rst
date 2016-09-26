@@ -39,7 +39,11 @@ Key features of ``dobi``:
 Install
 -------
 
-See `Install <https://dnephin.github.io/dobi/install.html>`_
+The one liner::
+
+    curl -L -o /usr/local/bin/dobi "https://github.com/dnephin/dobi/releases/download/v0.5/dobi-$(uname -s)"; chmod +x /usr/local/bin/dobi
+
+For more details, see `Install <https://dnephin.github.io/dobi/install.html>`_
 
 Examples
 --------
