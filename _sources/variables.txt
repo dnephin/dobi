@@ -61,6 +61,8 @@ The following variables are made avariables:
   <https://github.com/metakeule/fmtdate#placeholders>`_ (note: if your time
   format includes a ``:`` you must add another ``:`` to the end of the format,
   otherwise the string after the final ``:`` will be taken as the default value)
+* ``fs.cwd`` - the current working directory
+* ``fs.projectdir`` - the directory which contains the ``dobi.yaml``
 * ``unique`` - a unique execution id generate from the project name and exec id
 * ``exec-id`` - an execution id (without project name)
 * ``project`` - the project name
@@ -73,8 +75,10 @@ The following config fields support variables:
 
 * ``job.env``
 * ``job.net-mode``
+* ``job.working-dir``
 * ``image.tag``
 * ``image.args``
 * ``compose.files``
 * ``compose.project``
+* ``mount.path``
 * ``meta.exec-id``

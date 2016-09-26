@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Reference &mdash; dobi 0.5 documentation</title>
+    <title>Config Reference &mdash; dobi 0.6 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.5 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.6 documentation" href="index.html" />
     <link rel="next" title="Config Variables" href="variables.html" />
     <link rel="prev" title="Examples" href="examples.html" />
    
@@ -139,9 +139,11 @@ image.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">always</span></code></td>
+</tr>
 </tbody>
 </table>
-<p>Not implemented yet</p>
+<p>Pull an image instead of building it. The value may be one of:    * <code class="docutils literal"><span class="pre">once</span></code> - only pull if the image:tag does not exist    * <code class="docutils literal"><span class="pre">always</span></code> - always pull the image    * <code class="docutils literal"><span class="pre">&lt;duration&gt;</span></code> - pull if the image hasn&#8217;t been pulled in at least      <code class="docutils literal"><span class="pre">duration</span></code>. The format of duration is a number followed by a single      character time unit (ex: <code class="docutils literal"><span class="pre">40s</span></code>, <code class="docutils literal"><span class="pre">2h</span></code>, <code class="docutils literal"><span class="pre">30min</span></code>)</p>
 </div></blockquote>
 <p><strong>tags</strong></p>
 <blockquote>
@@ -336,6 +338,18 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </table>
 <p>The network mode to use. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
+<p><strong>working-dir</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>The directory to set as the active working directory in the    container. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
+</div></blockquote>
 </div>
 </div>
 <div class="section" id="mount">
@@ -360,7 +374,7 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>The host path to create and mount</p>
+<p>The host path to create and mount. This field supports expansion of    <cite>~</cite> to the current users home directory.</p>
 </div></blockquote>
 <p><strong>path</strong>  (required)</p>
 <blockquote>

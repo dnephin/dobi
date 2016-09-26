@@ -2,3 +2,6 @@ dist/
 docs/
 vendor/
 gen/
+.dobi/
+examples/
+tasks/

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Variables &mdash; dobi 0.5 documentation</title>
+    <title>Config Variables &mdash; dobi 0.6 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.5 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.6 documentation" href="index.html" />
     <link rel="next" title="Tasks" href="tasks.html" />
     <link rel="prev" title="Config Reference" href="config.html" />
    
@@ -89,6 +89,8 @@ optional variable.</dd>
 <li><code class="docutils literal"><span class="pre">time.&lt;format&gt;</span></code> - a date or time using <a class="reference external" href="https://github.com/metakeule/fmtdate#placeholders">fmtdate</a> (note: if your time
 format includes a <code class="docutils literal"><span class="pre">:</span></code> you must add another <code class="docutils literal"><span class="pre">:</span></code> to the end of the format,
 otherwise the string after the final <code class="docutils literal"><span class="pre">:</span></code> will be taken as the default value)</li>
+<li><code class="docutils literal"><span class="pre">fs.cwd</span></code> - the current working directory</li>
+<li><code class="docutils literal"><span class="pre">fs.projectdir</span></code> - the directory which contains the <code class="docutils literal"><span class="pre">dobi.yaml</span></code></li>
 <li><code class="docutils literal"><span class="pre">unique</span></code> - a unique execution id generate from the project name and exec id</li>
 <li><code class="docutils literal"><span class="pre">exec-id</span></code> - an execution id (without project name)</li>
 <li><code class="docutils literal"><span class="pre">project</span></code> - the project name</li>
@@ -100,10 +102,12 @@ otherwise the string after the final <code class="docutils literal"><span class=
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">job.env</span></code></li>
 <li><code class="docutils literal"><span class="pre">job.net-mode</span></code></li>
+<li><code class="docutils literal"><span class="pre">job.working-dir</span></code></li>
 <li><code class="docutils literal"><span class="pre">image.tag</span></code></li>
 <li><code class="docutils literal"><span class="pre">image.args</span></code></li>
 <li><code class="docutils literal"><span class="pre">compose.files</span></code></li>
 <li><code class="docutils literal"><span class="pre">compose.project</span></code></li>
+<li><code class="docutils literal"><span class="pre">mount.path</span></code></li>
 <li><code class="docutils literal"><span class="pre">meta.exec-id</span></code></li>
 </ul>
 </div>

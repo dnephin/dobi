@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tasks &mdash; dobi 0.5 documentation</title>
+    <title>Tasks &mdash; dobi 0.6 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.5 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.6 documentation" href="index.html" />
     <link rel="prev" title="Config Variables" href="variables.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -88,6 +88,12 @@ the build of an image in many cases.</p>
 to use that time instead of tracking the time itself.</p>
 </div>
 </div>
+<div class="section" id="pull">
+<h3><code class="docutils literal"><span class="pre">:pull</span></code><a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h3>
+<p>Pull the image from a registry based on the <strong>pull</strong> policy. <strong>pull</strong> is the
+default action if the image resource does not have a <strong>context</strong> or <strong>dockerfile</strong>
+field defined.</p>
+</div>
 <div class="section" id="tag">
 <h3><code class="docutils literal"><span class="pre">:tag</span></code><a class="headerlink" href="#tag" title="Permalink to this headline">¶</a></h3>
 <p>Tag the image with all the tags in the <strong>tags</strong> field.</p>
@@ -98,8 +104,8 @@ to use that time instead of tracking the time itself.</p>
 <p>Push the image tags to a registry.</p>
 <p>The <code class="docutils literal"><span class="pre">:push</span></code> action always depends on the <code class="docutils literal"><span class="pre">:tag</span></code> action for the image.</p>
 </div>
-<div class="section" id="pull">
-<h3><code class="docutils literal"><span class="pre">:pull</span></code><a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3><code class="docutils literal"><span class="pre">:pull</span></code><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This action is planned, but not implemented yet.</p>
@@ -126,8 +132,8 @@ to use that time instead of tracking the time itself.</p>
 <h3><code class="docutils literal"><span class="pre">:run</span></code> <em>(default)</em><a class="headerlink" href="#run-default" title="Permalink to this headline">¶</a></h3>
 <p>Run a process in a container.</p>
 </div>
-<div class="section" id="id1">
-<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -146,8 +152,8 @@ to use that time instead of tracking the time itself.</p>
 <h3><code class="docutils literal"><span class="pre">:create</span></code> <em>(default)</em><a class="headerlink" href="#create-default" title="Permalink to this headline">¶</a></h3>
 <p>Create the host directory to be bind mounted, if it doesn&#8217;t already exist.</p>
 </div>
-<div class="section" id="id2">
-<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -162,12 +168,12 @@ to use that time instead of tracking the time itself.</p>
 <div class="section" id="alias-tasks">
 <h2>Alias Tasks<a class="headerlink" href="#alias-tasks" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="./config.html#alias">alias</a> resources have the following tasks:</p>
-<div class="section" id="id3">
-<h3><code class="docutils literal"><span class="pre">:run</span></code> <em>(default)</em><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3><code class="docutils literal"><span class="pre">:run</span></code> <em>(default)</em><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>Run all the tasks in the list of tasks.</p>
 </div>
-<div class="section" id="id4">
-<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3><code class="docutils literal"><span class="pre">:remove</span></code><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
