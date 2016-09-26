@@ -19,7 +19,8 @@ import (
 //         path: /app/code
 //
 type MountConfig struct {
-	// Bind The host path to create and mount
+	// Bind The host path to create and mount. This field supports expansion of
+	// `~` to the current users home directory.
 	Bind string `config:"required"`
 	// Path The container path of the mount
 	Path string `config:"required"`
