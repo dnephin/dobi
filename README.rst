@@ -41,9 +41,9 @@ Install
 
 The one liner::
 
-    curl -L -o /usr/local/bin/dobi "https://github.com/dnephin/dobi/releases/download/v0.5/dobi-$(uname -s)"; chmod +x /usr/local/bin/dobi
+    curl -L -o /usr/local/bin/dobi "https://github.com/dnephin/dobi/releases/download/v0.6/dobi-$(uname -s)"; chmod +x /usr/local/bin/dobi
 
-For more details, see `Install <https://dnephin.github.io/dobi/install.html>`_
+For a Windows binary, and more install options, see `Install <https://dnephin.github.io/dobi/install.html>`_
 
 Examples
 --------
