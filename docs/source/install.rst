@@ -26,7 +26,7 @@ Usage
 -----
 
 To run a task use the name of the resource from the ``dobi.yml`` config. For
-example to run a ``run=test`` resource:
+example to run a ``job=test`` resource:
 
 .. code:: sh
 
