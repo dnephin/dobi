@@ -83,18 +83,6 @@ Push the image tags to a registry.
 The ``:push`` action always depends on the ``:tag`` action for the image.
 
 
-``:pull``
-~~~~~~~~~
-
-
-.. note::
-
-    This action is planned, but not implemented yet.
-
-
-Pull the image from a registry.
-
-
 ``:remove``
 ~~~~~~~~~~~
 
