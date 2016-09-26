@@ -30,7 +30,7 @@ type MountConfig struct {
 	File bool
 	// Mode The file mode to set on the host file or directory when it is
 	// created.
-	// default: ``0777`` *(for directories)*, ``0644`` *(for files)*
+	// default: ``0755`` *(for directories)*, ``0644`` *(for files)*
 	Mode int `config:"validate"`
 }
 
