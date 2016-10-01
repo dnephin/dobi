@@ -2,8 +2,6 @@
 machine:
   services:
     - docker
-  environment:
-    DOCKER_API_VERSION: '1.21'
 
 general:
   branches:
@@ -11,12 +9,10 @@ general:
 
 dependencies:
   override: [./script/ci-deps]
-  cache_directories:
-    - vendor
-    - ~/docker
+  cache_directories: [vendor, ~/docker]
 
 test:
-  override: [./circle/dobi]
+  override: [./script/ci-run]
 
 deployment:
   release:

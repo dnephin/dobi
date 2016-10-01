@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# Run a dind container and set a trap to shut it down on exit
+#
+set -eu
+
+docker version
+
+mkdir -p ~/docker
+
+DIR=~/docker
+HOST="unix://$DIR/docker.sock"
+
+docker run -d \
+    --privileged \
+    --name dind \
+    -v $DIR:$DIR \
+    docker:1.12.1-dind \
+    dockerd \
+        --exec-root $DIR \
+        --graph $DIR \
+        --pidfile $DIR/docker.pid \
+        -s btrfs \
+        -H $HOST
+
+trap "DOCKER_HOST= docker stop dind" EXIT
+
+export DOCKER_HOST=$HOST
+echo "Using docker host $HOST"
+
+timeout 30 bash -eux <<EOF
+    while ! docker ps; do
+        DOCKER_HOST= docker logs --tail 10 dind
+        sleep 1
+    done
+EOF
+
+docker version
+docker info

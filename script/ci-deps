@@ -2,26 +2,16 @@
 
 set -eu
 
-docker version
-mkdir -p ~/docker
+. script/run-dind
 
-if [[ -e ~/docker/builder.tar ]]; then docker load -i ~/docker/builder.tar; fi
 docker images
-docker build -t dobi-dev -f dockerfiles/Dockerfile.build .
-docker save dobi-dev > ~/docker/builder.tar
 
+docker build -t dobi-dev -f dockerfiles/Dockerfile.build .
 docker run \
     -v $PWD:/go/src/github.com/dnephin/dobi \
     -v $PWD/circle:/go/bin \
     dobi-dev \
     bash -ec "glide install; go install"
 
-if [[ -e ~/docker/linter.tar ]]; then docker load -i ~/docker/linter.tar; fi
-docker images
 ./circle/dobi linter
-docker save dobi-linter:dobi-ubuntu > ~/docker/linter.tar
-
-if [[ -e ~/docker/docs.tar ]]; then docker load -i ~/docker/docs.tar; fi
-docker images
 ./circle/dobi docs-img
-docker save dobi-docs-dev:dobi-ubuntu > ~/docker/docs.tar
