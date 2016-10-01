@@ -1,9 +1,11 @@
 
 machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
   services:
     - docker
   environment:
-    DOCKER_API_VERSION: '1.21'
+    DOCKER_API_VERSION: '1.22'
 
 general:
   branches:
@@ -11,9 +13,7 @@ general:
 
 dependencies:
   override: [./script/ci-deps]
-  cache_directories:
-    - vendor
-    - ~/docker
+  cache_directories: [vendor]
 
 test:
   override: [./circle/dobi]
