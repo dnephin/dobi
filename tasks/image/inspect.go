@@ -2,8 +2,11 @@ package image
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -31,6 +34,23 @@ func GetCanonicalTag(ctx *context.ExecuteContext, conf *config.ImageConfig) stri
 }
 
 func parseRepo(image string) (string, error) {
-	// TODO: how is this supposed to work?
-	return defaultRepo, nil
+	repo, _ := docker.ParseRepositoryTag(image)
+	if !strings.HasPrefix(repo, "http") {
+		repo = "https://" + repo
+	}
+
+	addr, err := url.Parse(repo)
+	if err != nil {
+		return "", fmt.Errorf("Failed to parse repo name from %q: %s", repo, err)
+	}
+
+	if addr.Host == "" {
+		logging.Log.Debugf("Using default registry %q", defaultRepo)
+		return defaultRepo, nil
+	}
+
+	// TODO: what about v2?
+	addr.Path = "v1"
+	logging.Log.Debugf("Using registry %q", addr)
+	return addr.String(), nil
 }
