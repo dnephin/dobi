@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dnephin/dobi/execenv"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // ImageConfig An **image** resource provides actions for working with a Docker
@@ -26,8 +27,9 @@ import (
 //           url: http://example.com/foo
 //
 type ImageConfig struct {
-	// Image The name of the **image** without any tags
-	Image string `config:"required"`
+	// Image The name of the **image** without a tag. Tags must be specified
+	// in the **tags** field.
+	Image string `config:"required,validate"`
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
 	// path is relative to the **context**.
 	Dockerfile string
@@ -68,8 +70,6 @@ func (c *ImageConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *ImageConfig) Validate(path Path, config *Config) *PathError {
-	// TODO: validate no tag on image name
-
 	if err := c.validateBuildOrPull(); err != nil {
 		return PathErrorf(path, err.Error())
 	}
@@ -85,6 +85,16 @@ func (c *ImageConfig) validateBuildOrPull() error {
 		c.Dockerfile = "Dockerfile"
 	case c.Context == "" && c.Dockerfile != "":
 		c.Context = "."
+	}
+	return nil
+}
+
+// ValidateImage validates the image field does not include a tag
+func (c *ImageConfig) ValidateImage() error {
+	_, tag := docker.ParseRepositoryTag(c.Image)
+	if tag != "" {
+		return fmt.Errorf(
+			"Tag %q must be specified in the `tags` field, not in `image`", tag)
 	}
 	return nil
 }
