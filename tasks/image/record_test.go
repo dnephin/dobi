@@ -39,11 +39,11 @@ func (s *ImageRecordSuite) TearDownTest() {
 
 func (s *ImageRecordSuite) TestRecordPath() {
 	path := recordPath(s.ctx, s.config)
-	s.Equal("/dir/.dobi/images/imagename:tag", path)
+	s.Equal("/dir/.dobi/images/imagename tag", path)
 }
 
 func (s *ImageRecordSuite) TestRecordPathEscapesSlash() {
 	s.config.Image = "repo/name"
 	path := recordPath(s.ctx, s.config)
-	s.Equal("/dir/.dobi/images/repo name:tag", path)
+	s.Equal("/dir/.dobi/images/repo name tag", path)
 }
