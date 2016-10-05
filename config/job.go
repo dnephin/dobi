@@ -177,6 +177,10 @@ func (s *ShlexSlice) Empty() bool {
 // TransformConfig is used to transform a string from a config file into a
 // sliced value, using shlex.
 func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
+	if !raw.IsValid() {
+		return fmt.Errorf("must be a string, was undefined")
+	}
+
 	var err error
 	switch value := raw.Interface().(type) {
 	case string:

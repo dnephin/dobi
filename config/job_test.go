@@ -1,9 +1,11 @@
 package config
 
 import (
+	"reflect"
 	"testing"
 
 	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -63,4 +65,13 @@ func (s *JobConfigSuite) TestRunFromConfig() {
 	s.Equal(job.Use, "image-res")
 	s.Equal(job.Command.Value(), []string{"echo", "foo"})
 	s.Equal(job.Entrypoint.Value(), []string{"bash", "-c"})
+}
+
+func TestShlexSliceTransformConfig(t *testing.T) {
+	s := ShlexSlice{}
+	zero := reflect.Value{}
+	err := s.TransformConfig(zero)
+
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "must be a string")
 }
