@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+case $CIRCLE_NODE_INDEX in
+    0) circle/dobi ci-circle-main  ;;
+    1) circle/dobi ci-circle-examples ;;
+esac
