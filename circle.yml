@@ -12,13 +12,15 @@ general:
     ignore: [gh-pages]
 
 dependencies:
-  override: [./script/ci-deps]
+  override: [script/ci-deps]
   cache_directories: [vendor]
 
 test:
-  override: [./circle/dobi]
+  override:
+    - script/ci-run:
+        parallel: true
 
 deployment:
   release:
     tag: /v[0-9]+(\.[0-9]+)*/
-    commands: ['./circle/dobi release']
+    commands: ['circle/dobi release']

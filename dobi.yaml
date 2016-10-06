@@ -18,13 +18,17 @@ mount=dist:
     bind: ./dist/bin/
     path: /go/bin/
 
+mount=projectdir:
+    bind: .
+    path: '{fs.projectdir}'
+
 #
 # Images
 #
 
 image=builder:
     image: dobi-dev
-    context: ./dockerfiles/
+    context: dockerfiles/
     dockerfile: Dockerfile.build
 
 image=linter:
@@ -38,12 +42,19 @@ image=dist-img:
     depends: [deps, binary]
 
 image=releaser:
-    image: foo/dobi-release
-    dockerfile: dockerfiles/Dockerfile.release
+    image: dobi-release
+    context: dockerfiles/
+    dockerfile: Dockerfile.release
 
 image=docs-img:
     image: dobi-docs-dev
-    dockerfile: dockerfiles/Dockerfile.docs
+    context: dockerfiles/
+    dockerfile: Dockerfile.docs
+
+image=example-tester:
+    image: dobi-test-examples
+    dockerfile: Dockerfile.test-examples
+    context: dockerfiles/
 
 
 #
@@ -54,14 +65,14 @@ job=binary:
     use: builder
     artifact: ./dist/bin/
     mounts: [source, dist]
-    command: "script/build"
+    command: script/build
     env:
       - "DOBI_BUILD_OS={env.DOBI_BUILD_OS:}"
 
 job=watch:
     use: builder
     mounts: [source]
-    command: "script/watch"
+    command: script/watch
     interactive: true
     depends: [mocks]
 
@@ -94,7 +105,7 @@ job=docs-build:
     use: docs-img
     artifact: ./docs/build/html
     mounts: [source]
-    command: ./docs/script/build
+    command: docs/script/build
 
 job=docs-shell:
     use: docs-img
@@ -106,13 +117,13 @@ job=docs-watch:
     use: docs-img
     mounts: [source]
     interactive: true
-    command: ./docs/script/watch
+    command: docs/script/watch
 
 job=docs:
     use: docs-img
     mounts: [source]
     interactive: true
-    command: ./docs/script/serve
+    command: docs/script/serve
     depends: ['docs-build']
 
 job=mocks:
@@ -127,12 +138,31 @@ job=deps:
     sources: ['glide.yaml', 'glide.lock']
     artifact: vendor/
 
+job=test-examples:
+    use: example-tester
+    provide-docker: true
+    interactive: true
+    mounts: [projectdir, dist]
+    entrypoint: script/test-examples
+    working-dir: '{fs.projectdir}'
+    depends: [binary]
+    env:
+      - 'APP_VERSION=testing'
+      - 'DOCKER_API_VERSION={env.DOCKER_API_VERSION:}'
+      - 'COMPOSE_API_VERSION={env.DOCKER_API_VERSION:}'
+
 #
 # Aliases
 #
 
 alias=test:
-    tasks: [test-unit]
+    tasks: [test-unit, test-examples]
 
 alias=all:
     tasks: [lint, test, docs-build, binary]
+
+alias=ci-circle-main:
+    tasks: [lint, test-unit, docs-build, binary]
+
+alias=ci-circle-examples:
+    tasks: [test-examples]

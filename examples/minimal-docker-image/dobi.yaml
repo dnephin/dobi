@@ -33,3 +33,7 @@ image=dist-img:
 job=run-dist:
     use: dist-img
     interactive: true
+
+# alias used by dobi test suite to test this example
+alias=test:
+    tasks: [run-dist]
