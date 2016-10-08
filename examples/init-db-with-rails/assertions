@@ -1,0 +1,22 @@
+#!/bin/bash
+set -eu
+
+(
+
+echo "image=rails creates an image with two tags"
+docker inspect --type image \
+    example/web:examplerailsdb \
+    example/web:examplerailsdb-user
+
+echo "compose=empty-db-env creates a container"
+docker inspect --type container examplerailsdbexport_postgres_1
+
+echo "job=export-models creates db/export.sql"
+ls db/export.sql
+
+echo "image=database-img creates an image with two tags"
+docker inspect --type image \
+    example/database:examplerailsdb \
+    example/database:examplerailsdb-user
+
+) >/dev/null
