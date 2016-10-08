@@ -1,10 +1,27 @@
 #!/bin/bash
-set -eux
+set -eu -o pipefail
 
 dobi="/go/bin/dobi-linux"
 
-for example in examples/*; do
+function test_example {
+    local example="$1"
     pushd "$example"
-    $dobi test
+
+    $dobi test | tee output
+    bash -ex -o pipefail assertions
+
+    # Cleanup
+    $dobi test:rm  # TODO: use auto-clean when it exists
+    rm -f output
+
     popd
+}
+
+if [[ "$DOBI_EXAMPLE" != "" ]]; then
+    test_example $DOBI_EXAMPLE
+    exit
+fi
+
+for example in examples/*; do
+    test_example $example
 done

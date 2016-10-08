@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eu
+
+(
+
+echo "image=builder creates an image"
+docker inspect --type image minimal-dev:example-hello-user
+
+echo "job=binary creates the binary"
+ls ./dist/bin/hello
+
+echo "image=dist-img creates an image"
+docker inspect --type image example/hello:user
+
+echo "job=run-dist outputs hello"
+grep '^Hello, world!' output
+
+) >/dev/null

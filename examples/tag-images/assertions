@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+(
+
+echo "image=app tags 5 images"
+[[ $(docker images -q example/tagged-app | wc -l) == 5 ]]
+
+echo "image=db tags 5 images"
+[[ $(docker images -q example/tagged-db | wc -l) == 5 ]]
+
+) >/dev/null
