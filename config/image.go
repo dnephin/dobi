@@ -58,15 +58,8 @@ type ImageConfig struct {
 	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string
-	// Depends The list of resource dependencies
-	// type: list of resources
-	Depends []string
+	dependent
 	describable
-}
-
-// Dependencies returns the list of implicit and explicit dependencies
-func (c *ImageConfig) Dependencies() []string {
-	return c.Depends
 }
 
 // Validate checks that all fields have acceptable values

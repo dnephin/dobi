@@ -38,20 +38,13 @@ type ComposeConfig struct {
 	// StopGrace Seconds to wait for containers to stop before killing them.
 	// default: ``5``
 	StopGrace int
-	// Depends The list of resource dependencies.
-	// type: list of resource names
-	Depends []string
+	dependent
 	describable
 }
 
 // StopGraceString returns StopGrace as a string
 func (c *ComposeConfig) StopGraceString() string {
 	return strconv.FormatInt(int64(c.StopGrace), 10)
-}
-
-// Dependencies returns the list of tasks
-func (c *ComposeConfig) Dependencies() []string {
-	return c.Depends
 }
 
 // Validate the resource

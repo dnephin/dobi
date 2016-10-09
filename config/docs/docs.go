@@ -232,11 +232,8 @@ func buildConfigFields(
 		}
 
 		comment := comments.fields[structField.Name]
-		fieldTags, err := config.NewFieldTags(
+		fieldTags := config.NewFieldTags(
 			structField.Name, structField.Tag.Get(config.StructTagKey))
-		if err != nil {
-			return fields, err
-		}
 		field := ConfigField{
 			Name:        fieldTags.Name,
 			IsRequired:  fieldTags.IsRequired,
