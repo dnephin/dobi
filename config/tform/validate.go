@@ -1,12 +1,14 @@
-package config
+package tform
 
 import (
 	"fmt"
 	"reflect"
+
+	pth "github.com/dnephin/dobi/config/tform/path"
 )
 
 // ValidateFields runs validations as defined by struct tags
-func ValidateFields(path Path, resource interface{}) error {
+func ValidateFields(path pth.Path, resource interface{}) error {
 	structValue := reflect.ValueOf(resource)
 	value := structValue.Elem()
 
@@ -22,13 +24,13 @@ func ValidateFields(path Path, resource interface{}) error {
 	return nil
 }
 
-func validateField(path Path, structValue reflect.Value, field field) error {
-	path = path.add(field.tags.Name)
+func validateField(path pth.Path, structValue reflect.Value, field field) error {
+	path = path.Add(field.tags.Name)
 
 	if field.tags.IsRequired {
 		zero := reflect.Zero(field.value.Type()).Interface()
 		if reflect.DeepEqual(field.value.Interface(), zero) {
-			return PathErrorf(path, "a value is required")
+			return pth.Errorf(path, "a value is required")
 		}
 	}
 	if field.tags.DoValidate {
@@ -39,7 +41,7 @@ func validateField(path Path, structValue reflect.Value, field field) error {
 	return nil
 }
 
-func runValidationFunc(path Path, structValue reflect.Value, field string) error {
+func runValidationFunc(path pth.Path, structValue reflect.Value, field string) error {
 	methodName := "Validate" + field
 	methodValue, err := getMethodFromStruct(structValue, methodName)
 	if err != nil {
@@ -49,7 +51,7 @@ func runValidationFunc(path Path, structValue reflect.Value, field string) error
 	switch validationFunc := methodValue.Interface().(type) {
 	case func() error:
 		if err := validationFunc(); err != nil {
-			return PathErrorf(path, "failed validation: %s", err)
+			return pth.Errorf(path, "failed validation: %s", err)
 		}
 		return nil
 	default:

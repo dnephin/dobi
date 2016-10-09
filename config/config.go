@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/dnephin/dobi/config/tform"
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 )
@@ -92,9 +94,9 @@ func loadConfig(filename string) (*Config, error) {
 // validate validates all the resources in the config
 func validate(config *Config) error {
 	for name, resource := range config.Resources {
-		path := NewPath(name)
+		path := pth.NewPath(name)
 
-		if err := ValidateFields(path, resource); err != nil {
+		if err := tform.ValidateFields(path, resource); err != nil {
 			return err
 		}
 		if err := ValidateResourcesExist(path, config, resource.Dependencies()); err != nil {
@@ -110,7 +112,7 @@ func validate(config *Config) error {
 
 // ValidateResourcesExist checks that the list of resources is defined in the
 // config and returns an error if a resources is not defined.
-func ValidateResourcesExist(path Path, c *Config, names []string) error {
+func ValidateResourcesExist(path pth.Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
 		resource := common.ParseTaskName(name).Resource()
@@ -119,7 +121,7 @@ func ValidateResourcesExist(path Path, c *Config, names []string) error {
 		}
 	}
 	if len(missing) != 0 {
-		return PathErrorf(path, "missing dependencies: %s", strings.Join(missing, ", "))
+		return pth.Errorf(path, "missing dependencies: %s", strings.Join(missing, ", "))
 	}
 	return nil
 }

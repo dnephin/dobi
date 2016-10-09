@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -31,7 +32,7 @@ func (s *JobConfigSuite) TestString() {
 func (s *JobConfigSuite) TestValidateMissingUse() {
 	s.conf.Resources["example"] = &AliasConfig{}
 	s.job.Use = "example"
-	err := s.job.Validate(NewPath(""), s.conf)
+	err := s.job.Validate(pth.NewPath(""), s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "example is not an image resource")
 }
@@ -43,7 +44,7 @@ func (s *JobConfigSuite) TestValidateMissingMount() {
 	s.job.Use = "example"
 	s.job.Mounts = []string{"one", "two"}
 
-	err := s.job.Validate(NewPath(""), s.conf)
+	err := s.job.Validate(pth.NewPath(""), s.conf)
 	s.Error(err)
 	s.Contains(err.Error(), "one is not a mount resource")
 }

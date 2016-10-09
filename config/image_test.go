@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -33,7 +34,7 @@ func (s *ImageConfigSuite) TestString() {
 func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.image.Depends = []string{"one", "two"}
 	conf := NewConfig()
-	err := ValidateResourcesExist(NewPath(""), conf, s.image.Dependencies())
+	err := ValidateResourcesExist(pth.NewPath(""), conf, s.image.Dependencies())
 	s.Error(err)
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }
@@ -43,7 +44,7 @@ func (s *ImageConfigSuite) TestValidateMissingOneOfRequired() {
 	s.image.Context = ""
 
 	conf := NewConfig()
-	err := s.image.Validate(NewPath(""), conf)
+	err := s.image.Validate(pth.NewPath(""), conf)
 	s.Error(err)
 	s.Contains(err.Error(), "one of dockerfile, context, or pull is required")
 

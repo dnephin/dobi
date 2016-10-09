@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 
+	"github.com/dnephin/dobi/config/tform"
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/utils/fs"
 )
@@ -41,7 +43,7 @@ func (c *MountConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *MountConfig) Validate(path Path, config *Config) *PathError {
+func (c *MountConfig) Validate(path pth.Path, config *Config) *pth.Error {
 	return nil
 }
 
@@ -83,7 +85,7 @@ func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 
 func mountFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	mount := &MountConfig{}
-	return mount, Transform(name, values, mount)
+	return mount, tform.Transform(name, values, mount)
 }
 
 func init() {

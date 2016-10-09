@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dnephin/dobi/config/tform"
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/dnephin/dobi/execenv"
 )
 
@@ -30,7 +32,7 @@ func (c *AliasConfig) Dependencies() []string {
 }
 
 // Validate the resource
-func (c *AliasConfig) Validate(path Path, config *Config) *PathError {
+func (c *AliasConfig) Validate(path pth.Path, config *Config) *pth.Error {
 	return nil
 }
 
@@ -45,7 +47,7 @@ func (c *AliasConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 
 func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	alias := &AliasConfig{}
-	return alias, Transform(name, values, alias)
+	return alias, tform.Transform(name, values, alias)
 }
 
 func init() {
