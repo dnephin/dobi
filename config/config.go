@@ -137,38 +137,32 @@ func ValidateResourcesExist(path Path, c *Config, names []string) error {
 
 // ValidateFields runs validations as defined by struct tags
 func ValidateFields(path Path, resource interface{}) error {
-	ptrValue := reflect.ValueOf(resource)
-	value := ptrValue.Elem()
+	structValue := reflect.ValueOf(resource)
+	value := structValue.Elem()
 
 	if kind := value.Kind(); kind != reflect.Struct {
 		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
 	}
 
-	for i := 0; i < value.Type().NumField(); i++ {
-		field := value.Type().Field(i)
-		if err := validateField(path, ptrValue, field); err != nil {
+	for _, field := range structFields(value) {
+		if err := validateField(path, structValue, field); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateField(path Path, structValue reflect.Value, field reflect.StructField) error {
-	tags, err := NewFieldTags(field.Name, field.Tag.Get(StructTagKey))
-	if err != nil {
-		return err
-	}
-	path = path.add(tags.Name)
+func validateField(path Path, structValue reflect.Value, field field) error {
+	path = path.add(field.tags.Name)
 
-	if tags.IsRequired {
-		value := structValue.Elem().FieldByName(field.Name)
-		// TODO: better way to do this?
-		if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
+	if field.tags.IsRequired {
+		zero := reflect.Zero(field.value.Type()).Interface()
+		if reflect.DeepEqual(field.value.Interface(), zero) {
 			return PathErrorf(path, "a value is required")
 		}
 	}
-	if tags.DoValidate {
-		if err := runValidationFunc(path, structValue, field.Name); err != nil {
+	if field.tags.DoValidate {
+		if err := runValidationFunc(path, structValue, field.structField.Name); err != nil {
 			return err
 		}
 	}
