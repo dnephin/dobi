@@ -27,24 +27,17 @@ func Transform(root string, raw map[string]interface{}, target interface{}) erro
 	return transformAtPath(NewPath(root), raw, targetValue)
 }
 
-// TODO: better code sharing with ValidateFields
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
-	for i := 0; i < target.Type().NumField(); i++ {
-		structField := target.Type().Field(i)
-		tags, err := NewFieldTags(structField.Name, structField.Tag.Get(StructTagKey))
-		if err != nil {
-			return err
-		}
-
-		value, ok := raw[tags.Name]
+	for _, field := range structFields(target) {
+		value, ok := raw[field.tags.Name]
 		if !ok {
 			continue
 		}
-		delete(raw, tags.Name)
+		delete(raw, field.tags.Name)
 
-		localPath := path.add(tags.Name)
+		localPath := path.add(field.tags.Name)
 		rawValue := reflect.ValueOf(value)
-		if err := transformField(localPath, rawValue, target.Field(i)); err != nil {
+		if err := transformField(localPath, rawValue, field.value); err != nil {
 			return err
 		}
 	}
@@ -55,6 +48,36 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 	return nil
 }
 
+// structFields iterates over a struct and returns a list of all the fields
+// included fields from embded types.
+func structFields(target reflect.Value) []field {
+	fields := []field{}
+
+	structType := target.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		structField := structType.Field(i)
+
+		if structField.Anonymous {
+			fields = append(fields, structFields(target.Field(i))...)
+			continue
+		}
+
+		tags := NewFieldTags(structField.Name, structField.Tag.Get(StructTagKey))
+		fields = append(fields, field{
+			value:       target.Field(i),
+			structField: structField,
+			tags:        tags,
+		})
+	}
+	return fields
+}
+
+type field struct {
+	value       reflect.Value
+	structField reflect.StructField
+	tags        FieldTags
+}
+
 // FieldTags are annotations that specify properties of the config field
 type FieldTags struct {
 	IsRequired bool
@@ -63,7 +86,7 @@ type FieldTags struct {
 }
 
 // NewFieldTags creates a FieldTags struct from a StructField.Tag string
-func NewFieldTags(name, tags string) (FieldTags, error) {
+func NewFieldTags(name, tags string) FieldTags {
 	field := FieldTags{}
 	for index, item := range strings.Split(tags, ",") {
 		switch {
@@ -74,13 +97,13 @@ func NewFieldTags(name, tags string) (FieldTags, error) {
 		case index == 0:
 			field.Name = item
 		default:
-			return field, fmt.Errorf("invalid field tag %q in %q", item, tags)
+			panic(fmt.Errorf("invalid field tag %q in %q", item, tags))
 		}
 	}
 	if field.Name == "" {
 		field.Name = TitleCaseToDash(name)
 	}
-	return field, nil
+	return field
 }
 
 // TitleCaseToDash converts a CamelCased name into a dashed config field name

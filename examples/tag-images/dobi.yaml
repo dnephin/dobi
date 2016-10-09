@@ -13,6 +13,7 @@ image=app:
       - '{git.branch}'
       - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.APP_VERSION}'
+    description: "Build the application image"
 
 image=db:
     image: example/tagged-db
@@ -24,13 +25,16 @@ image=db:
       - '{git.branch}'
       - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.DB_VERSION:latest}'
+    description: "Build the database image"
 
 
 alias=tag-images:
     tasks: ['app:tag', 'db:tag']
+    description: "Build and tag images"
 
 alias=clean:
     tasks: ['app:rm', 'db:rm']
+    description: "Remove all the images"
 
 # alias used by dobi test suite to test this example
 alias=test:

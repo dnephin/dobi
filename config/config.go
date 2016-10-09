@@ -4,22 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 )
-
-// Resource is an interface for each configurable type
-type Resource interface {
-	Dependencies() []string
-	Validate(Path, *Config) *PathError
-	Resolve(*execenv.ExecEnv) (Resource, error)
-}
 
 // Config is a data object for a full config file
 type Config struct {
@@ -131,80 +122,4 @@ func ValidateResourcesExist(path Path, c *Config, names []string) error {
 		return PathErrorf(path, "missing dependencies: %s", strings.Join(missing, ", "))
 	}
 	return nil
-}
-
-// ValidateFields runs validations as defined by struct tags
-func ValidateFields(path Path, resource interface{}) error {
-	ptrValue := reflect.ValueOf(resource)
-	value := ptrValue.Elem()
-
-	if kind := value.Kind(); kind != reflect.Struct {
-		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
-	}
-
-	for i := 0; i < value.Type().NumField(); i++ {
-		field := value.Type().Field(i)
-		if err := validateField(path, ptrValue, field); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func validateField(path Path, structValue reflect.Value, field reflect.StructField) error {
-	tags, err := NewFieldTags(field.Name, field.Tag.Get(StructTagKey))
-	if err != nil {
-		return err
-	}
-	path = path.add(tags.Name)
-
-	if tags.IsRequired {
-		value := structValue.Elem().FieldByName(field.Name)
-		// TODO: better way to do this?
-		if reflect.DeepEqual(value.Interface(), reflect.Zero(field.Type).Interface()) {
-			return PathErrorf(path, "a value is required")
-		}
-	}
-	if tags.DoValidate {
-		if err := runValidationFunc(path, structValue, field.Name); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func runValidationFunc(path Path, structValue reflect.Value, field string) error {
-	methodName := "Validate" + field
-	methodValue, err := getMethodFromStruct(structValue, methodName)
-	if err != nil {
-		return err
-	}
-
-	switch validationFunc := methodValue.Interface().(type) {
-	case func() error:
-		if err := validationFunc(); err != nil {
-			return PathErrorf(path, "failed validation: %s", err)
-		}
-		return nil
-	default:
-		return fmt.Errorf("%s.%s must be of type \"func() error\" not %T",
-			structValue.Elem().Type(), methodName, validationFunc)
-	}
-}
-
-func getMethodFromStruct(structValue reflect.Value, methodName string) (reflect.Value, error) {
-	// First look for method with non-pointer receiver
-	methodValue := structValue.Elem().MethodByName(methodName)
-	if methodValue.IsValid() {
-		return methodValue, nil
-	}
-
-	// Second look for method with pointer receiver
-	methodValue = structValue.MethodByName(methodName)
-	if methodValue.IsValid() {
-		return methodValue, nil
-	}
-
-	return reflect.Value{}, fmt.Errorf("%s is missing validation function %q",
-		structValue.Type(), methodName)
 }

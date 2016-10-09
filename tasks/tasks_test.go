@@ -7,15 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func aliasWithDeps(deps []string) config.Resource {
+	return &config.AliasConfig{Tasks: deps}
+}
+
 func TestCollectTasksErrorsOnCyclicDependencies(t *testing.T) {
 	runOptions := RunOptions{
 		Config: &config.Config{
 			Resources: map[string]config.Resource{
-				"one":   &config.ImageConfig{Depends: []string{"two"}},
-				"two":   &config.ImageConfig{Depends: []string{"three"}},
-				"three": &config.ImageConfig{Depends: []string{"four", "one"}},
-				"four":  &config.ImageConfig{Depends: []string{"five"}},
-				"five":  &config.ImageConfig{},
+				"one":   aliasWithDeps([]string{"two"}),
+				"two":   aliasWithDeps([]string{"three"}),
+				"three": aliasWithDeps([]string{"four", "one"}),
+				"four":  aliasWithDeps([]string{"five"}),
+				"five":  aliasWithDeps([]string{}),
 			},
 		},
 		Tasks: []string{"one"},
@@ -24,7 +28,7 @@ func TestCollectTasksErrorsOnCyclicDependencies(t *testing.T) {
 	assert.Nil(t, tasks)
 	assert.Error(t, err)
 	assert.Contains(t,
-		err.Error(), "Invalid dependency cycle: one:pull, two:pull, three:pull")
+		err.Error(), "Invalid dependency cycle: one:run, two:run, three:run")
 }
 
 func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
@@ -32,7 +36,7 @@ func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
 		Config: &config.Config{
 			Resources: map[string]config.Resource{
 				"one": &config.ImageConfig{},
-				"two": &config.ImageConfig{Depends: []string{"one"}},
+				"two": aliasWithDeps([]string{"one"}),
 			},
 		},
 		Tasks: []string{"one", "two"},

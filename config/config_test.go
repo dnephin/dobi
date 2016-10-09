@@ -36,6 +36,14 @@ func (r StubResource) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	return r, nil
 }
 
+func (r StubResource) Describe() string {
+	return ""
+}
+
+func (r StubResource) String() string {
+	return ""
+}
+
 func (s *ConfigSuite) TestSorted() {
 	s.config.Resources = map[string]Resource{
 		"beta":  StubResource{},
@@ -47,6 +55,7 @@ func (s *ConfigSuite) TestSorted() {
 }
 
 type Something struct {
+	describable
 	First     string   `config:"required"`
 	Second    string   `config:"required,validate"`
 	Third     []string `config:"required"`

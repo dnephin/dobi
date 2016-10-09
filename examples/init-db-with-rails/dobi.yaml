@@ -46,10 +46,12 @@ job=export-models:
     net-mode: '{project}export_default'
     # Cleanup any old environment before starting a new one
     depends: ['empty-db-env:rm', 'empty-db-env']
+    description: "Export models to export.sql"
 
 
 alias=dev:
     tasks: ['dev-environment:down', 'dev-environment:attach']
+    description: "Start a development environment"
 
 # alias used by dobi test suite to test this example
 alias=test:

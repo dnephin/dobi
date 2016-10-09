@@ -178,6 +178,7 @@ func getStructComments(name string, path string) (*structComments, error) {
 		}
 	}
 
+	// TODO: comment can be nil for embded types
 	if comment == nil || typeSpec == nil {
 		return nil, fmt.Errorf("%q not found in declarations", name)
 	}
@@ -191,6 +192,9 @@ func getStructComments(name string, path string) (*structComments, error) {
 		fields:  make(map[string]parsedComment),
 	}
 	for _, field := range structType.Fields.List {
+		if len(field.Names) == 0 {
+			continue
+		}
 		fieldName := field.Names[0].Name
 		comments.fields[fieldName] = parseComment(fieldName, field.Doc.Text())
 	}
@@ -201,6 +205,15 @@ func getTypeName(name string, comments *structComments) string {
 	return comments.comment.Get("name", config.TitleCaseToDash(name))
 }
 
+func embededFields(structType reflect.Type) ([]ConfigField, error) {
+	fields := []ConfigField{}
+	comments, err := getStructComments(structType.Name(), structType.PkgPath())
+	if err != nil {
+		return fields, err
+	}
+	return buildConfigFields(structType, comments)
+}
+
 func buildConfigFields(
 	structType reflect.Type,
 	comments *structComments,
@@ -208,13 +221,19 @@ func buildConfigFields(
 	fields := []ConfigField{}
 	for i := 0; i < structType.NumField(); i++ {
 		structField := structType.Field(i)
-		comment := comments.fields[structField.Name]
 
-		fieldTags, err := config.NewFieldTags(
-			structField.Name, structField.Tag.Get(config.StructTagKey))
-		if err != nil {
-			return fields, err
+		if structField.Anonymous {
+			embeded, err := embededFields(structField.Type)
+			if err != nil {
+				return fields, err
+			}
+			fields = append(fields, embeded...)
+			continue
 		}
+
+		comment := comments.fields[structField.Name]
+		fieldTags := config.NewFieldTags(
+			structField.Name, structField.Tag.Get(config.StructTagKey))
 		field := ConfigField{
 			Name:        fieldTags.Name,
 			IsRequired:  fieldTags.IsRequired,

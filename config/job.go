@@ -56,9 +56,6 @@ type JobConfig struct {
 	Privileged bool
 	// Interactive Makes the container interative and enables a tty.
 	Interactive bool
-	// Depends The list of resources dependencies
-	// type: list of resource names
-	Depends []string
 	// Env Environment variables to pass to the container. This field
 	// supports :doc:`variables`.
 	// type: list of ``key=value`` strings
@@ -72,6 +69,8 @@ type JobConfig struct {
 	// WorkingDir The directory to set as the active working directory in the
 	// container. This field supports :doc:`variables`.
 	WorkingDir string
+	dependent
+	describable
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
