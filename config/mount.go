@@ -32,6 +32,7 @@ type MountConfig struct {
 	// created.
 	// default: ``0755`` *(for directories)*, ``0644`` *(for files)*
 	Mode int `config:"validate"`
+	describable
 }
 
 // Dependencies returns an empty list, Mount resources have no dependencies

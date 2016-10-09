@@ -72,6 +72,7 @@ type JobConfig struct {
 	// WorkingDir The directory to set as the active working directory in the
 	// container. This field supports :doc:`variables`.
 	WorkingDir string
+	describable
 }
 
 // Dependencies returns the list of implicit and explicit dependencies

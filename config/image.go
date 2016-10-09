@@ -61,6 +61,7 @@ type ImageConfig struct {
 	// Depends The list of resource dependencies
 	// type: list of resources
 	Depends []string
+	describable
 }
 
 // Dependencies returns the list of implicit and explicit dependencies

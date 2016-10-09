@@ -19,6 +19,8 @@ type Resource interface {
 	Dependencies() []string
 	Validate(Path, *Config) *PathError
 	Resolve(*execenv.ExecEnv) (Resource, error)
+	Describe() string
+	String() string
 }
 
 // Config is a data object for a full config file

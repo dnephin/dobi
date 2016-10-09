@@ -29,22 +29,21 @@ func Transform(root string, raw map[string]interface{}, target interface{}) erro
 
 // TODO: better code sharing with ValidateFields
 func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
-	for i := 0; i < target.Type().NumField(); i++ {
-		structField := target.Type().Field(i)
-		tags, err := NewFieldTags(structField.Name, structField.Tag.Get(StructTagKey))
-		if err != nil {
-			return err
-		}
+	fields, err := structFields(target)
+	if err != nil {
+		return err
+	}
 
-		value, ok := raw[tags.Name]
+	for _, field := range fields {
+		value, ok := raw[field.tags.Name]
 		if !ok {
 			continue
 		}
-		delete(raw, tags.Name)
+		delete(raw, field.tags.Name)
 
-		localPath := path.add(tags.Name)
+		localPath := path.add(field.tags.Name)
 		rawValue := reflect.ValueOf(value)
-		if err := transformField(localPath, rawValue, target.Field(i)); err != nil {
+		if err := transformField(localPath, rawValue, field.value); err != nil {
 			return err
 		}
 	}
@@ -53,6 +52,38 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 		return PathErrorf(path.add(key), "unexpected key")
 	}
 	return nil
+}
+
+// structFields iterates over a struct and returns a list of all the fields
+// included fields from embded types.
+func structFields(target reflect.Value) ([]field, error) {
+	fields := []field{}
+
+	structType := target.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		structField := structType.Field(i)
+
+		if structField.Anonymous {
+			embededFields, err := structFields(target.Field(i))
+			if err != nil {
+				return fields, err
+			}
+			fields = append(fields, embededFields...)
+			continue
+		}
+
+		tags, err := NewFieldTags(structField.Name, structField.Tag.Get(StructTagKey))
+		if err != nil {
+			return fields, err
+		}
+		fields = append(fields, field{value: target.Field(i), tags: tags})
+	}
+	return fields, nil
+}
+
+type field struct {
+	value reflect.Value
+	tags  FieldTags
 }
 
 // FieldTags are annotations that specify properties of the config field

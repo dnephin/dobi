@@ -41,6 +41,7 @@ type ComposeConfig struct {
 	// Depends The list of resource dependencies.
 	// type: list of resource names
 	Depends []string
+	describable
 }
 
 // StopGraceString returns StopGrace as a string
