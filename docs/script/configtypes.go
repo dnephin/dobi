@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/config/docs"
+	"github.com/dnephin/dobi/config/tform/docs"
 )
 
 var (

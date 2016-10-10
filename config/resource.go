@@ -1,11 +1,14 @@
 package config
 
-import "github.com/dnephin/dobi/execenv"
+import (
+	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/dobi/execenv"
+)
 
 // Resource is an interface for each configurable type
 type Resource interface {
 	Dependencies() []string
-	Validate(Path, *Config) *PathError
+	Validate(pth.Path, *Config) *pth.Error
 	Resolve(*execenv.ExecEnv) (Resource, error)
 	Describe() string
 	String() string

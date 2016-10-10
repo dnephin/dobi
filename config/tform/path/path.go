@@ -1,4 +1,4 @@
-package config
+package path
 
 import (
 	"fmt"
@@ -10,7 +10,8 @@ type Path struct {
 	path []string
 }
 
-func (p *Path) add(next string) Path {
+// Add create a new path from the current path, by adding the next path segment
+func (p *Path) Add(next string) Path {
 	return Path{path: append(p.path, next)}
 }
 
@@ -28,22 +29,22 @@ func NewPath(root string) Path {
 	return Path{path: []string{root}}
 }
 
-// PathError is an error during config transformation or validation
-type PathError struct {
+// Error is an error during config transformation or validation
+type Error struct {
 	path Path
 	msg  string
 }
 
-func (e *PathError) Error() string {
+func (e *Error) Error() string {
 	return fmt.Sprintf("Error at %s: %s", e.path.String(), e.msg)
 }
 
 // Path returns the config path where the error occurred
-func (e *PathError) Path() Path {
+func (e *Error) Path() Path {
 	return e.path
 }
 
-// PathErrorf returns a new PathError with a formatted message
-func PathErrorf(path Path, msg string, args ...interface{}) *PathError {
-	return &PathError{path: path, msg: fmt.Sprintf(msg, args...)}
+// Errorf returns a new Error with a formatted message
+func Errorf(path Path, msg string, args ...interface{}) *Error {
+	return &Error{path: path, msg: fmt.Sprintf(msg, args...)}
 }

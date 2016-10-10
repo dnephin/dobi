@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/dnephin/dobi/config/tform"
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
 )
@@ -79,12 +81,12 @@ func (c *JobConfig) Dependencies() []string {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *JobConfig) Validate(path Path, config *Config) *PathError {
+func (c *JobConfig) Validate(path pth.Path, config *Config) *pth.Error {
 	if err := c.validateUse(config); err != nil {
-		return PathErrorf(path.add("use"), err.Error())
+		return pth.Errorf(path.Add("use"), err.Error())
 	}
 	if err := c.validateMounts(config); err != nil {
-		return PathErrorf(path.add("mounts"), err.Error())
+		return pth.Errorf(path.Add("mounts"), err.Error())
 	}
 	return nil
 }
@@ -191,7 +193,7 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 
 func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	cmd := &JobConfig{}
-	return cmd, Transform(name, values, cmd)
+	return cmd, tform.Transform(name, values, cmd)
 }
 
 func init() {

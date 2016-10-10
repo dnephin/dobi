@@ -159,6 +159,20 @@ job=test-examples:
       - 'COMPOSE_API_VERSION={env.DOCKER_API_VERSION:}'
       - 'DOBI_EXAMPLE={env.DOBI_EXAMPLE:}'
 
+image=refactorer:
+    image: dnephin/go-refactor
+    tags: [latest]
+    pull: 72h
+
+job=refactor-shell:
+    use: refactorer
+    mounts: [source]
+    interactive: true
+    working-dir: /go/src/github.com/dnephin/dobi
+    env: [GOPATH=/go]
+    command: sh
+    description: "Start an interactive shell for running go refactor tools"
+
 #
 # Aliases
 #

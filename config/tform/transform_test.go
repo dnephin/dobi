@@ -1,4 +1,4 @@
-package config
+package tform
 
 import (
 	"testing"

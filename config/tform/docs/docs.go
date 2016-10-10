@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/config/tform"
 )
 
 // ConfigType holds the details about a configuration type
@@ -202,7 +202,7 @@ func getStructComments(name string, path string) (*structComments, error) {
 }
 
 func getTypeName(name string, comments *structComments) string {
-	return comments.comment.Get("name", config.TitleCaseToDash(name))
+	return comments.comment.Get("name", tform.TitleCaseToDash(name))
 }
 
 func embededFields(structType reflect.Type) ([]ConfigField, error) {
@@ -232,8 +232,8 @@ func buildConfigFields(
 		}
 
 		comment := comments.fields[structField.Name]
-		fieldTags := config.NewFieldTags(
-			structField.Name, structField.Tag.Get(config.StructTagKey))
+		fieldTags := tform.NewFieldTags(
+			structField.Name, structField.Tag.Get(tform.StructTagKey))
 		field := ConfigField{
 			Name:        fieldTags.Name,
 			IsRequired:  fieldTags.IsRequired,

@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/dnephin/dobi/config/tform"
+	pth "github.com/dnephin/dobi/config/tform/path"
 	"github.com/dnephin/dobi/execenv"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -63,9 +65,9 @@ type ImageConfig struct {
 }
 
 // Validate checks that all fields have acceptable values
-func (c *ImageConfig) Validate(path Path, config *Config) *PathError {
+func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 	if err := c.validateBuildOrPull(); err != nil {
-		return PathErrorf(path, err.Error())
+		return pth.Errorf(path, err.Error())
 	}
 	return nil
 }
@@ -179,7 +181,7 @@ func (p pullAfter) doPull(lastPull *time.Time) bool {
 
 func imageFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	image := NewImageConfig()
-	return image, Transform(name, values, image)
+	return image, tform.Transform(name, values, image)
 }
 
 func init() {

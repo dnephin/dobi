@@ -1,6 +1,9 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/dnephin/dobi/config/tform"
+)
 
 // MetaConfig Configure **dobi** and include other config files.
 // name: meta
@@ -53,5 +56,5 @@ func (m *MetaConfig) IsZero() bool {
 // NewMetaConfig returns a new MetaConfig from config values
 func NewMetaConfig(name string, values map[string]interface{}) (*MetaConfig, error) {
 	meta := &MetaConfig{}
-	return meta, Transform(name, values, meta)
+	return meta, tform.Transform(name, values, meta)
 }

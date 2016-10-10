@@ -1,4 +1,4 @@
-package config
+package tform
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	pth "github.com/dnephin/dobi/config/tform/path"
 )
 
 const (
@@ -24,10 +26,10 @@ func Transform(root string, raw map[string]interface{}, target interface{}) erro
 		return fmt.Errorf("invalid target type %s, must be a Struct", kind)
 	}
 
-	return transformAtPath(NewPath(root), raw, targetValue)
+	return transformAtPath(pth.NewPath(root), raw, targetValue)
 }
 
-func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value) error {
+func transformAtPath(path pth.Path, raw map[string]interface{}, target reflect.Value) error {
 	for _, field := range structFields(target) {
 		value, ok := raw[field.tags.Name]
 		if !ok {
@@ -35,7 +37,7 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 		}
 		delete(raw, field.tags.Name)
 
-		localPath := path.add(field.tags.Name)
+		localPath := path.Add(field.tags.Name)
 		rawValue := reflect.ValueOf(value)
 		if err := transformField(localPath, rawValue, field.value); err != nil {
 			return err
@@ -43,7 +45,7 @@ func transformAtPath(path Path, raw map[string]interface{}, target reflect.Value
 	}
 
 	for key := range raw {
-		return PathErrorf(path.add(key), "unexpected key")
+		return pth.Errorf(path.Add(key), "unexpected key")
 	}
 	return nil
 }
@@ -128,15 +130,15 @@ func TitleCaseToDash(source string) string {
 	return buff.String()
 }
 
-func transformField(path Path, raw reflect.Value, target reflect.Value) error {
+func transformField(path pth.Path, raw reflect.Value, target reflect.Value) error {
 	// TODO: handle pointer types
 	if !target.CanSet() {
-		return PathErrorf(path, "cant set target")
+		return pth.Errorf(path, "cant set target")
 	}
 	// Structs can be other types because they can use a TransformConfig method
 	// to convert the raw type into their type.
 	if target.Kind() != reflect.Struct && target.Kind() != raw.Kind() {
-		return PathErrorf(path, "expected type %q not %q", target.Kind(), raw.Kind())
+		return pth.Errorf(path, "expected type %q not %q", target.Kind(), raw.Kind())
 	}
 	// TODO: recursive call for struct type
 	switch target.Kind() {
@@ -153,7 +155,7 @@ func transformField(path Path, raw reflect.Value, target reflect.Value) error {
 }
 
 // TODO: share code with runValidationFunc
-func transformStruct(path Path, raw reflect.Value, target reflect.Value) error {
+func transformStruct(path pth.Path, raw reflect.Value, target reflect.Value) error {
 	methodName := "TransformConfig"
 
 	// Defer to the structs TransformConfig() method if it exists
@@ -168,7 +170,7 @@ func transformStruct(path Path, raw reflect.Value, target reflect.Value) error {
 	switch transformFunc := method.Interface().(type) {
 	case func(reflect.Value) error:
 		if err := transformFunc(raw); err != nil {
-			return PathErrorf(path, err.Error())
+			return pth.Errorf(path, err.Error())
 		}
 	default:
 		return fmt.Errorf(
@@ -178,7 +180,7 @@ func transformStruct(path Path, raw reflect.Value, target reflect.Value) error {
 	return nil
 }
 
-func transformSlice(path Path, raw reflect.Value, target reflect.Value) error {
+func transformSlice(path pth.Path, raw reflect.Value, target reflect.Value) error {
 	elementType := target.Type().Elem()
 
 	target.Set(reflect.MakeSlice(target.Type(), raw.Len(), raw.Len()))
@@ -186,7 +188,7 @@ func transformSlice(path Path, raw reflect.Value, target reflect.Value) error {
 		item := raw.Index(i).Elem()
 
 		if item.Kind() != elementType.Kind() {
-			return PathErrorf(path.add(strconv.FormatInt(int64(i), 10)),
+			return pth.Errorf(path.Add(strconv.FormatInt(int64(i), 10)),
 				"item in the list is of wrong type %q, expected %q",
 				item.Kind(), elementType)
 		}
@@ -195,7 +197,7 @@ func transformSlice(path Path, raw reflect.Value, target reflect.Value) error {
 	return nil
 }
 
-func transformMap(path Path, raw reflect.Value, target reflect.Value) error {
+func transformMap(path pth.Path, raw reflect.Value, target reflect.Value) error {
 	elementType := target.Type().Elem()
 
 	target.Set(reflect.MakeMap(target.Type()))
@@ -205,7 +207,7 @@ func transformMap(path Path, raw reflect.Value, target reflect.Value) error {
 		item := raw.MapIndex(key).Elem()
 
 		if item.Kind() != elementType.Kind() {
-			return PathErrorf(path.add(key.String()),
+			return pth.Errorf(path.Add(key.String()),
 				"item in the map is of wrong type %q, expected %q",
 				item.Kind(), elementType)
 		}
