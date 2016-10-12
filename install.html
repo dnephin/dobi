@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Install &mdash; dobi 0.6 documentation</title>
+    <title>Install &mdash; dobi 0.7 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6',
+        VERSION:     '0.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.6 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.7 documentation" href="index.html" />
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="dobi Documentation" href="index.html" />
    
@@ -54,7 +54,7 @@
 <div class="code sh highlight-default"><div class="highlight"><pre><span></span>git clone git@github.com:dnephin/dobi &amp;&amp; cd dobi
 docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    dnephin/dobi:0.6 deps binary
+    dnephin/dobi:0.7 deps binary
 </pre></div>
 </div>
 <p>The binaries will be in <code class="docutils literal"><span class="pre">./dist/bin</span></code></p>
@@ -62,7 +62,7 @@ docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>To run a task use the name of the resource from the <code class="docutils literal"><span class="pre">dobi.yml</span></code> config. For
-example to run a <code class="docutils literal"><span class="pre">run=test</span></code> resource:</p>
+example to run a <code class="docutils literal"><span class="pre">job=test</span></code> resource:</p>
 <div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">dobi</span> <span class="n">test</span>
 </pre></div>
 </div>

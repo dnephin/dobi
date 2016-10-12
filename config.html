@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Reference &mdash; dobi 0.6 documentation</title>
+    <title>Config Reference &mdash; dobi 0.7 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6',
+        VERSION:     '0.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.6 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.7 documentation" href="index.html" />
     <link rel="next" title="Config Variables" href="variables.html" />
     <link rel="prev" title="Examples" href="examples.html" />
    
@@ -79,7 +79,7 @@ image.</p>
 </tr>
 </tbody>
 </table>
-<p>The name of the <strong>image</strong> without any tags</p>
+<p>The name of the <strong>image</strong> without a tag. Tags must be specified    in the <strong>tags</strong> field.</p>
 </div></blockquote>
 <p><strong>dockerfile</strong></p>
 <blockquote>
@@ -165,11 +165,23 @@ image.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resources</td>
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tasks</td>
 </tr>
 </tbody>
 </table>
-<p>The list of resource dependencies</p>
+<p>The list of task dependencies.</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
 </div></blockquote>
 </div>
 </div>
@@ -290,18 +302,6 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </table>
 <p>Makes the container interative and enables a tty.</p>
 </div></blockquote>
-<p><strong>depends</strong></p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resource names</td>
-</tr>
-</tbody>
-</table>
-<p>The list of resources dependencies</p>
-</div></blockquote>
 <p><strong>env</strong></p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -349,6 +349,30 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tbody>
 </table>
 <p>The directory to set as the active working directory in the    container. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
+</div></blockquote>
+<p><strong>depends</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tasks</td>
+</tr>
+</tbody>
+</table>
+<p>The list of task dependencies.</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
 </div></blockquote>
 </div>
 </div>
@@ -420,11 +444,23 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">int</td>
 </tr>
-<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">0777</span></code> <em>(for directories)</em>, <code class="docutils literal"><span class="pre">0644</span></code> <em>(for files)</em></td>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">0755</span></code> <em>(for directories)</em>, <code class="docutils literal"><span class="pre">0644</span></code> <em>(for files)</em></td>
 </tr>
 </tbody>
 </table>
 <p>The file mode to set on the host file or directory when it is    created.</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
 </div></blockquote>
 </div>
 </div>
@@ -450,6 +486,18 @@ in the order they are listed.</p>
 </tbody>
 </table>
 <p>The list of tasks</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
 </div></blockquote>
 </div>
 </div>
@@ -517,11 +565,23 @@ and using two Compose files.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of resource names</td>
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of tasks</td>
 </tr>
 </tbody>
 </table>
-<p>The list of resource dependencies.</p>
+<p>The list of task dependencies.</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
 </div></blockquote>
 </div>
 </div>
