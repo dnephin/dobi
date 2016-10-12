@@ -202,6 +202,6 @@ func jobFromConfig(name string, values map[string]interface{}) (Resource, error)
 
 func init() {
 	RegisterResource("job", jobFromConfig)
-	// Backwards compatibility for v0.4, remove in v0.6
+	// Backwards compatibility for v0.4, remove in v1.0
 	RegisterResource("run", jobFromConfig)
 }
