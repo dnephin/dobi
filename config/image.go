@@ -129,6 +129,10 @@ type pull struct {
 }
 
 func (p *pull) TransformConfig(raw reflect.Value) error {
+	if !raw.IsValid() {
+		return fmt.Errorf("must be a string, was undefined")
+	}
+
 	switch value := raw.Interface().(type) {
 	case string:
 		switch value {

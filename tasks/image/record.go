@@ -59,5 +59,6 @@ func recordPath(ctx *context.ExecuteContext, conf *config.ImageConfig) string {
 
 func recordPathForTag(workdir string, tag string) string {
 	imageName := strings.Replace(tag, "/", " ", all)
+	imageName = strings.Replace(imageName, ":", " ", all)
 	return filepath.Join(workdir, imageRecordDir, imageName)
 }

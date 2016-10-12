@@ -60,3 +60,12 @@ func TestPullWithDuration(t *testing.T) {
 	assert.Equal(t, p.Required(&old), true)
 	assert.Equal(t, p.Required(nil), true)
 }
+
+func TestPullTransformConfig(t *testing.T) {
+	p := pull{}
+	zero := reflect.Value{}
+	err := p.TransformConfig(zero)
+
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "must be a string")
+}
