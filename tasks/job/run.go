@@ -19,11 +19,13 @@ import (
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/utils/fs"
-	dopts "github.com/docker/docker/opts"
 	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
 )
+
+// DefaultUnixSocket to connect to the docker API
+const DefaultUnixSocket = "/var/run/docker.sock"
 
 // Task is a task which runs a command in a container to produce a
 // file or set of files.
@@ -257,7 +259,7 @@ func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOpt
 	case dockerHostEnv != "":
 		opts.Config.Env = append(opts.Config.Env, "DOCKER_HOST="+dockerHostEnv)
 	default:
-		path := dopts.DefaultUnixSocket
+		path := DefaultUnixSocket
 		opts.HostConfig.Binds = append(opts.HostConfig.Binds, path+":"+path)
 	}
 	return opts

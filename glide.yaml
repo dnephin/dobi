@@ -22,4 +22,3 @@ import:
   subpackages:
   - pkg/jsonmessage
   - pkg/term
-  - opts
