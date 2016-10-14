@@ -1,43 +1,42 @@
-hash: 8fe76a90b5508c1110299287bd59a2f16e33b4faab60013d464b5f49d0b6ad69
-updated: 2016-10-13T23:02:55.221904494Z
+hash: c4c91fb0ac9f49fa8e3745fdca0454db954c0c11eb638c04bf8fe5d32b64b6da
+updated: 2016-10-14T04:40:38.06676075Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
   subpackages:
   - winterm
 - name: github.com/docker/docker
-  version: 487931902c1177352e4eceec1b5ef558a5ba24cc
+  version: 429812f86a7095c19ae48552f6b97150846ca29b
   subpackages:
-  - pkg/jsonmessage
-  - pkg/term
+  - api/types/filters
+  - api/types/mount
+  - api/types/swarm
+  - api/types/versions
   - opts
   - pkg/archive
   - pkg/fileutils
   - pkg/homedir
-  - pkg/stdcopy
-  - pkg/jsonlog
-  - pkg/system
-  - pkg/term/windows
   - pkg/idtools
   - pkg/ioutils
+  - pkg/jsonlog
+  - pkg/jsonmessage
+  - pkg/longpath
   - pkg/pools
   - pkg/promise
-  - pkg/longpath
-- name: github.com/docker/engine-api
-  version: f90ecdb1e989f834dabbd91807e891094aa069fe
-  subpackages:
-  - types/filters
-  - types/versions
+  - pkg/stdcopy
+  - pkg/system
+  - pkg/term
+  - pkg/term/windows
 - name: github.com/docker/go-connections
   version: 988efe982fdecb46f01d53465878ff1f2ff411ce
   subpackages:
   - nat
 - name: github.com/docker/go-units
-  version: f2d77a61e3c169b43402a0a1e84f06daf29b8190
+  version: f2145db703495b2e525c59662db69a7344b00bb8
 - name: github.com/fsouza/go-dockerclient
-  version: 107dc3807d24e581e874212dd9a7ba35599b893d
+  version: 5e508da6ac33603fcc7dc200b670ba295f24d975
 - name: github.com/gogits/git-module
-  version: 1dad9765c0adf04fe1eabadfb1a9189157dc50af
+  version: b3009dc4f5842cf9e2e80fef1e125e79c38e4949
 - name: github.com/golang/mock
   version: bd3c8e81be01eef76d4b503f5e687d2d1354d2d9
   subpackages:
@@ -52,40 +51,46 @@ imports:
   version: d52711f8d6bea8dc01efafdb68ad95a4e2606630
 - name: github.com/metakeule/fmtdate
   version: 427373e7d2f8fcaa70a83e289c15fb3618a945bc
+- name: github.com/Microsoft/go-winio
+  version: ce2922f643c8fd76b46cadc7f404a06282678b34
 - name: github.com/opencontainers/runc
-  version: 9b3a2f16345aa015ca286835f6f5eb67ea60aa4b
+  version: d186a7552b91af1270c2df74186fda6db2871869
   subpackages:
+  - libcontainer/system
   - libcontainer/user
 - name: github.com/renstrom/dedent
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
 - name: github.com/Sirupsen/logrus
-  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+  version: 26709e2714106fb8ad40b773b711ebce25b78914
 - name: github.com/spf13/cobra
-  version: ec02ead39fbb63b2280d612f8ec0a4029c5a8e70
+  version: 8e4c18bd418c1b9060ddf7760316aa7c2a468127
   repo: https://github.com/dnephin/cobra
 - name: github.com/spf13/pflag
-  version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
+  version: bf8481a6aebc13a8aab52e699ffe2e79771f5a3f
 - name: github.com/stretchr/testify
-  version: d77da356e56a7428ad25149ca77381849a6a5232
+  version: 976c720a22c8eb4eb6a0b4348ad85ad12491a506
   subpackages:
   - assert
-  - suite
   - require
+  - suite
+- name: github.com/Unknwon/com
+  version: 28b053d5a2923b87ce8c5a08f3af779894a72758
 - name: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/net
-  version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
+  version: 8b4af36cd21a1f85a7484b49feb7c79363106d8e
   subpackages:
   - context
+  - context/ctxhttp
 - name: golang.org/x/sys
-  version: 62bee037599929a6e9146f29d10dd5208c43507d
+  version: 9bb9f0998d48b31547d975974935ae9b48c7a03c
   subpackages:
-  - unix
+  - windows
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
 testImports:
 - name: github.com/davecgh/go-spew
-  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
   subpackages:
   - spew
 - name: github.com/pmezard/go-difflib
