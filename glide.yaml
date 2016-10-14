@@ -11,7 +11,6 @@ import:
   repo: https://github.com/dnephin/cobra
 - package: github.com/valyala/fasttemplate
 - package: github.com/gogits/git-module
-- package: github.com/mcuadros/go-version
 - package: github.com/metakeule/fmtdate
 - package: github.com/golang/mock
   subpackages:
@@ -19,3 +18,7 @@ import:
 - package: github.com/docker/go-connections
   subpackages:
   - nat
+- package: github.com/docker/docker
+  subpackages:
+  - pkg/jsonmessage
+  - pkg/term

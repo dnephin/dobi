@@ -6,7 +6,9 @@ RUN     apk -U add \
             py-pip \
             go \
             bash \
-            git
+            git \
+            gcc \
+            musl-dev
 
 ENV     GOPATH=/go
 RUN     go get github.com/dnephin/filewatcher && \

@@ -3,6 +3,7 @@
 exec filewatcher \
     -x '.git' \
     -x '.dobi' \
+    -x '.glide' \
     -x 'vendor' \
     -x '**/*.swp' \
     -x 'dist' \

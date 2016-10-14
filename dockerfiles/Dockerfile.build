@@ -1,8 +1,8 @@
 
-FROM    golang:1.6-alpine
+FROM    golang:1.7-alpine
 
 RUN     apk add -U git bash curl tree
-RUN     export GLIDE=v0.11.1; \
+RUN     export GLIDE=v0.12.3; \
         export SRC=https://github.com/Masterminds/glide/releases/download/; \
         curl -sL ${SRC}/${GLIDE}/glide-${GLIDE}-linux-amd64.tar.gz | \
         tar -xz linux-amd64/glide && \

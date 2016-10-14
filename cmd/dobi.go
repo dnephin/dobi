@@ -37,12 +37,12 @@ func NewRootCommand() *cobra.Command {
 	var opts dobiOptions
 
 	cmd := &cobra.Command{
-		Use:                   "dobi [flags] RESOURCE[:ACTION] [RESOURCE[:ACTION]...]",
-		Short:                 "A build automation tool for Docker applications",
-		SilenceUsage:          true,
-		SilenceErrors:         true,
-		TraverseChildCommands: true,
-		Args: cobra.ArbitraryArgs,
+		Use:              "dobi [flags] RESOURCE[:ACTION] [RESOURCE[:ACTION]...]",
+		Short:            "A build automation tool for Docker applications",
+		SilenceUsage:     true,
+		SilenceErrors:    true,
+		TraverseChildren: true,
+		Args:             cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.tasks = args
 			return runDobi(opts)

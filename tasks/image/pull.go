@@ -43,7 +43,7 @@ func now() *time.Time {
 }
 
 func pullImage(ctx *context.ExecuteContext, t *Task, imageTag string) error {
-	registry, err := parseRepo(t.config.Image)
+	registry, err := parseAuthRepo(t.config.Image)
 	if err != nil {
 		return err
 	}

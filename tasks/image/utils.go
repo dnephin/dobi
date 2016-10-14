@@ -2,7 +2,6 @@ package image
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/dnephin/dobi/config"
@@ -33,24 +32,17 @@ func GetCanonicalTag(ctx *context.ExecuteContext, conf *config.ImageConfig) stri
 	return ctx.Env.Unique()
 }
 
-func parseRepo(image string) (string, error) {
-	repo, _ := docker.ParseRepositoryTag(image)
-	if !strings.HasPrefix(repo, "http") {
-		repo = "https://" + repo
-	}
-
-	addr, err := url.Parse(repo)
-	if err != nil {
-		return "", fmt.Errorf("Failed to parse repo name from %q: %s", repo, err)
-	}
-
-	if addr.Host == "" {
+func parseAuthRepo(image string) (string, error) {
+	// This is the approximate logic from
+	// github.com/docker/docker/reference.splitHostname(). That package is
+	// conflicting with other dependencies, so it can't be imported at this time.
+	parts := strings.SplitN(image, "/", 3)
+	switch len(parts) {
+	case 1, 2:
 		logging.Log.Debugf("Using default registry %q", defaultRepo)
 		return defaultRepo, nil
+	default:
+		logging.Log.Debugf("Using registry %q", parts[0])
+		return parts[0], nil
 	}
-
-	// TODO: what about v2?
-	addr.Path = "v1"
-	logging.Log.Debugf("Using registry %q", addr)
-	return addr.String(), nil
 }
