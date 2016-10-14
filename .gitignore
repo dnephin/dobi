@@ -1,4 +1,5 @@
 .dobi
+.glide
 vendor
 dist
 docs/gen

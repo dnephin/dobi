@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/dnephin/dobi/utils/fs"
 	dopts "github.com/docker/docker/opts"
 	"github.com/docker/docker/pkg/term"
+	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -206,6 +208,8 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
 	t.logger().Debugf("Image name %q", imageName)
+
+	portBinds, exposedPorts := asPortBindings(t.config.Ports)
 	// TODO: only set Tty if running in a tty
 	opts := docker.CreateContainerOptions{
 		Name: name,
@@ -221,15 +225,30 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			Env:          t.config.Env,
 			Entrypoint:   t.config.Entrypoint.Value(),
 			WorkingDir:   t.config.WorkingDir,
+			ExposedPorts: exposedPorts,
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:       t.bindMounts(ctx),
-			Privileged:  t.config.Privileged,
-			NetworkMode: t.config.NetMode,
+			Binds:        t.bindMounts(ctx),
+			Privileged:   t.config.Privileged,
+			NetworkMode:  t.config.NetMode,
+			PortBindings: portBinds,
 		},
 	}
 	opts = provideDocker(opts)
 	return opts
+}
+
+func asPortBindings(ports []string) (map[docker.Port][]docker.PortBinding, map[docker.Port]struct{}) {
+	binds := make(map[docker.Port][]docker.PortBinding)
+	exposed := make(map[docker.Port]struct{})
+	for _, port := range ports {
+		parts := strings.SplitN(port, ":", 2)
+		proto, cport := nat.SplitProtoPort(parts[1])
+		cport = cport + "/" + proto
+		binds[docker.Port(cport)] = []docker.PortBinding{{HostPort: parts[0]}}
+		exposed[docker.Port(cport)] = struct{}{}
+	}
+	return binds, exposed
 }
 
 func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOptions {

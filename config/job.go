@@ -71,6 +71,9 @@ type JobConfig struct {
 	// WorkingDir The directory to set as the active working directory in the
 	// container. This field supports :doc:`variables`.
 	WorkingDir string
+	// Ports Publish ports to the host
+	// type: list of 'host_port:container_port'
+	Ports []string
 	dependent
 	describable
 }
