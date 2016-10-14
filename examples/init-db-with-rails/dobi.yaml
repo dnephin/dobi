@@ -45,7 +45,7 @@ job=export-models:
     # Connect the container to the `empty-db-env` network created by Compose
     net-mode: '{project}export_default'
     # Cleanup any old environment before starting a new one
-    depends: ['empty-db-env:rm', 'empty-db-env']
+    depends: ['empty-db-env']
     description: "Export models to export.sql"
 
 

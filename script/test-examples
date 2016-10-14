@@ -10,8 +10,10 @@ function test_example {
     $dobi test | tee output
     bash -ex -o pipefail assertions
 
-    # Cleanup
-    $dobi test:rm  # TODO: use auto-clean when it exists
+    # Cleanup, skip it on circleci because it struggles with removing things
+    if [[ -n "${CIRCLE_BRANCH:-}" ]]; then
+        $dobi autoclean
+    fi
     rm -f output
 
     popd

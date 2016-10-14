@@ -60,7 +60,10 @@ func NewRootCommand() *cobra.Command {
 	flags.BoolVar(&opts.version, "version", false, "Print version and exit")
 
 	flags.SetInterspersed(false)
-	cmd.AddCommand(newListCommand(&opts))
+	cmd.AddCommand(
+		newListCommand(&opts),
+		newCleanCommand(&opts),
+	)
 	return cmd
 }
 
