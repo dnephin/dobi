@@ -71,8 +71,8 @@ func (c *EnvConfig) String() string {
 }
 
 func envFromConfig(name string, values map[string]interface{}) (Resource, error) {
-	cmd := &EnvConfig{}
-	return cmd, tform.Transform(name, values, cmd)
+	cnf := &EnvConfig{}
+	return cnf, tform.Transform(name, values, cnf)
 }
 
 func init() {

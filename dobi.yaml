@@ -62,12 +62,6 @@ image=example-tester:
 # Jobs
 #
 
-env=env:
-  variables:
-    - host=dev.project
-    - port=3800
-
-
 job=binary:
     use: builder
     artifact: ./dist/bin/
@@ -180,6 +174,10 @@ job=refactor-shell:
     command: sh
     description: "Start an interactive shell for running go refactor tools"
 
+
+env=linux-only:
+  variables: [DOBI_BUILD_OS=linux]
+
 #
 # Aliases
 #
@@ -191,6 +189,9 @@ alias=test:
 alias=all:
     tasks: [lint, test, docs-build, binary]
     description: "Run all lint and build tasks"
+
+alias=binary-linux:
+    tasks: [linux-only, binary]
 
 alias=ci-circle-main:
     tasks: [lint, test-unit, docs-build, binary]
