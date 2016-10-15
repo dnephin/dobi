@@ -16,6 +16,7 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
+	"github.com/dnephin/dobi/tasks/env"
 	"github.com/dnephin/dobi/tasks/job"
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/utils/stack"
@@ -147,6 +148,8 @@ func buildTaskFromResource(name, action string, resource config.Resource) (iface
 		return mount.GetTask(name, action, conf)
 	case *config.AliasConfig:
 		return alias.GetTask(name, action, conf)
+	case *config.EnvConfig:
+		return env.GetTask(name, action, conf)
 	case *config.ComposeConfig:
 		return compose.GetTask(name, action, conf)
 	default:

@@ -62,6 +62,12 @@ image=example-tester:
 # Jobs
 #
 
+env=env:
+  variables:
+    - host=dev.project
+    - port=3800
+
+
 job=binary:
     use: builder
     artifact: ./dist/bin/
