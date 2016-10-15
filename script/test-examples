@@ -3,6 +3,8 @@ set -eu -o pipefail
 
 dobi="/go/bin/dobi-linux"
 
+trap "if [[ -f output ]]; then cat output; fi" EXIT
+
 function test_example {
     local example="$1"
     pushd "$example"

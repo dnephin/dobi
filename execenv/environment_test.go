@@ -32,12 +32,9 @@ func (s *ExecEnvSuite) TearDownTest() {
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
-	defer os.Setenv("USER", os.Getenv("USER"))
-	os.Setenv("USER", "testuser")
-
 	execEnv, err := NewExecEnvFromConfig("", "", s.tmpDir)
 	s.Nil(err)
-	expected := fmt.Sprintf("%s-testuser", filepath.Base(s.tmpDir))
+	expected := fmt.Sprintf("%s-root", filepath.Base(s.tmpDir))
 	s.Equal(expected, execEnv.Unique())
 }
 

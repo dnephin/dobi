@@ -26,3 +26,8 @@ func valueFromUser(name string) (string, error) {
 		return "", fmt.Errorf("Unknown variable \"user.%s\"", name)
 	}
 }
+
+func getUserName() (string, error) {
+	currentUser, err := user.Current()
+	return currentUser.Username, err
+}

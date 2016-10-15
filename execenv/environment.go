@@ -243,6 +243,9 @@ func validateExecID(output string) (string, error) {
 }
 
 func defaultExecID() string {
-	// TODO: cross-platform user name
+	username, err := getUserName()
+	if err == nil {
+		return username
+	}
 	return os.Getenv("USER")
 }
