@@ -71,6 +71,8 @@ type JobConfig struct {
 	// WorkingDir The directory to set as the active working directory in the
 	// container. This field supports :doc:`variables`.
 	WorkingDir string
+	// User Username or UID to use in the container. Format ``user[:group]``.
+	User string
 	// Ports Publish ports to the host
 	// type: list of 'host_port:container_port'
 	Ports []string
@@ -149,6 +151,10 @@ func (c *JobConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 		return c, err
 	}
 	c.WorkingDir, err = env.Resolve(c.WorkingDir)
+	if err != nil {
+		return c, err
+	}
+	c.User, err = env.Resolve(c.User)
 	if err != nil {
 		return c, err
 	}

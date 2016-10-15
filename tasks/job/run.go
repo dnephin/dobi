@@ -122,11 +122,11 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	}
 
 	imageName := ctx.Resources.Image(t.config.Use)
-	image, err := image.GetImage(ctx, imageName)
+	taskImage, err := image.GetImage(ctx, imageName)
 	if err != nil {
 		return true, fmt.Errorf("Failed to get image %q: %s", imageName, err)
 	}
-	if artifactLastModified.Before(image.Created) {
+	if artifactLastModified.Before(taskImage.Created) {
 		t.logger().Debug("artifact older than image")
 		return true, nil
 	}
@@ -218,6 +218,7 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 		Config: &docker.Config{
 			Cmd:          t.config.Command.Value(),
 			Image:        imageName,
+			User:         t.config.User,
 			OpenStdin:    interactive,
 			Tty:          interactive,
 			AttachStdin:  interactive,
