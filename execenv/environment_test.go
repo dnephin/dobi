@@ -158,6 +158,41 @@ func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
 	s.Equal(hasDefault, false)
 }
 
+func (s *ExecEnvSuite) TestResolveUserName() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.name}")
+	s.Nil(err)
+	s.Equal(value, "root")
+}
+
+func (s *ExecEnvSuite) TestResolveUserUID() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.uid}")
+	s.Nil(err)
+	s.Equal(value, "0")
+}
+
+func (s *ExecEnvSuite) TestResolveUserGroup() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.group}")
+	s.Nil(err)
+	s.Equal(value, "root")
+}
+
+func (s *ExecEnvSuite) TestResolveUserGID() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.gid}")
+	s.Nil(err)
+	s.Equal(value, "0")
+}
+
+func (s *ExecEnvSuite) TestResolveUserHome() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.home}")
+	s.Nil(err)
+	s.Equal(value, "/root")
+}
+
 func TestSplitPrefixNoPrefix(t *testing.T) {
 	for _, tag := range []string{".foo", "foo.", "foo"} {
 		prefix, suffix := splitPrefix(tag)
