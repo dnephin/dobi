@@ -8,9 +8,9 @@ image=app:
     dockerfile: Dockerfile.app
     context: .
     tags:
+      - 'latest'
       - '{git.short-sha}'
       - '{git.sha}'
-      - '{git.branch}'
       - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.APP_VERSION}'
     description: "Build the application image"
@@ -20,11 +20,11 @@ image=db:
     dockerfile: Dockerfile.db
     context: .
     tags:
+      - 'latest'
       - '{git.short-sha}'
       - '{git.sha}'
-      - '{git.branch}'
       - '{time.YYYY-MM-DDThh-mm:}'
-      - '{env.DB_VERSION:latest}'
+      - '{env.DB_VERSION:dev}'
     description: "Build the database image"
 
 
