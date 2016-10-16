@@ -14,20 +14,19 @@ import (
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/env"
 	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
-	"github.com/dnephin/dobi/tasks/env"
 	"github.com/dnephin/dobi/tasks/job"
 	"github.com/dnephin/dobi/tasks/mount"
-	"github.com/dnephin/dobi/utils/stack"
 )
 
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	tasks []iface.Task
+	tasks []iface.TaskConfig
 }
 
-func (c *TaskCollection) add(task iface.Task) {
+func (c *TaskCollection) add(task iface.TaskConfig) {
 	c.tasks = append(c.tasks, task)
 }
 
@@ -41,17 +40,8 @@ func (c *TaskCollection) contains(name common.TaskName) bool {
 }
 
 // All returns all the tasks in the dependency order
-func (c *TaskCollection) All() []iface.Task {
+func (c *TaskCollection) All() []iface.TaskConfig {
 	return c.tasks
-}
-
-// Reversed returns all the tasks in reversed dependency order
-func (c *TaskCollection) Reversed() []iface.Task {
-	tasks := []iface.Task{}
-	for i := len(c.tasks) - 1; i >= 0; i-- {
-		tasks = append(tasks, c.tasks[i])
-	}
-	return tasks
 }
 
 func newTaskCollection() *TaskCollection {
@@ -61,107 +51,80 @@ func newTaskCollection() *TaskCollection {
 func collectTasks(options RunOptions, execEnv *execenv.ExecEnv) (*TaskCollection, error) {
 	return collect(options, &collectionState{
 		newTaskCollection(),
-		stack.NewStringStack(),
-		newResourceResolver(execEnv),
+		common.NewStack(),
 	})
 }
 
 type collectionState struct {
 	tasks     *TaskCollection
-	taskStack *stack.StringStack
-	resolver  *ResourceResolver
+	taskStack *common.Stack
 }
 
 func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
 	for _, taskname := range options.Tasks {
 		taskname := common.ParseTaskName(taskname)
-		name := taskname.Resource()
-		resource, ok := options.Config.Resources[name]
+		resourceName := taskname.Resource()
+		resource, ok := options.Config.Resources[resourceName]
 		if !ok {
-			return nil, fmt.Errorf("Resource %q does not exist", name)
+			return nil, fmt.Errorf("Resource %q does not exist", resourceName)
 		}
 
-		resource, err := state.resolver.Resolve(name, resource)
+		taskConfig, err := buildTaskConfig(resourceName, taskname.Action(), resource)
 		if err != nil {
 			return nil, err
 		}
 
-		task, err := buildTaskFromResource(name, taskname.Action(), resource)
-		if err != nil {
-			return nil, err
-		}
-
-		if state.tasks.contains(task.Name()) {
-			logging.Log.Debugf("%q already in task list, skipping", task.Name())
-			continue
-		}
-
-		if state.taskStack.Contains(task.Name().Name()) {
+		if state.taskStack.Contains(taskConfig.Name()) {
 			return nil, fmt.Errorf(
-				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Items(), ", "))
+				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Names(), ", "))
 		}
-		state.taskStack.Push(task.Name().Name())
+		state.taskStack.Push(taskConfig.Name())
 
-		options.Tasks = task.Dependencies()
+		options.Tasks = taskConfig.Dependencies()
 		if _, err := collect(options, state); err != nil {
 			return nil, err
 		}
-		state.tasks.add(task)
+		state.tasks.add(taskConfig)
 		state.taskStack.Pop()
 	}
 	return state.tasks, nil
 }
 
-// ResourceResolver is used to resolve variables in a resource config, and cache
-// the result of the resolution
-type ResourceResolver struct {
-	execEnv *execenv.ExecEnv
-	cache   map[string]config.Resource
-}
-
-// Resolve calls Resolve on resources and caches the resolved resource
-func (r *ResourceResolver) Resolve(name string, res config.Resource) (config.Resource, error) {
-	var err error
-	resolved, ok := r.cache[name]
-	if ok {
-		return resolved, nil
-	}
-	resolved, err = res.Resolve(r.execEnv)
-	if err == nil {
-		r.cache[name] = resolved
-	}
-	return resolved, err
-}
-
-func newResourceResolver(execEnv *execenv.ExecEnv) *ResourceResolver {
-	return &ResourceResolver{execEnv: execEnv, cache: make(map[string]config.Resource)}
-}
-
 // TODO: some way to make this a registry
-func buildTaskFromResource(name, action string, resource config.Resource) (iface.Task, error) {
+func buildTaskConfig(name, action string, resource config.Resource) (iface.TaskConfig, error) {
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
-		return image.GetTask(name, action, conf)
+		return image.GetTaskConfig(name, action, conf)
 	case *config.JobConfig:
-		return job.GetTask(name, action, conf)
+		return job.GetTaskConfig(name, action, conf)
 	case *config.MountConfig:
-		return mount.GetTask(name, action, conf)
+		return mount.GetTaskConfig(name, action, conf)
 	case *config.AliasConfig:
-		return alias.GetTask(name, action, conf)
+		return alias.GetTaskConfig(name, action, conf)
 	case *config.EnvConfig:
-		return env.GetTask(name, action, conf)
+		return env.GetTaskConfig(name, action, conf)
 	case *config.ComposeConfig:
-		return compose.GetTask(name, action, conf)
+		return compose.GetTaskConfig(name, action, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
 
 }
 
+func reversed(tasks []iface.Task) []iface.Task {
+	reversed := []iface.Task{}
+	for i := len(tasks) - 1; i >= 0; i-- {
+		reversed = append(reversed, tasks[i])
+	}
+	return reversed
+}
+
 func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
+	startedTasks := []iface.Task{}
+
 	defer func() {
 		logging.Log.Debug("stopping tasks")
-		for _, task := range tasks.Reversed() {
+		for _, task := range reversed(startedTasks) {
 			if err := task.Stop(ctx); err != nil {
 				logging.Log.Warnf("Failed to stop task %q: %s", task.Name(), err)
 			}
@@ -169,7 +132,14 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 	}()
 
 	logging.Log.Debug("executing tasks")
-	for _, task := range tasks.All() {
+	for _, taskConfig := range tasks.All() {
+		resource, err := taskConfig.Resource().Resolve(ctx.Env)
+		if err != nil {
+			return err
+		}
+
+		task := taskConfig.Task(resource)
+		startedTasks = append(startedTasks, task)
 		start := time.Now()
 		logging.Log.WithFields(log.Fields{
 			"time": start,
