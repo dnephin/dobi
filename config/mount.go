@@ -74,13 +74,14 @@ func (c *MountConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	conf := *c
 	var err error
-	c.Path, err = env.Resolve(c.Path)
+	conf.Path, err = env.Resolve(c.Path)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
-	c.Bind, err = fs.ExpandUser(c.Bind)
-	return c, err
+	conf.Bind, err = fs.ExpandUser(c.Bind)
+	return &conf, err
 }
 
 func mountFromConfig(name string, values map[string]interface{}) (Resource, error) {
