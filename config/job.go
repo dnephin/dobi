@@ -74,6 +74,7 @@ type JobConfig struct {
 	// User Username or UID to use in the container. Format ``user[:group]``.
 	User string
 	// Branch is a git branch the image is bound to
+	// Could also be a preffix for the allowed branches
 	// Meaning this task will refuse to run if HEAD is on another branch
 	Branch string
 	// Ports Publish ports to the host

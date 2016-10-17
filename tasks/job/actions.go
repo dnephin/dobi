@@ -6,6 +6,7 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/iface"
 	git "github.com/gogits/git-module"
+	"strings"
 )
 
 // GetTask returns a new task for the action
@@ -18,7 +19,7 @@ func GetTask(name, action string, conf *config.JobConfig) (iface.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get git branch for action %q for task %q", name, action)
 	}
-	if conf.Branch == branch.Name || conf.Branch == "" {
+	if conf.Branch == branch.Name || conf.Branch == "" || strings.HasPrefix(branch.Name,conf.Branch){
 		switch action {
 		case "", "run":
 			return NewTask(name, conf), nil
