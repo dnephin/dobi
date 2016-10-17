@@ -101,6 +101,7 @@ job=lint:
 job=release:
     use: releaser
     mounts: [dist]
+    branch: "master"
     env:
      - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
      - "DOBI_VERSION={env.CIRCLE_TAG}"
