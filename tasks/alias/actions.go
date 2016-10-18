@@ -8,30 +8,50 @@ import (
 	"github.com/dnephin/dobi/tasks/iface"
 )
 
-// GetTask returns a new task for the action
-func GetTask(name, act string, conf *config.AliasConfig) (iface.Task, error) {
+// GetTaskConfig returns a new TaskConfig for the action
+func GetTaskConfig(name, act string, conf *config.AliasConfig) (iface.TaskConfig, error) {
 	switch act {
 	case "", "run":
-		return NewTask(name, conf, action{name: "run", Dependencies: RunDeps}), nil
+		return iface.NewTaskConfig(
+			common.NewTaskName(name, "run"),
+			conf,
+			RunDeps(conf),
+			NewTask,
+		), nil
 	case "remove", "rm":
-		return NewTask(name, conf, action{name: "rm", Dependencies: RemoveDeps}), nil
+		return iface.NewTaskConfig(
+			common.NewTaskName(name, "rm"),
+			conf,
+			RemoveDeps(conf),
+			NewTask,
+		), nil
 	default:
 		return nil, fmt.Errorf("Invalid alias action %q for task %q", act, name)
 	}
 }
 
+// NewTask creates a new Task object
+func NewTask(name common.TaskName, conf config.Resource) iface.Task {
+	// TODO: cleaner way to avoid this cast?
+	return &Task{name: name, config: conf.(*config.AliasConfig)}
+}
+
 // RunDeps returns the dependencies for the run action
-func RunDeps(t *Task) []string {
-	return t.config.Dependencies()
+func RunDeps(conf config.Resource) func() []string {
+	return func() []string {
+		return conf.Dependencies()
+	}
 }
 
 // RemoveDeps returns the dependencies for the remove action
-func RemoveDeps(t *Task) []string {
-	confDeps := t.config.Dependencies()
-	deps := []string{}
-	for i := len(confDeps); i > 0; i-- {
-		taskname := common.ParseTaskName(confDeps[i-1])
-		deps = append(deps, taskname.Resource()+":"+"rm")
+func RemoveDeps(conf config.Resource) func() []string {
+	return func() []string {
+		confDeps := conf.Dependencies()
+		deps := []string{}
+		for i := len(confDeps); i > 0; i-- {
+			taskname := common.ParseTaskName(confDeps[i-1])
+			deps = append(deps, taskname.Resource()+":"+"rm")
+		}
+		return deps
 	}
-	return deps
 }

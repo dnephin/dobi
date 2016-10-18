@@ -12,24 +12,13 @@ import (
 
 // Task is a task which creates a directory on the host
 type Task struct {
-	name   string
+	name   common.TaskName
 	config *config.AliasConfig
-	action action
-}
-
-type action struct {
-	name         string
-	Dependencies func(*Task) []string
-}
-
-// NewTask creates a new Task object
-func NewTask(name string, conf *config.AliasConfig, act action) *Task {
-	return &Task{name: name, config: conf, action: act}
 }
 
 // Name returns the name of the task
 func (t *Task) Name() common.TaskName {
-	return common.NewTaskName(t.name, t.action.name)
+	return t.name
 }
 
 func (t *Task) logger() *log.Entry {
@@ -38,21 +27,16 @@ func (t *Task) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[alias:%s %s]", t.action.name, t.name)
+	return fmt.Sprintf("[alias:%s %s]", t.name.Action(), t.name.Resource())
 }
 
 // Run does nothing. Dependencies were already run.
 func (t *Task) Run(ctx *context.ExecuteContext) error {
 	if ctx.IsModified(t.config.Tasks...) {
-		ctx.SetModified(t.name)
+		ctx.SetModified(t.name.Name())
 	}
 	t.logger().Info("Done")
 	return nil
-}
-
-// Dependencies returns the dependencies for the task
-func (t *Task) Dependencies() []string {
-	return t.action.Dependencies(t)
 }
 
 // Stop the task
