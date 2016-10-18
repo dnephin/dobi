@@ -31,17 +31,22 @@ func (c *TaskCollection) add(task iface.TaskConfig) {
 }
 
 func (c *TaskCollection) contains(name common.TaskName) bool {
-	for _, task := range c.tasks {
-		if task.Name().Name() == name.Name() {
-			return true
-		}
-	}
-	return false
+	return c.Get(name) != nil
 }
 
 // All returns all the tasks in the dependency order
 func (c *TaskCollection) All() []iface.TaskConfig {
 	return c.tasks
+}
+
+// Get returns the TaskConfig for the TaskName
+func (c *TaskCollection) Get(name common.TaskName) iface.TaskConfig {
+	for _, task := range c.tasks {
+		if task.Name().Equal(name) {
+			return task
+		}
+	}
+	return nil
 }
 
 func newTaskCollection() *TaskCollection {
@@ -73,6 +78,8 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 		if err != nil {
 			return nil, err
 		}
+
+		// TODO: cache tasksConfigs until an env resource invalidates them
 
 		if state.taskStack.Contains(taskConfig.Name()) {
 			return nil, fmt.Errorf(
@@ -146,8 +153,13 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 			"task": task,
 		}).Debug("Start")
 
-		if err := task.Run(ctx); err != nil {
+		// TODO: pass depsModified to Run()
+		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
+		if modified, err := task.Run(ctx, depsModified); err != nil {
 			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
+		}
+		if modified {
+			ctx.SetModified(task.Name())
 		}
 		logging.Log.WithFields(log.Fields{
 			"elapsed": time.Since(start),
@@ -155,6 +167,16 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 		}).Debug("Complete")
 	}
 	return nil
+}
+
+func hasModifiedDeps(ctx *context.ExecuteContext, deps []string) bool {
+	for _, dep := range deps {
+		taskName := common.ParseTaskName(dep)
+		if ctx.IsModified(taskName) {
+			return true
+		}
+	}
+	return false
 }
 
 // RunOptions are the options supported by Run

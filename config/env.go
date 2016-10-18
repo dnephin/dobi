@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 )
 
@@ -72,7 +72,7 @@ func (c *EnvConfig) String() string {
 
 func envFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	cnf := &EnvConfig{}
-	return cnf, tform.Transform(name, values, cnf)
+	return cnf, configtf.Transform(name, values, cnf)
 }
 
 func init() {

@@ -31,12 +31,9 @@ func (t *Task) Repr() string {
 }
 
 // Run does nothing. Dependencies were already run.
-func (t *Task) Run(ctx *context.ExecuteContext) error {
-	if ctx.IsModified(t.config.Tasks...) {
-		ctx.SetModified(t.name.Name())
-	}
+func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
 	t.logger().Info("Done")
-	return nil
+	return depsModified, nil
 }
 
 // Stop the task

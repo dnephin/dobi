@@ -11,7 +11,7 @@ import (
 type Task interface {
 	logging.LogRepresenter
 	Name() common.TaskName
-	Run(*context.ExecuteContext) error
+	Run(*context.ExecuteContext, bool) (bool, error)
 	Stop(*context.ExecuteContext) error
 }
 

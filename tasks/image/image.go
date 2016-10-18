@@ -15,19 +15,14 @@ import (
 
 // Task creates a Docker image
 type Task struct {
-	name   string
-	config *config.ImageConfig
-	action action
-}
-
-// NewTask creates a new Task object
-func NewTask(name string, conf *config.ImageConfig, act action) *Task {
-	return &Task{name: name, config: conf, action: act}
+	name    common.TaskName
+	config  *config.ImageConfig
+	runFunc runFunc
 }
 
 // Name returns the name of the task
 func (t *Task) Name() common.TaskName {
-	return common.NewTaskName(t.name, t.action.name)
+	return t.name
 }
 
 func (t *Task) logger() *log.Entry {
@@ -36,26 +31,18 @@ func (t *Task) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[image:%s %s] %s", t.action.name, t.name, t.config.Image)
+	return fmt.Sprintf("[image:%s %s] %s",
+		t.name.Action(), t.name.Resource(), t.config.Image)
 }
 
 // Run builds or pulls an image if it is out of date
-func (t *Task) Run(ctx *context.ExecuteContext) error {
-	return t.action.Run(ctx, t)
+func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
+	return t.runFunc(ctx, t, depsModified)
 }
 
 // Stop the task
 func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	return nil
-}
-
-// Dependencies returns the list of dependencies
-func (t *Task) Dependencies() []string {
-	deps := t.config.Dependencies()
-	for _, actionDep := range t.action.Dependencies {
-		deps = append(deps, t.Name().Resource()+":"+actionDep)
-	}
-	return deps
 }
 
 // ForEachTag runs a function for each tag

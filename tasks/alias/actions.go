@@ -13,7 +13,7 @@ func GetTaskConfig(name, act string, conf *config.AliasConfig) (iface.TaskConfig
 	switch act {
 	case "", "run":
 		return iface.NewTaskConfig(
-			common.NewTaskName(name, "run"),
+			common.NewDefaultTaskName(name, "run"),
 			conf,
 			RunDeps(conf),
 			NewTask,
