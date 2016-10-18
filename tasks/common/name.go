@@ -27,6 +27,11 @@ func (t TaskName) Action() string {
 	return t.action
 }
 
+// Equal compares two objects and returns true if they are the same
+func (t TaskName) Equal(o TaskName) bool {
+	return t.resource == o.resource && t.action == o.action
+}
+
 // NewTaskName returns a new task name from parts
 func NewTaskName(res, action string) TaskName {
 	return TaskName{resource: res, action: action}
