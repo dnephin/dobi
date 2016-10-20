@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 )
@@ -96,7 +96,7 @@ func validate(config *Config) error {
 	for name, resource := range config.Resources {
 		path := pth.NewPath(name)
 
-		if err := tform.ValidateFields(path, resource); err != nil {
+		if err := configtf.ValidateFields(path, resource); err != nil {
 			return err
 		}
 		if err := ValidateResourcesExist(path, config, resource.Dependencies()); err != nil {

@@ -1,10 +1,15 @@
-hash: c4c91fb0ac9f49fa8e3745fdca0454db954c0c11eb638c04bf8fe5d32b64b6da
-updated: 2016-10-14T04:40:38.06676075Z
+hash: 11f6f4c1ad7e479ecb52d4bd391ab9ccf7e433b9e177e2dbcf2a50a5ddd17749
+updated: 2016-10-20T01:05:55.059244229Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
   subpackages:
   - winterm
+- name: github.com/dnephin/configtf
+  version: 6b0d1fdf5e68504061777fe78693fba1b40aef85
+  subpackages:
+  - docs
+  - path
 - name: github.com/docker/docker
   version: 429812f86a7095c19ae48552f6b97150846ca29b
   subpackages:

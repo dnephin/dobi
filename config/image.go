@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -185,7 +185,7 @@ func (p pullAfter) doPull(lastPull *time.Time) bool {
 
 func imageFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	image := NewImageConfig()
-	return image, tform.Transform(name, values, image)
+	return image, configtf.Transform(name, values, image)
 }
 
 func init() {

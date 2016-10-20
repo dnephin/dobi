@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
 )
@@ -206,7 +206,7 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 
 func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	cmd := &JobConfig{}
-	return cmd, tform.Transform(name, values, cmd)
+	return cmd, configtf.Transform(name, values, cmd)
 }
 
 func init() {
