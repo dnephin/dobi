@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/dnephin/configtf/docs"
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/config/tform/docs"
 )
 
 var (

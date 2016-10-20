@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	pth "github.com/dnephin/dobi/config/tform/path"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/stretchr/testify/suite"
 )

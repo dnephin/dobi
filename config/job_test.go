@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	pth "github.com/dnephin/dobi/config/tform/path"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
