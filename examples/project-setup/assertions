@@ -4,6 +4,6 @@ set -e
 (
 
 echo "image=bash creates an image"
-docker inspect --type image example/bash:example-setup-user
+docker inspect --type image example/bash:example-setup-root
 
 ) >/dev/null
