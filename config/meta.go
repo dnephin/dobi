@@ -35,7 +35,7 @@ type MetaConfig struct {
 	// ExecID A template value used as part of unique identifiers for image tags
 	// and container names. This field supports :doc:`variables`. This value can
 	// be overridden with the ``$DOBI_EXEC_ID`` environment variable.
-	// default: ``{env.USER}``
+	// default: ``{user.name}``
 	ExecID string `config:"exec-id"`
 }
 
