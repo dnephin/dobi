@@ -1,8 +1,10 @@
 package tform
 
 import (
+	"reflect"
 	"testing"
 
+	"github.com/dnephin/dobi/config/tform/path"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,4 +36,19 @@ func TestTransformUnexpectedKey(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Error at res.bogus: unexpected key")
+}
+
+func TestTransformMap(t *testing.T) {
+	values := map[interface{}]interface{}{
+		"FOO": "foo",
+		"BAR": "bar",
+	}
+	raw := reflect.ValueOf(values)
+
+	mapping := make(map[string]interface{})
+	target := reflect.ValueOf(mapping)
+	err := transformMap(path.NewPath("."), raw, target)
+	assert.Nil(t, err)
+	assert.Equal(t, mapping["FOO"], values["FOO"])
+	assert.Equal(t, mapping["BAR"], values["BAR"])
 }

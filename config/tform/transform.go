@@ -140,7 +140,6 @@ func transformField(path pth.Path, raw reflect.Value, target reflect.Value) erro
 	if target.Kind() != reflect.Struct && target.Kind() != raw.Kind() {
 		return pth.Errorf(path, "expected type %q not %q", target.Kind(), raw.Kind())
 	}
-	// TODO: recursive call for struct type
 	switch target.Kind() {
 	case reflect.Slice:
 		return transformSlice(path, raw, target)
@@ -154,7 +153,6 @@ func transformField(path pth.Path, raw reflect.Value, target reflect.Value) erro
 	return nil
 }
 
-// TODO: share code with runValidationFunc
 func transformStruct(path pth.Path, raw reflect.Value, target reflect.Value) error {
 	methodName := "TransformConfig"
 
@@ -162,9 +160,12 @@ func transformStruct(path pth.Path, raw reflect.Value, target reflect.Value) err
 	ptrTarget := target.Addr()
 	method := ptrTarget.MethodByName(methodName)
 	if !method.IsValid() {
-		// TODO: Otherwise use transformAtPath (needs some refactor)
-		//return transformAtPath(path, raw, target)
-		return nil
+		mapping := make(map[string]interface{})
+		err := transformMap(path, raw, reflect.ValueOf(mapping))
+		if err != nil {
+			return err
+		}
+		return transformAtPath(path, mapping, target)
 	}
 
 	switch transformFunc := method.Interface().(type) {
@@ -181,37 +182,63 @@ func transformStruct(path pth.Path, raw reflect.Value, target reflect.Value) err
 }
 
 func transformSlice(path pth.Path, raw reflect.Value, target reflect.Value) error {
-	elementType := target.Type().Elem()
-
 	target.Set(reflect.MakeSlice(target.Type(), raw.Len(), raw.Len()))
 	for i := 0; i < raw.Len(); i++ {
-		item := raw.Index(i).Elem()
-
-		if item.Kind() != elementType.Kind() {
-			return pth.Errorf(path.Add(strconv.FormatInt(int64(i), 10)),
-				"item in the list is of wrong type %q, expected %q",
-				item.Kind(), elementType)
+		err := transformField(
+			path.Add(strconv.FormatInt(int64(i), 10)),
+			raw.Index(i).Elem(),
+			target.Index(i))
+		if err != nil {
+			return err
 		}
-		target.Index(i).Set(item)
 	}
 	return nil
 }
 
+// https://github.com/go-yaml/yaml/blob/v2/decode.go#L539
 func transformMap(path pth.Path, raw reflect.Value, target reflect.Value) error {
-	elementType := target.Type().Elem()
+	targetType := target.Type()
+	elementType := targetType.Elem()
+	keyType := targetType.Key()
 
-	target.Set(reflect.MakeMap(target.Type()))
+	if target.IsNil() {
+		target.Set(reflect.MakeMap(targetType))
+	}
+
 	for _, key := range raw.MapKeys() {
-		// TODO: how to I check keys Kind? against target key.Kind()
-		key = key.Elem()
-		item := raw.MapIndex(key).Elem()
+		localPath := path.Add(key.String())
+		item := raw.MapIndex(key)
 
-		if item.Kind() != elementType.Kind() {
-			return pth.Errorf(path.Add(key.String()),
-				"item in the map is of wrong type %q, expected %q",
-				item.Kind(), elementType)
+		keyValue, err := castScalar(key, keyType)
+		if err != nil {
+			return pth.Errorf(localPath, err.Error())
 		}
-		target.SetMapIndex(key, item)
+
+		itemValue, err := castScalar(item, elementType)
+		if err != nil {
+			return pth.Errorf(localPath, err.Error())
+		}
+
+		target.SetMapIndex(keyValue, itemValue)
 	}
 	return nil
+}
+
+func castScalar(raw reflect.Value, targetType reflect.Type) (reflect.Value, error) {
+	target := reflect.New(targetType).Elem()
+	rawValue := raw.Interface()
+	switch targetType.Kind() {
+	case reflect.Interface:
+		target.Set(raw)
+	case reflect.String:
+		value, ok := rawValue.(string)
+		if !ok {
+			return target, fmt.Errorf("expected string but got %T", rawValue)
+		}
+		target.SetString(value)
+	default:
+		// TODO: more scalar types
+		panic(fmt.Sprintf("Not implemeneted yet: Kind %s", targetType.Kind()))
+	}
+	return target, nil
 }
