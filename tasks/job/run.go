@@ -207,7 +207,6 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
 	interactive := t.config.Interactive
-	log.Println(t.config.Devices)
 	var dockerdevices []docker.Device
 	for _, dev := range t.config.Devices{
 		dockerdevices= append(dockerdevices,
