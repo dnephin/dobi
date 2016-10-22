@@ -245,11 +245,11 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 func getDevices(devices []config.Device) []docker.Device {
 	var dockerdevices []docker.Device
 	for _, dev := range devices {
-		if len(dev.Container) == 0 {
+		if dev.Container == "" {
 			dev.Container = dev.Host
 		}
-		if len(dev.Permissions) == 0 {
-			dev.Container = "rwm"
+		if dev.Permissions == "" {
+			dev.Permissions = "rwm"
 		}
 		dockerdevices = append(dockerdevices,
 			docker.Device{
