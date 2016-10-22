@@ -73,11 +73,20 @@ type JobConfig struct {
 	WorkingDir string
 	// User Username or UID to use in the container. Format ``user[:group]``.
 	User string
+	//Devices  Maps the host devices you want to connect to a container
+	Devices []Device
 	// Ports Publish ports to the host
 	// type: list of 'host_port:container_port'
 	Ports []string
 	dependent
 	describable
+}
+
+//Device is the defined structure to attach host devices to containers
+type Device struct {
+	Host        string
+	Container   string
+	Permissions string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
