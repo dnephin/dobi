@@ -175,8 +175,8 @@ job=refactor-shell:
     description: "Start an interactive shell for running go refactor tools"
 
 
-env=linux-only:
-  variables: [DOBI_BUILD_OS=linux]
+    #env=linux-only:
+    #  variables: [DOBI_BUILD_OS=linux]
 
 #
 # Aliases
@@ -190,8 +190,8 @@ alias=all:
     tasks: [lint, test, docs-build, binary]
     description: "Run all lint and build tasks"
 
-alias=binary-linux:
-    tasks: [linux-only, binary]
+    #alias=binary-linux:
+    #    tasks: [linux-only, binary]
 
 alias=ci-circle-main:
     tasks: [lint, test-unit, docs-build, binary]

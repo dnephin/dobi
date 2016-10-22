@@ -31,7 +31,7 @@ func GetTaskConfig(name, action string, conf *config.ImageConfig) (iface.TaskCon
 	), nil
 }
 
-type runFunc func(ctx *context.ExecuteContext, task *Task) (bool, error)
+type runFunc func(*context.ExecuteContext, *Task, bool) (bool, error)
 
 type action struct {
 	name         string
