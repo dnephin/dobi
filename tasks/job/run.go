@@ -207,15 +207,6 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
 	interactive := t.config.Interactive
-	var dockerdevices []docker.Device
-	for _, dev := range t.config.Devices {
-		dockerdevices = append(dockerdevices,
-			docker.Device{
-				PathInContainer:   dev.Container,
-				PathOnHost:        dev.Host,
-				CgroupPermissions: dev.Permissions,
-			})
-	}
 
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
 	t.logger().Debugf("Image name %q", imageName)
@@ -244,11 +235,30 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			Privileged:   t.config.Privileged,
 			NetworkMode:  t.config.NetMode,
 			PortBindings: portBinds,
-			Devices:      dockerdevices,
+			Devices:      getDevices(t.config.Devices),
 		},
 	}
 	opts = provideDocker(opts)
 	return opts
+}
+
+func getDevices(devices []config.Device) []docker.Device {
+	var dockerdevices []docker.Device
+	for _, dev := range devices {
+		if len(dev.Container) == 0 {
+			dev.Container = dev.Host
+		}
+		if len(dev.Permissions) == 0 {
+			dev.Container = "rwm"
+		}
+		dockerdevices = append(dockerdevices,
+			docker.Device{
+				PathInContainer:   dev.Container,
+				PathOnHost:        dev.Host,
+				CgroupPermissions: dev.Permissions,
+			})
+	}
+	return dockerdevices
 }
 
 func asPortBindings(ports []string) (map[docker.Port][]docker.PortBinding, map[docker.Port]struct{}) {

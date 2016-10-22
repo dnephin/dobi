@@ -73,7 +73,9 @@ type JobConfig struct {
 	WorkingDir string
 	// User Username or UID to use in the container. Format ``user[:group]``.
 	User string
-	//Devices  Maps the host devices you want to connect to a container
+	// Devices  Maps the host devices you want to connect to a container
+	// type: list of device specs
+	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``
 	Devices []Device
 	// Ports Publish ports to the host
 	// type: list of 'host_port:container_port'
@@ -82,7 +84,7 @@ type JobConfig struct {
 	describable
 }
 
-//Device is the defined structure to attach host devices to containers
+// Device is the defined structure to attach host devices to containers
 type Device struct {
 	Host        string
 	Container   string
