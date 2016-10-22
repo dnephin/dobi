@@ -84,6 +84,7 @@ type JobConfig struct {
 	describable
 }
 
+
 // Device is the defined structure to attach host devices to containers
 type Device struct {
 	Host        string
