@@ -12,51 +12,66 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 )
 
-// CreateTask is a task which creates a directory on the host
-type CreateTask struct {
-	name   string
+// Task is a mount task
+type Task struct {
+	name   common.TaskName
 	config *config.MountConfig
-}
-
-// NewCreateTask creates a new CreateTask object
-func NewCreateTask(name string, conf *config.MountConfig) *CreateTask {
-	return &CreateTask{name: name, config: conf}
+	run    func(*Task, *context.ExecuteContext) (bool, error)
 }
 
 // Name returns the name of the task
-func (t *CreateTask) Name() common.TaskName {
-	return common.NewTaskName(t.name, "create")
+func (t *Task) Name() common.TaskName {
+	return t.name
 }
 
-func (t *CreateTask) logger() *log.Entry {
+func (t *Task) logger() *log.Entry {
 	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
-func (t *CreateTask) Repr() string {
-	return fmt.Sprintf("[mount:create %s] %s (%#o)", t.name, t.config.Bind, t.config.Mode)
+func (t *Task) Repr() string {
+	return fmt.Sprintf("[mount:%s %s] %s:%s",
+		t.name.Action(), t.name.Resource(), t.config.Bind, t.config.Path)
 }
 
-// Run creates the host path if it doesn't already exist
-func (t *CreateTask) Run(ctx *context.ExecuteContext) error {
-	if t.exists(ctx) {
-		t.logger().Debug("is fresh")
-		return nil
-	}
+// Run performs the task action
+func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
+	return t.run(t, ctx)
+}
 
-	if err := t.create(ctx); err != nil {
-		return err
-	}
-	ctx.SetModified(t.name)
-	t.logger().Info("Created")
+// Stop implements the iface.Task interface
+func (t *Task) Stop(*context.ExecuteContext) error {
 	return nil
 }
 
-func (t *CreateTask) create(ctx *context.ExecuteContext) error {
-	path := AbsBindPath(t.config, ctx.WorkingDir)
-	mode := os.FileMode(t.config.Mode)
+type createAction struct {
+	task *Task
+}
 
-	switch t.config.File {
+// Run creates the host path if it doesn't already exist
+func runCreate(task *Task, ctx *context.ExecuteContext) (bool, error) {
+	c := createAction{task: task}
+	return c.run(ctx)
+}
+
+func (t *createAction) run(ctx *context.ExecuteContext) (bool, error) {
+	if t.exists(ctx) {
+		t.task.logger().Debug("is fresh")
+		return false, nil
+	}
+
+	if err := t.create(ctx); err != nil {
+		return false, err
+	}
+	t.task.logger().Info("Created")
+	return true, nil
+}
+
+func (t *createAction) create(ctx *context.ExecuteContext) error {
+	path := AbsBindPath(t.task.config, ctx.WorkingDir)
+	mode := os.FileMode(t.task.config.Mode)
+
+	switch t.task.config.File {
 	case true:
 		return ioutil.WriteFile(path, []byte{}, mode)
 	default:
@@ -64,21 +79,11 @@ func (t *CreateTask) create(ctx *context.ExecuteContext) error {
 	}
 }
 
-// Dependencies returns the list of dependencies
-func (t *CreateTask) Dependencies() []string {
-	return t.config.Dependencies()
-}
-
-func (t *CreateTask) exists(ctx *context.ExecuteContext) bool {
-	_, err := os.Stat(AbsBindPath(t.config, ctx.WorkingDir))
+func (t *createAction) exists(ctx *context.ExecuteContext) bool {
+	_, err := os.Stat(AbsBindPath(t.task.config, ctx.WorkingDir))
 	if err != nil {
 		return false
 	}
 
 	return true
-}
-
-// Stop the task
-func (t *CreateTask) Stop(ctx *context.ExecuteContext) error {
-	return nil
 }

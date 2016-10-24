@@ -10,4 +10,4 @@ exec filewatcher \
     -x 'script' \
     -x 'docs' \
     -- \
-    go test -v './${dir}'
+    bash -c 'go test -v ./${dir}; echo; echo; echo; echo;'

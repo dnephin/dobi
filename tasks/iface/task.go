@@ -15,6 +15,11 @@ type Task interface {
 	Stop(*context.ExecuteContext) error
 }
 
+// RunFunc is a function which performs the task. It received a context and a
+// bool indicating if any dependencies were modified. It should return true if
+// the resource was modified, otherwise false.
+type RunFunc func(*context.ExecuteContext, bool) (bool, error)
+
 // TaskConfig is a data object which stores the full configuration of a Task
 type TaskConfig interface {
 	Name() common.TaskName
@@ -46,12 +51,15 @@ func (t taskConfig) Task(res config.Resource) Task {
 	return t.buildTask(t.name, res)
 }
 
+// TaskBuilder is a function which creates a new Task from a name and config
+type TaskBuilder func(common.TaskName, config.Resource) Task
+
 // NewTaskConfig returns a TaskConfig from components
 func NewTaskConfig(
 	name common.TaskName,
 	resource config.Resource,
 	deps func() []string,
-	buildTask func(common.TaskName, config.Resource) Task,
+	buildTask TaskBuilder,
 ) TaskConfig {
 	return &taskConfig{
 		name:      name,
