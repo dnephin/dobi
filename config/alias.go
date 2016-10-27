@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 )
 
@@ -47,7 +47,7 @@ func (c *AliasConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 
 func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	alias := &AliasConfig{}
-	return alias, tform.Transform(name, values, alias)
+	return alias, configtf.Transform(name, values, alias)
 }
 
 func init() {

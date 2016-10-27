@@ -70,7 +70,10 @@ func (e *ExecEnv) ResolveSlice(tmpls []string) ([]string, error) {
 func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	tag, defValue, hasDefault := splitDefault(tag)
 
-	write := func(val string) (int, error) {
+	write := func(val string, err error) (int, error) {
+		if err != nil {
+			return 0, err
+		}
 		if val == "" {
 			if !hasDefault {
 				return 0, fmt.Errorf("A value is required for variable %q", tag)
@@ -83,26 +86,26 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	prefix, suffix := splitPrefix(tag)
 	switch prefix {
 	case "env":
-		return write(os.Getenv(suffix))
+		return write(os.Getenv(suffix), nil)
 	case "git":
 		return valueFromGit(out, suffix, defValue)
 	case "time":
-		return write(fmtdate.Format(suffix, e.startTime))
+		return write(fmtdate.Format(suffix, e.startTime), nil)
 	case "fs":
 		val, err := valueFromFilesystem(suffix, e.workingDir)
-		if err != nil {
-			return 0, err
-		}
-		return write(val)
+		return write(val, err)
+	case "user":
+		val, err := valueFromUser(suffix)
+		return write(val, err)
 	}
 
 	switch tag {
 	case "unique":
-		return write(e.Unique())
+		return write(e.Unique(), nil)
 	case "project":
-		return write(e.Project)
+		return write(e.Project, nil)
 	case "exec-id":
-		return write(e.ExecID)
+		return write(e.ExecID, nil)
 	default:
 		return 0, fmt.Errorf("Unknown variable %q", tag)
 	}
@@ -115,48 +118,46 @@ func valueFromFilesystem(name string, workingdir string) (string, error) {
 	case "projectdir":
 		return workingdir, nil
 	default:
-		return "", fmt.Errorf("Unknown variable asdf \"fs.%s\"", name)
+		return "", fmt.Errorf("Unknown variable \"fs.%s\"", name)
 	}
 }
 
 func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
-	write := func(value string) (int, error) {
+	writeValue := func(value string) (int, error) {
 		return out.Write(bytes.NewBufferString(value).Bytes())
 	}
 
-	writeWithError := func(err error) (int, error) {
+	writeError := func(err error) (int, error) {
 		if defValue == "" {
 			return 0, fmt.Errorf("Failed resolving variable {git.%s}: %s", tag, err)
 		}
 
 		logging.Log.Warnf("Failed to get variable \"git.%s\", using default", tag)
-		return write(defValue)
+		return writeValue(defValue)
+	}
+
+	write := func(value string, err error) (int, error) {
+		if err != nil {
+			return writeError(err)
+		}
+		return writeValue(value)
 	}
 
 	repo, err := git.OpenRepository(".")
 	if err != nil {
-		return writeWithError(err)
+		return writeError(err)
 	}
 
 	switch tag {
 	case "branch":
 		branch, err := repo.GetHEADBranch()
-		if err != nil {
-			return writeWithError(err)
-		}
-		return write(branch.Name)
+		return write(branch.Name, err)
 	case "sha":
 		commit, err := repo.GetCommit("HEAD")
-		if err != nil {
-			return writeWithError(err)
-		}
-		return write(commit.ID.String())
+		return write(commit.ID.String(), err)
 	case "short-sha":
 		commit, err := repo.GetCommit("HEAD")
-		if err != nil {
-			return writeWithError(err)
-		}
-		return write(commit.ID.String()[:10])
+		return write(commit.ID.String()[:10], err)
 	default:
 		return 0, fmt.Errorf("Unknown variable \"git.%s\"", tag)
 	}
@@ -190,7 +191,7 @@ func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) 
 }
 
 // NewExecEnv returns a new ExecEnv from values
-func NewExecEnv(execID, project string, workingDir string) *ExecEnv {
+func NewExecEnv(execID, project, workingDir string) *ExecEnv {
 	return &ExecEnv{
 		ExecID:     execID,
 		Project:    project,
@@ -242,6 +243,9 @@ func validateExecID(output string) (string, error) {
 }
 
 func defaultExecID() string {
-	// TODO: cross-platform user name
+	username, err := getUserName()
+	if err == nil {
+		return username
+	}
 	return os.Getenv("USER")
 }

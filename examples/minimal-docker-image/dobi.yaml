@@ -28,7 +28,7 @@ job=binary:
 image=dist-img:
     image: example/hello
     dockerfile: Dockerfile.dist
-    tags: ['{env.USER}']
+    tags: ['{user.name}']
     depends: [binary]
     description: "Build the distribution image"
 

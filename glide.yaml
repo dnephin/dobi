@@ -22,3 +22,7 @@ import:
   subpackages:
   - pkg/jsonmessage
   - pkg/term
+- package: github.com/dnephin/configtf
+- package: github.com/opencontainers/runc
+  subpackages:
+  - libcontainer/user

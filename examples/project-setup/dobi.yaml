@@ -16,7 +16,7 @@ job=setup:
     artifact: '.env'
     mounts: ['.env']
     interactive: true
-    env: ['HOST_USER={env.USER:}']
+    env: ['HOST_USER={user.name:}']
     description: "Prompt for application settings"
 
 job=app:

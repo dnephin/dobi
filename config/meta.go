@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/dnephin/dobi/config/tform"
+	"github.com/dnephin/configtf"
 )
 
 // MetaConfig Configure **dobi** and include other config files.
@@ -35,7 +35,7 @@ type MetaConfig struct {
 	// ExecID A template value used as part of unique identifiers for image tags
 	// and container names. This field supports :doc:`variables`. This value can
 	// be overridden with the ``$DOBI_EXEC_ID`` environment variable.
-	// default: ``{env.USER}``
+	// default: ``{user.name}``
 	ExecID string `config:"exec-id"`
 }
 
@@ -56,5 +56,5 @@ func (m *MetaConfig) IsZero() bool {
 // NewMetaConfig returns a new MetaConfig from config values
 func NewMetaConfig(name string, values map[string]interface{}) (*MetaConfig, error) {
 	meta := &MetaConfig{}
-	return meta, tform.Transform(name, values, meta)
+	return meta, configtf.Transform(name, values, meta)
 }

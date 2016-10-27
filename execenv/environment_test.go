@@ -32,12 +32,9 @@ func (s *ExecEnvSuite) TearDownTest() {
 }
 
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
-	defer os.Setenv("USER", os.Getenv("USER"))
-	os.Setenv("USER", "testuser")
-
 	execEnv, err := NewExecEnvFromConfig("", "", s.tmpDir)
 	s.Nil(err)
-	expected := fmt.Sprintf("%s-testuser", filepath.Base(s.tmpDir))
+	expected := fmt.Sprintf("%s-root", filepath.Base(s.tmpDir))
 	s.Equal(expected, execEnv.Unique())
 }
 
@@ -156,6 +153,41 @@ func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
 	s.Equal(value, "env.FOO")
 	s.Equal(defVal, "")
 	s.Equal(hasDefault, false)
+}
+
+func (s *ExecEnvSuite) TestResolveUserName() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.name}")
+	s.Nil(err)
+	s.Equal(value, "root")
+}
+
+func (s *ExecEnvSuite) TestResolveUserUID() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.uid}")
+	s.Nil(err)
+	s.Equal(value, "0")
+}
+
+func (s *ExecEnvSuite) TestResolveUserGroup() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.group}")
+	s.Nil(err)
+	s.Equal(value, "root")
+}
+
+func (s *ExecEnvSuite) TestResolveUserGID() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.gid}")
+	s.Nil(err)
+	s.Equal(value, "0")
+}
+
+func (s *ExecEnvSuite) TestResolveUserHome() {
+	execEnv := NewExecEnv("exec", "project", "cwd")
+	value, err := execEnv.Resolve("{user.home}")
+	s.Nil(err)
+	s.Equal(value, "/root")
 }
 
 func TestSplitPrefixNoPrefix(t *testing.T) {

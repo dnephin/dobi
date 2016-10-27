@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/utils/fs"
 )
@@ -85,7 +85,7 @@ func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 
 func mountFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	mount := &MountConfig{}
-	return mount, tform.Transform(name, values, mount)
+	return mount, configtf.Transform(name, values, mount)
 }
 
 func init() {

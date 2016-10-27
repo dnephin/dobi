@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
 )
@@ -73,11 +73,30 @@ type JobConfig struct {
 	WorkingDir string
 	// User Username or UID to use in the container. Format ``user[:group]``.
 	User string
+<<<<<<< HEAD
+=======
+	// Devices  Maps the host devices you want to connect to a container
+	// type: list of device specs
+	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``
+	Devices []Device
+>>>>>>> 389591df8633... plurals
 	// Ports Publish ports to the host
 	// type: list of 'host_port:container_port'
 	Ports []string
+	// Devices Maps the host devices you want to connect to a container
+	// type: list of device specs
+	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``
+	Devices []Device
 	dependent
 	describable
+}
+
+
+// Device is the defined structure to attach host devices to containers
+type Device struct {
+	Host        string
+	Container   string
+	Permissions string
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
@@ -206,7 +225,7 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 
 func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	cmd := &JobConfig{}
-	return cmd, tform.Transform(name, values, cmd)
+	return cmd, configtf.Transform(name, values, cmd)
 }
 
 func init() {

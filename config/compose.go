@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dnephin/dobi/config/tform"
-	pth "github.com/dnephin/dobi/config/tform/path"
+	"github.com/dnephin/configtf"
+	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
 )
 
@@ -72,7 +72,7 @@ func (c *ComposeConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 
 func composeFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	compose := &ComposeConfig{Project: "{unique}", StopGrace: 5}
-	return compose, tform.Transform(name, values, compose)
+	return compose, configtf.Transform(name, values, compose)
 }
 
 func init() {
