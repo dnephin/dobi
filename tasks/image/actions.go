@@ -6,11 +6,11 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
 // GetTaskConfig returns a new TaskConfig for the action
-func GetTaskConfig(name, action string, conf *config.ImageConfig) (iface.TaskConfig, error) {
+func GetTaskConfig(name, action string, conf *config.ImageConfig) (types.TaskConfig, error) {
 	var taskName common.TaskName
 
 	if action == "" {
@@ -23,7 +23,7 @@ func GetTaskConfig(name, action string, conf *config.ImageConfig) (iface.TaskCon
 	if err != nil {
 		return nil, err
 	}
-	return iface.NewTaskConfig(
+	return types.NewTaskConfig(
 		taskName,
 		conf,
 		deps(conf, imageAction.dependencies),
@@ -82,8 +82,8 @@ func deps(conf config.Resource, deps []string) func() []string {
 }
 
 // NewTask creates a new Task object
-func NewTask(runFunc runFunc) func(common.TaskName, config.Resource) iface.Task {
-	return func(name common.TaskName, conf config.Resource) iface.Task {
+func NewTask(runFunc runFunc) func(common.TaskName, config.Resource) types.Task {
+	return func(name common.TaskName, conf config.Resource) types.Task {
 		return &Task{name: name, config: conf.(*config.ImageConfig), runFunc: runFunc}
 	}
 }

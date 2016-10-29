@@ -15,18 +15,18 @@ import (
 	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/env"
-	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/job"
 	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
 // TaskCollection is a collection of Task objects
 type TaskCollection struct {
-	tasks []iface.TaskConfig
+	tasks []types.TaskConfig
 }
 
-func (c *TaskCollection) add(task iface.TaskConfig) {
+func (c *TaskCollection) add(task types.TaskConfig) {
 	c.tasks = append(c.tasks, task)
 }
 
@@ -35,12 +35,12 @@ func (c *TaskCollection) contains(name common.TaskName) bool {
 }
 
 // All returns all the tasks in the dependency order
-func (c *TaskCollection) All() []iface.TaskConfig {
+func (c *TaskCollection) All() []types.TaskConfig {
 	return c.tasks
 }
 
 // Get returns the TaskConfig for the TaskName
-func (c *TaskCollection) Get(name common.TaskName) iface.TaskConfig {
+func (c *TaskCollection) Get(name common.TaskName) types.TaskConfig {
 	for _, task := range c.tasks {
 		if task.Name().Equal(name) {
 			return task
@@ -98,7 +98,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 }
 
 // TODO: some way to make this a registry
-func buildTaskConfig(name, action string, resource config.Resource) (iface.TaskConfig, error) {
+func buildTaskConfig(name, action string, resource config.Resource) (types.TaskConfig, error) {
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
 		return image.GetTaskConfig(name, action, conf)
@@ -118,8 +118,8 @@ func buildTaskConfig(name, action string, resource config.Resource) (iface.TaskC
 
 }
 
-func reversed(tasks []iface.Task) []iface.Task {
-	reversed := []iface.Task{}
+func reversed(tasks []types.Task) []types.Task {
+	reversed := []types.Task{}
 	for i := len(tasks) - 1; i >= 0; i-- {
 		reversed = append(reversed, tasks[i])
 	}
@@ -127,7 +127,7 @@ func reversed(tasks []iface.Task) []iface.Task {
 }
 
 func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
-	startedTasks := []iface.Task{}
+	startedTasks := []types.Task{}
 
 	defer func() {
 		logging.Log.Debug("stopping tasks")

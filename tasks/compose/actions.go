@@ -6,16 +6,16 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
 // GetTaskConfig returns a new task for the action
-func GetTaskConfig(name, action string, conf *config.ComposeConfig) (iface.TaskConfig, error) {
+func GetTaskConfig(name, action string, conf *config.ComposeConfig) (types.TaskConfig, error) {
 	act, err := getAction(action, name, conf)
 	if err != nil {
 		return nil, err
 	}
-	return iface.NewTaskConfig(act.name, conf, act.deps, NewTask(act.Run, act.Stop)), nil
+	return types.NewTaskConfig(act.name, conf, act.deps, NewTask(act.Run, act.Stop)), nil
 }
 
 type actionFunc func(*context.ExecuteContext, *Task) error
@@ -55,8 +55,8 @@ func getAction(name string, task string, conf *config.ComposeConfig) (action, er
 }
 
 // NewTask creates a new Task object
-func NewTask(run actionFunc, stop actionFunc) func(common.TaskName, config.Resource) iface.Task {
-	return func(name common.TaskName, res config.Resource) iface.Task {
+func NewTask(run actionFunc, stop actionFunc) func(common.TaskName, config.Resource) types.Task {
+	return func(name common.TaskName, res config.Resource) types.Task {
 		return &Task{
 			name:   name,
 			config: res.(*config.ComposeConfig),

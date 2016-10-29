@@ -39,7 +39,7 @@ func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 	return t.run(t, ctx)
 }
 
-// Stop implements the iface.Task interface
+// Stop implements the types.Task interface
 func (t *Task) Stop(*context.ExecuteContext) error {
 	return nil
 }

@@ -10,22 +10,22 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
+	"github.com/dnephin/dobi/tasks/types"
 	"github.com/docker/docker/runconfig/opts"
 )
 
 // GetTaskConfig returns a new task for the action
-func GetTaskConfig(name, action string, conf *config.EnvConfig) (iface.TaskConfig, error) {
+func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfig, error) {
 	switch action {
 	case "", "set":
-		return iface.NewTaskConfig(
+		return types.NewTaskConfig(
 			common.NewDefaultTaskName(name, action),
 			conf,
 			common.NoDependencies,
 			newTask), nil
 	case "rm":
 		// TODO:
-		return iface.NewTaskConfig(
+		return types.NewTaskConfig(
 			common.NewDefaultTaskName(name, action),
 			conf,
 			common.NoDependencies,
@@ -41,7 +41,7 @@ type Task struct {
 	config *config.EnvConfig
 }
 
-func newTask(name common.TaskName, conf config.Resource) iface.Task {
+func newTask(name common.TaskName, conf config.Resource) types.Task {
 	return &Task{name: name, config: conf.(*config.EnvConfig)}
 }
 

@@ -1,4 +1,4 @@
-package iface
+package types
 
 import (
 	"github.com/dnephin/dobi/config"

@@ -9,7 +9,7 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
 // RemoveTask is a task which removes the container used by the run task and the
@@ -19,7 +19,7 @@ type RemoveTask struct {
 	config *config.JobConfig
 }
 
-func newRemoveTask(name common.TaskName, conf config.Resource) iface.Task {
+func newRemoveTask(name common.TaskName, conf config.Resource) types.Task {
 	return &RemoveTask{name: name, config: conf.(*config.JobConfig)}
 }
 

@@ -16,9 +16,9 @@ import (
 	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/types"
 	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
@@ -28,7 +28,7 @@ import (
 // DefaultUnixSocket to connect to the docker API
 const DefaultUnixSocket = "/var/run/docker.sock"
 
-func newRunTask(name common.TaskName, conf config.Resource) iface.Task {
+func newRunTask(name common.TaskName, conf config.Resource) types.Task {
 	return &Task{name: name, config: conf.(*config.JobConfig)}
 }
 
