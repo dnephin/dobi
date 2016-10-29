@@ -24,7 +24,7 @@ func GetTaskConfig(name, action string, conf *config.JobConfig) (iface.TaskConfi
 			common.NoDependencies,
 			newRemoveTask), nil
 	default:
-		return nil, fmt.Errorf("Invalid run action %q for task %q", name, action)
+		return nil, fmt.Errorf("Invalid run action %q for task %q", action, name)
 	}
 }
 

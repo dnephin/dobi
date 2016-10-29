@@ -144,14 +144,12 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 		if err != nil {
 			return err
 		}
+		ctx.Resources.Add(taskConfig.Name().Resource(), resource)
 
 		task := taskConfig.Task(resource)
 		startedTasks = append(startedTasks, task)
 		start := time.Now()
-		logging.Log.WithFields(log.Fields{
-			"time": start,
-			"task": task,
-		}).Debug("Start")
+		logging.Log.WithFields(log.Fields{"time": start, "task": task}).Debug("Start")
 
 		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
 		modified, err := task.Run(ctx, depsModified)

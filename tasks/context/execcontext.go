@@ -12,7 +12,7 @@ import (
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
 	modified    map[common.TaskName]bool
-	Resources   *config.ResourceCollection
+	Resources   *ResourceCollection
 	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
@@ -60,7 +60,7 @@ func NewExecuteContext(
 
 	return &ExecuteContext{
 		modified:    make(map[common.TaskName]bool),
-		Resources:   config.Collection,
+		Resources:   newResourceCollection(),
 		WorkingDir:  config.WorkingDir,
 		Client:      client,
 		authConfigs: authConfigs,

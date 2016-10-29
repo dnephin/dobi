@@ -19,15 +19,13 @@ type Config struct {
 	Meta       *MetaConfig
 	Resources  map[string]Resource
 	WorkingDir string
-	Collection *ResourceCollection
 }
 
 // NewConfig returns a new Config object
 func NewConfig() *Config {
 	return &Config{
-		Resources:  make(map[string]Resource),
-		Meta:       &MetaConfig{},
-		Collection: newResourceCollection(),
+		Resources: make(map[string]Resource),
+		Meta:      &MetaConfig{},
 	}
 }
 
@@ -36,7 +34,6 @@ func (c *Config) add(name string, resource Resource) error {
 		return fmt.Errorf("duplicate resource name %q", name)
 	}
 	c.Resources[name] = resource
-	c.Collection.add(name, resource)
 	return nil
 }
 
