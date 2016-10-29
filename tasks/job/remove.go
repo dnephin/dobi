@@ -9,23 +9,23 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/iface"
 )
 
 // RemoveTask is a task which removes the container used by the run task and the
 // artifact created by the run task.
 type RemoveTask struct {
-	name   string
+	name   common.TaskName
 	config *config.JobConfig
 }
 
-// NewRemoveTask creates a new RemoveTask object
-func NewRemoveTask(name string, conf *config.JobConfig) *RemoveTask {
-	return &RemoveTask{name: name, config: conf}
+func newRemoveTask(name common.TaskName, conf config.Resource) iface.Task {
+	return &RemoveTask{name: name, config: conf.(*config.JobConfig)}
 }
 
 // Name returns the name of the task
 func (t *RemoveTask) Name() common.TaskName {
-	return common.NewTaskName(t.name, "rm")
+	return t.name
 }
 
 func (t *RemoveTask) logger() *log.Entry {
@@ -34,12 +34,12 @@ func (t *RemoveTask) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *RemoveTask) Repr() string {
-	return fmt.Sprintf("[job:rm %v] %v", t.name, t.config.Artifact)
+	return fmt.Sprintf("[job:rm %v] %v", t.name.Resource(), t.config.Artifact)
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
-	RemoveContainer(t.logger(), ctx.Client, ContainerName(ctx, t.name), false)
+func (t *RemoveTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
+	RemoveContainer(t.logger(), ctx.Client, ContainerName(ctx, t.name.Resource()), false)
 
 	if t.config.Artifact != "" {
 		if err := os.RemoveAll(t.config.Artifact); err != nil {
@@ -48,13 +48,7 @@ func (t *RemoveTask) Run(ctx *context.ExecuteContext) error {
 	}
 
 	t.logger().Info("Removed")
-	return nil
-}
-
-// Dependencies returns the list of dependencies. The remove task doesn't depend
-// on anything.
-func (t *RemoveTask) Dependencies() []string {
-	return []string{}
+	return true, nil
 }
 
 // Stop the task

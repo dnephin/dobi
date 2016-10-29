@@ -16,6 +16,7 @@ import (
 	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/iface"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/utils/fs"
@@ -27,21 +28,20 @@ import (
 // DefaultUnixSocket to connect to the docker API
 const DefaultUnixSocket = "/var/run/docker.sock"
 
+func newRunTask(name common.TaskName, conf config.Resource) iface.Task {
+	return &Task{name: name, config: conf.(*config.JobConfig)}
+}
+
 // Task is a task which runs a command in a container to produce a
 // file or set of files.
 type Task struct {
-	name   string
+	name   common.TaskName
 	config *config.JobConfig
-}
-
-// NewTask creates a new Task object
-func NewTask(name string, conf *config.JobConfig) *Task {
-	return &Task{name: name, config: conf}
 }
 
 // Name returns the name of the task
 func (t *Task) Name() common.TaskName {
-	return common.NewTaskName(t.name, "run")
+	return t.name
 }
 
 func (t *Task) logger() *log.Entry {
@@ -61,33 +61,33 @@ func (t *Task) Repr() string {
 	if t.config.Artifact != "" {
 		buff.WriteString(" " + t.config.Artifact)
 	}
-	return fmt.Sprintf("[job:run %v]%v", t.name, buff.String())
+	return fmt.Sprintf("[job:run %v]%v", t.name.Resource(), buff.String())
 }
 
 // Run creates the host path if it doesn't already exist
-func (t *Task) Run(ctx *context.ExecuteContext) error {
-	stale, err := t.isStale(ctx)
-	if !stale || err != nil {
-		t.logger().Info("is fresh")
-		return err
+func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
+	if !depsModified {
+		stale, err := t.isStale(ctx)
+		switch {
+		case err != nil:
+			return false, err
+		case !stale:
+			t.logger().Info("is fresh")
+			return false, nil
+		}
 	}
 	t.logger().Debug("is stale")
 
 	t.logger().Info("Start")
-	err = t.runContainer(ctx)
+	err := t.runContainer(ctx)
 	if err != nil {
-		return err
+		return false, err
 	}
-	ctx.SetModified(t.name)
 	t.logger().Info("Done")
-	return nil
+	return true, nil
 }
 
 func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
-	if ctx.IsModified(t.config.Dependencies()...) {
-		return true, nil
-	}
-
 	if t.config.Artifact == "" {
 		return true, nil
 	}
@@ -160,7 +160,7 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
-	name := ContainerName(ctx, t.name)
+	name := ContainerName(ctx, t.name.Resource())
 	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
 	if err != nil {
 		return fmt.Errorf("Failed creating container %q: %s", name, err)
@@ -328,11 +328,6 @@ func (t *Task) forwardSignals(client client.DockerClient, containerID string) ch
 		}
 	}()
 	return chanSig
-}
-
-// Dependencies returns the list of dependencies
-func (t *Task) Dependencies() []string {
-	return t.config.Dependencies()
 }
 
 // Stop the task
