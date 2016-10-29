@@ -8,8 +8,8 @@ import (
 	"github.com/dnephin/dobi/tasks/iface"
 )
 
-// GetTask returns a new task for the action
-func GetTask(name, action string, conf *config.JobConfig) (iface.TaskConfig, error) {
+// GetTaskConfig returns a new task for the action
+func GetTaskConfig(name, action string, conf *config.JobConfig) (iface.TaskConfig, error) {
 	switch action {
 	case "", "run":
 		return iface.NewTaskConfig(
@@ -21,7 +21,7 @@ func GetTask(name, action string, conf *config.JobConfig) (iface.TaskConfig, err
 		return iface.NewTaskConfig(
 			common.NewTaskName(name, action),
 			conf,
-			noDependencies,
+			common.NoDependencies,
 			newRemoveTask), nil
 	default:
 		return nil, fmt.Errorf("Invalid run action %q for task %q", name, action)
@@ -32,8 +32,4 @@ func deps(conf *config.JobConfig) func() []string {
 	return func() []string {
 		return conf.Dependencies()
 	}
-}
-
-func noDependencies() []string {
-	return []string{}
 }

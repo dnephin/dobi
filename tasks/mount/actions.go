@@ -9,11 +9,11 @@ import (
 	"github.com/dnephin/dobi/tasks/iface"
 )
 
-// GetTask returns a new task for the action
-func GetTask(name, action string, conf *config.MountConfig) (iface.TaskConfig, error) {
+// GetTaskConfig returns a new task for the action
+func GetTaskConfig(name, action string, conf *config.MountConfig) (iface.TaskConfig, error) {
 
 	newTaskConfig := func(name common.TaskName, builder iface.TaskBuilder) (iface.TaskConfig, error) {
-		return iface.NewTaskConfig(name, conf, noDependencies, builder), nil
+		return iface.NewTaskConfig(name, conf, common.NoDependencies, builder), nil
 	}
 	switch action {
 	case "", "create":
@@ -36,8 +36,4 @@ func NewTask(
 func remove(task *Task, ctx *context.ExecuteContext) (bool, error) {
 	task.logger().Warn("Bind mounts are not removable")
 	return false, nil
-}
-
-func noDependencies() []string {
-	return []string{}
 }

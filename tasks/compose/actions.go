@@ -9,8 +9,8 @@ import (
 	"github.com/dnephin/dobi/tasks/iface"
 )
 
-// GetTask returns a new task for the action
-func GetTask(name, action string, conf *config.ComposeConfig) (iface.TaskConfig, error) {
+// GetTaskConfig returns a new task for the action
+func GetTaskConfig(name, action string, conf *config.ComposeConfig) (iface.TaskConfig, error) {
 	act, err := getAction(action, name, conf)
 	if err != nil {
 		return nil, err

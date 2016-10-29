@@ -153,9 +153,9 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 			"task": task,
 		}).Debug("Start")
 
-		// TODO: pass depsModified to Run()
 		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
-		if modified, err := task.Run(ctx, depsModified); err != nil {
+		modified, err := task.Run(ctx, depsModified)
+		if err != nil {
 			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
 		}
 		if modified {
