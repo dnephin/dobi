@@ -42,7 +42,8 @@ func (c *AliasConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *AliasConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
-	return c, nil
+	copy := *c
+	return &copy, nil
 }
 
 func aliasFromConfig(name string, values map[string]interface{}) (Resource, error) {

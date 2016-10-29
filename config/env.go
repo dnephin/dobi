@@ -42,9 +42,17 @@ func (c *EnvConfig) Validate(pth.Path, *Config) *pth.Error {
 }
 
 // Resolve resolves variables in the config
-func (c *EnvConfig) Resolve(*execenv.ExecEnv) (Resource, error) {
-	// TODO: support variables in Variables, Files
-	return c, nil
+func (c *EnvConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	conf := *c
+	var err error
+
+	conf.Files, err = env.ResolveSlice(c.Files)
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.Variables, err = env.ResolveSlice(c.Variables)
+	return &conf, err
 }
 
 func (c *EnvConfig) String() string {
