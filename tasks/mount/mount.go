@@ -9,10 +9,12 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
 // Task is a mount task
 type Task struct {
+	types.NoStop
 	name   task.Name
 	config *config.MountConfig
 	run    func(*Task, *context.ExecuteContext) (bool, error)
@@ -25,18 +27,12 @@ func (t *Task) Name() task.Name {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[mount:%s %s] %s:%s",
-		t.name.Action(), t.name.Resource(), t.config.Bind, t.config.Path)
+	return fmt.Sprintf("%s %s:%s", t.name.Format("mount"), t.config.Bind, t.config.Path)
 }
 
 // Run performs the task action
 func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 	return t.run(t, ctx)
-}
-
-// Stop implements the types.Task interface
-func (t *Task) Stop(*context.ExecuteContext) error {
-	return nil
 }
 
 type createAction struct {

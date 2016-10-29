@@ -9,12 +9,14 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
+	"github.com/dnephin/dobi/tasks/types"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
 )
 
 // Task creates a Docker image
 type Task struct {
+	types.NoStop
 	name    task.Name
 	config  *config.ImageConfig
 	runFunc runFunc
@@ -31,18 +33,12 @@ func (t *Task) logger() *log.Entry {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[image:%s %s] %s",
-		t.name.Action(), t.name.Resource(), t.config.Image)
+	return fmt.Sprintf("%s %s", t.name.Format("image"), t.config.Image)
 }
 
 // Run builds or pulls an image if it is out of date
 func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
 	return t.runFunc(ctx, t, depsModified)
-}
-
-// Stop the task
-func (t *Task) Stop(ctx *context.ExecuteContext) error {
-	return nil
 }
 
 // ForEachTag runs a function for each tag

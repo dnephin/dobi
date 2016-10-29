@@ -18,17 +18,10 @@ func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfi
 	switch action {
 	case "", "set":
 		return types.NewTaskConfig(
-			task.NewDefaultName(name, action),
-			conf,
-			task.NoDependencies,
-			newTask), nil
+			task.NewDefaultName(name, "set"), conf, task.NoDependencies, newTask), nil
 	case "rm":
-		// TODO:
 		return types.NewTaskConfig(
-			task.NewDefaultName(name, action),
-			conf,
-			task.NoDependencies,
-			nil), nil
+			task.NewName(name, "rm"), conf, task.NoDependencies, newRemoveTask), nil
 	default:
 		return nil, fmt.Errorf("Invalid env action %q for task %q", action, name)
 	}
@@ -36,6 +29,7 @@ func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfi
 
 // Task sets environment variables
 type Task struct {
+	types.NoStop
 	name   task.Name
 	config *config.EnvConfig
 }
@@ -51,7 +45,7 @@ func (t *Task) Name() task.Name {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[env:set %v]", t.name.Resource())
+	return t.name.Format("env")
 }
 
 // Run sets environment variables
@@ -93,7 +87,26 @@ func splitVar(variable string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-// Stop the task
-func (t *Task) Stop(ctx *context.ExecuteContext) error {
-	return nil
+func newRemoveTask(name task.Name, conf config.Resource) types.Task {
+	return &removeTask{name: name}
+}
+
+type removeTask struct {
+	types.NoStop
+	name task.Name
+}
+
+// Name returns the name of the task
+func (t *removeTask) Name() task.Name {
+	return t.name
+}
+
+// Repr formats the task for logging
+func (t *removeTask) Repr() string {
+	return t.name.Format("env")
+}
+
+// Run does nothing
+func (t *removeTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
+	return false, nil
 }

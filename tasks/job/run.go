@@ -35,6 +35,7 @@ func newRunTask(name task.Name, conf config.Resource) types.Task {
 // Task is a task which runs a command in a container to produce a
 // file or set of files.
 type Task struct {
+	types.NoStop
 	name   task.Name
 	config *config.JobConfig
 }
@@ -61,7 +62,7 @@ func (t *Task) Repr() string {
 	if t.config.Artifact != "" {
 		buff.WriteString(" " + t.config.Artifact)
 	}
-	return fmt.Sprintf("[job:run %v]%v", t.name.Resource(), buff.String())
+	return fmt.Sprintf("%s%v", t.name.Format("job"), buff.String())
 }
 
 // Run creates the host path if it doesn't already exist
@@ -328,9 +329,4 @@ func (t *Task) forwardSignals(client client.DockerClient, containerID string) ch
 		}
 	}()
 	return chanSig
-}
-
-// Stop the task
-func (t *Task) Stop(ctx *context.ExecuteContext) error {
-	return nil
 }

@@ -68,3 +68,12 @@ func NewTaskConfig(
 		buildTask: buildTask,
 	}
 }
+
+// NoStop implements the Stop() method from the types.Task interface. It can be
+// used by tasks that don't do anything during the `stop` phase of execution.
+type NoStop struct{}
+
+// Stop does nothing
+func (t *NoStop) Stop(_ *context.ExecuteContext) error {
+	return nil
+}

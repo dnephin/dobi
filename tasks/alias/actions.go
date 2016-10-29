@@ -13,18 +13,10 @@ func GetTaskConfig(name, act string, conf *config.AliasConfig) (types.TaskConfig
 	switch act {
 	case "", "run":
 		return types.NewTaskConfig(
-			task.NewDefaultName(name, "run"),
-			conf,
-			RunDeps(conf),
-			NewTask,
-		), nil
+			task.NewDefaultName(name, "run"), conf, RunDeps(conf), NewTask), nil
 	case "remove", "rm":
 		return types.NewTaskConfig(
-			task.NewName(name, "rm"),
-			conf,
-			RemoveDeps(conf),
-			NewTask,
-		), nil
+			task.NewName(name, "rm"), conf, RemoveDeps(conf), NewTask), nil
 	default:
 		return nil, fmt.Errorf("Invalid alias action %q for task %q", act, name)
 	}

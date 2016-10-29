@@ -1,6 +1,9 @@
 package task
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Name is an identifier for a Task
 type Name struct {
@@ -32,6 +35,11 @@ func (t Name) Action() string {
 func (t Name) Equal(o Name) bool {
 	return t.resource == o.resource && (t.action == o.action ||
 		(t.defaultAction && o.defaultAction))
+}
+
+// Format the name with the name of the task, used for logging
+func (t Name) Format(task string) string {
+	return fmt.Sprintf("[%s:%s %s]", task, t.Action(), t.Resource())
 }
 
 // NewName returns a new task name from parts

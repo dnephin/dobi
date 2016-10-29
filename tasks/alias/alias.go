@@ -1,16 +1,16 @@
 package alias
 
 import (
-	"fmt"
-
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
-// Task is a task which creates a directory on the host
+// Task is an alias task
 type Task struct {
+	types.NoStop
 	name   task.Name
 	config *config.AliasConfig
 }
@@ -22,16 +22,11 @@ func (t *Task) Name() task.Name {
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
-	return fmt.Sprintf("[alias:%s %s]", t.name.Action(), t.name.Resource())
+	return t.name.Format("alias")
 }
 
 // Run does nothing. Dependencies were already run.
 func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
 	logging.ForTask(t).Info("Done")
 	return depsModified, nil
-}
-
-// Stop the task
-func (t *Task) Stop(ctx *context.ExecuteContext) error {
-	return nil
 }

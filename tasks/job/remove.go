@@ -14,6 +14,7 @@ import (
 // RemoveTask is a task which removes the container used by the run task and the
 // artifact created by the run task.
 type RemoveTask struct {
+	types.NoStop
 	name   task.Name
 	config *config.JobConfig
 }
@@ -29,7 +30,7 @@ func (t *RemoveTask) Name() task.Name {
 
 // Repr formats the task for logging
 func (t *RemoveTask) Repr() string {
-	return fmt.Sprintf("[job:rm %v] %v", t.name.Resource(), t.config.Artifact)
+	return fmt.Sprintf("%s %v", t.name.Format("job"), t.config.Artifact)
 }
 
 // Run creates the host path if it doesn't already exist
@@ -46,9 +47,4 @@ func (t *RemoveTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 
 	logger.Info("Removed")
 	return true, nil
-}
-
-// Stop the task
-func (t *RemoveTask) Stop(ctx *context.ExecuteContext) error {
-	return nil
 }
