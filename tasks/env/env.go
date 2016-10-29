@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
@@ -50,10 +49,6 @@ func (t *Task) Name() task.Name {
 	return t.name
 }
 
-func (t *Task) logger() *log.Entry {
-	return logging.Log.WithFields(log.Fields{"task": t})
-}
-
 // Repr formats the task for logging
 func (t *Task) Repr() string {
 	return fmt.Sprintf("[env:set %v]", t.name.Resource())
@@ -73,7 +68,7 @@ func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 	if err := setVariables(t.config.Variables); err != nil {
 		return true, err
 	}
-	t.logger().Info("Done")
+	logging.ForTask(t).Info("Done")
 	return true, nil
 }
 

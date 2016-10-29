@@ -45,7 +45,7 @@ func (t *Task) Name() task.Name {
 }
 
 func (t *Task) logger() *log.Entry {
-	return logging.Log.WithFields(log.Fields{"task": t})
+	return logging.ForTask(t)
 }
 
 // Repr formats the task for logging

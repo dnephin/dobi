@@ -3,7 +3,6 @@ package alias
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
@@ -21,10 +20,6 @@ func (t *Task) Name() task.Name {
 	return t.name
 }
 
-func (t *Task) logger() *log.Entry {
-	return logging.Log.WithFields(log.Fields{"task": t})
-}
-
 // Repr formats the task for logging
 func (t *Task) Repr() string {
 	return fmt.Sprintf("[alias:%s %s]", t.name.Action(), t.name.Resource())
@@ -32,7 +27,7 @@ func (t *Task) Repr() string {
 
 // Run does nothing. Dependencies were already run.
 func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
-	t.logger().Info("Done")
+	logging.ForTask(t).Info("Done")
 	return depsModified, nil
 }
 

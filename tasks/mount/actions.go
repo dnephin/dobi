@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
@@ -34,6 +35,6 @@ func NewTask(
 }
 
 func remove(task *Task, ctx *context.ExecuteContext) (bool, error) {
-	task.logger().Warn("Bind mounts are not removable")
+	logging.ForTask(task).Warn("Bind mounts are not removable")
 	return false, nil
 }

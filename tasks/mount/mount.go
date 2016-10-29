@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
@@ -22,10 +21,6 @@ type Task struct {
 // Name returns the name of the task
 func (t *Task) Name() task.Name {
 	return t.name
-}
-
-func (t *Task) logger() *log.Entry {
-	return logging.Log.WithFields(log.Fields{"task": t})
 }
 
 // Repr formats the task for logging
@@ -55,15 +50,17 @@ func runCreate(task *Task, ctx *context.ExecuteContext) (bool, error) {
 }
 
 func (t *createAction) run(ctx *context.ExecuteContext) (bool, error) {
+	logger := logging.ForTask(t.task)
+
 	if t.exists(ctx) {
-		t.task.logger().Debug("is fresh")
+		logger.Debug("is fresh")
 		return false, nil
 	}
 
 	if err := t.create(ctx); err != nil {
 		return false, err
 	}
-	t.task.logger().Info("Created")
+	logger.Info("Created")
 	return true, nil
 }
 
