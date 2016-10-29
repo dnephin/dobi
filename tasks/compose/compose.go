@@ -9,56 +9,42 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 )
 
 // Task runs a Docker Compose project
 type Task struct {
-	name   string
+	name   task.Name
 	config *config.ComposeConfig
-	action action
-}
-
-// NewTask creates a new Task object
-func NewTask(name string, conf *config.ComposeConfig, act action) *Task {
-	return &Task{name: name, config: conf, action: act}
+	run    actionFunc
+	stop   actionFunc
 }
 
 // Name returns the name of the task
-func (t *Task) Name() common.TaskName {
-	return common.NewTaskName(t.name, t.action.name)
+func (t *Task) Name() task.Name {
+	return t.name
 }
 
 func (t *Task) logger() *log.Entry {
-	return logging.Log.WithFields(log.Fields{"task": t})
+	return logging.ForTask(t)
 }
 
 // Repr formats the task for logging
 func (t *Task) Repr() string {
 	return fmt.Sprintf("[compose:%s %s] %s",
-		t.action.name, t.name, strings.Join(t.config.Files, ","))
+		t.name.Action(), t.name.Resource(), strings.Join(t.config.Files, ","))
 }
 
 // Run runs the action
-func (t *Task) Run(ctx *context.ExecuteContext) error {
-	return t.action.Run(ctx, t)
+func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
+	return false, t.run(ctx, t)
 }
 
 // Stop the task
 func (t *Task) Stop(ctx *context.ExecuteContext) error {
 	t.logger().Debug("Stop")
-	return t.action.Stop(ctx, t)
-}
-
-// Dependencies returns the list of dependencies
-func (t *Task) Dependencies() []string {
-	switch t.action.withDeps {
-	case true:
-		return t.config.Dependencies()
-	default:
-		return []string{}
-	}
+	return t.stop(ctx, t)
 }
 
 // StopNothing implements the Stop interface but does nothing

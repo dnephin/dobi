@@ -43,5 +43,5 @@ func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
 	}
 	tasks, err := collectTasks(runOptions, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(tasks.All()))
+	assert.Equal(t, 3, len(tasks.All()))
 }

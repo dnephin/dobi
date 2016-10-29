@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/opencontainers/runc/libcontainer/user"
+	user "github.com/dnephin/go-os-user"
 )
 
 func valueFromUser(name string) (string, error) {

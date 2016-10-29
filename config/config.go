@@ -11,7 +11,7 @@ import (
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/common"
+	"github.com/dnephin/dobi/tasks/task"
 )
 
 // Config is a data object for a full config file
@@ -19,15 +19,13 @@ type Config struct {
 	Meta       *MetaConfig
 	Resources  map[string]Resource
 	WorkingDir string
-	Collection *ResourceCollection
 }
 
 // NewConfig returns a new Config object
 func NewConfig() *Config {
 	return &Config{
-		Resources:  make(map[string]Resource),
-		Meta:       &MetaConfig{},
-		Collection: newResourceCollection(),
+		Resources: make(map[string]Resource),
+		Meta:      &MetaConfig{},
 	}
 }
 
@@ -36,7 +34,6 @@ func (c *Config) add(name string, resource Resource) error {
 		return fmt.Errorf("duplicate resource name %q", name)
 	}
 	c.Resources[name] = resource
-	c.Collection.add(name, resource)
 	return nil
 }
 
@@ -115,7 +112,7 @@ func validate(config *Config) error {
 func ValidateResourcesExist(path pth.Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
-		resource := common.ParseTaskName(name).Resource()
+		resource := task.ParseName(name).Resource()
 		if _, ok := c.Resources[resource]; !ok {
 			missing = append(missing, resource)
 		}

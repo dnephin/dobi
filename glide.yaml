@@ -22,7 +22,6 @@ import:
   subpackages:
   - pkg/jsonmessage
   - pkg/term
+  - runconfig/opts
 - package: github.com/dnephin/configtf
-- package: github.com/opencontainers/runc
-  subpackages:
-  - libcontainer/user
+- package: github.com/dnephin/go-os-user

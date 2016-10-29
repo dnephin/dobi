@@ -102,19 +102,20 @@ func (c *ImageConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	conf := *c
 	var err error
-	c.Tags, err = env.ResolveSlice(c.Tags)
+	conf.Tags, err = env.ResolveSlice(c.Tags)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
 
 	for key, value := range c.Args {
-		c.Args[key], err = env.Resolve(value)
+		conf.Args[key], err = env.Resolve(value)
 		if err != nil {
-			return c, err
+			return &conf, err
 		}
 	}
-	return c, nil
+	return &conf, nil
 }
 
 // NewImageConfig creates a new ImageConfig with default values

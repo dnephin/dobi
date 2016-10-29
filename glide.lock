@@ -1,5 +1,5 @@
-hash: 11f6f4c1ad7e479ecb52d4bd391ab9ccf7e433b9e177e2dbcf2a50a5ddd17749
-updated: 2016-10-20T01:05:55.059244229Z
+hash: edfe6d5ec7c2b4d548dfdf51b9b70f4ddf1a78a42dbebbb9e37ef7339a1e82d2
+updated: 2016-10-29T07:14:35.659301218Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -10,11 +10,16 @@ imports:
   subpackages:
   - docs
   - path
+- name: github.com/dnephin/go-os-user
+  version: 44e2994deb1ed3c8bf21e28cbd5d2e3107b35e0b
 - name: github.com/docker/docker
-  version: 429812f86a7095c19ae48552f6b97150846ca29b
+  version: 515e5dade7a006dbd2c42880f1af695da22ece60
   subpackages:
+  - api/types/blkiodev
+  - api/types/container
   - api/types/filters
   - api/types/mount
+  - api/types/strslice
   - api/types/swarm
   - api/types/versions
   - opts
@@ -32,14 +37,15 @@ imports:
   - pkg/system
   - pkg/term
   - pkg/term/windows
+  - runconfig/opts
 - name: github.com/docker/go-connections
-  version: 988efe982fdecb46f01d53465878ff1f2ff411ce
+  version: 1494b6df4050e60923d68cd8cc6a19e7af9f1c01
   subpackages:
   - nat
 - name: github.com/docker/go-units
-  version: f2145db703495b2e525c59662db69a7344b00bb8
+  version: 8a7beacffa3009a9ac66bad506b18ffdd110cf97
 - name: github.com/fsouza/go-dockerclient
-  version: 5e508da6ac33603fcc7dc200b670ba295f24d975
+  version: 348eb84e7de87ad89fd9a2656f56081b2a4d837b
 - name: github.com/gogits/git-module
   version: b3009dc4f5842cf9e2e80fef1e125e79c38e4949
 - name: github.com/golang/mock
@@ -59,7 +65,7 @@ imports:
 - name: github.com/Microsoft/go-winio
   version: ce2922f643c8fd76b46cadc7f404a06282678b34
 - name: github.com/opencontainers/runc
-  version: d186a7552b91af1270c2df74186fda6db2871869
+  version: 4c8007f34a0077a1040923ee4c7cec64b6e070d4
   subpackages:
   - libcontainer/system
   - libcontainer/user
@@ -71,7 +77,7 @@ imports:
   version: 8e4c18bd418c1b9060ddf7760316aa7c2a468127
   repo: https://github.com/dnephin/cobra
 - name: github.com/spf13/pflag
-  version: bf8481a6aebc13a8aab52e699ffe2e79771f5a3f
+  version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/stretchr/testify
   version: 976c720a22c8eb4eb6a0b4348ad85ad12491a506
   subpackages:
@@ -83,16 +89,16 @@ imports:
 - name: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/net
-  version: 8b4af36cd21a1f85a7484b49feb7c79363106d8e
+  version: 3fe3024eef808ba2798cc1855690f49e2b860573
   subpackages:
   - context
   - context/ctxhttp
 - name: golang.org/x/sys
-  version: 9bb9f0998d48b31547d975974935ae9b48c7a03c
+  version: c200b10b5d5e122be351b67af224adc6128af5bf
   subpackages:
   - windows
 - name: gopkg.in/yaml.v2
-  version: a83829b6f1293c91addabc89d0571c246397bbf4
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9

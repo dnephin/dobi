@@ -9,14 +9,16 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/stretchr/testify/suite"
 )
 
 type CreateTaskSuite struct {
 	suite.Suite
-	task *CreateTask
-	path string
-	ctx  *context.ExecuteContext
+	task   *Task
+	action *createAction
+	path   string
+	ctx    *context.ExecuteContext
 }
 
 func TestCreateTaskSuite(t *testing.T) {
@@ -28,13 +30,16 @@ func (s *CreateTaskSuite) SetupTest() {
 	s.path, err = ioutil.TempDir("", "mount-task-test")
 	s.Require().Nil(err)
 
-	s.task = NewCreateTask(
-		"mount-task-def",
-		&config.MountConfig{
+	s.task = &Task{
+		name: task.NewName("resource", "action"),
+		config: &config.MountConfig{
 			Bind:     filepath.Join("a", "b", "c"),
 			Path:     "/target",
 			ReadOnly: false,
-		})
+		},
+		run: runCreate,
+	}
+	s.action = &createAction{task: s.task}
 
 	s.ctx = context.NewExecuteContext(
 		&config.Config{WorkingDir: s.path}, nil, nil, false)
@@ -45,19 +50,20 @@ func (s *CreateTaskSuite) TearDownTest() {
 }
 
 func (s *CreateTaskSuite) TestRunPathExists() {
-	s.False(s.task.exists(s.ctx))
+	s.False(s.action.exists(s.ctx))
 	s.Require().Nil(os.MkdirAll(AbsBindPath(s.task.config, s.path), 0777))
-	s.True(s.task.exists(s.ctx))
+	s.True(s.action.exists(s.ctx))
 
-	s.Nil(s.task.Run(s.ctx))
-	s.False(s.ctx.IsModified("mount-task-def"))
+	modified, err := s.task.Run(s.ctx, false)
+	s.Nil(err)
+	s.False(modified)
 }
 
 func (s *CreateTaskSuite) TestRunPathIsNew() {
-	s.Nil(s.task.Run(s.ctx))
-
-	s.True(s.task.exists(s.ctx))
-	s.True(s.ctx.IsModified("mount-task-def"))
+	modified, err := s.task.Run(s.ctx, false)
+	s.Nil(err)
+	s.True(modified)
+	s.True(s.action.exists(s.ctx))
 }
 
 func (s *CreateTaskSuite) TestAsBind() {
