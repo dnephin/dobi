@@ -14,10 +14,10 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/client"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/docker/pkg/term"
@@ -28,19 +28,19 @@ import (
 // DefaultUnixSocket to connect to the docker API
 const DefaultUnixSocket = "/var/run/docker.sock"
 
-func newRunTask(name common.TaskName, conf config.Resource) types.Task {
+func newRunTask(name task.Name, conf config.Resource) types.Task {
 	return &Task{name: name, config: conf.(*config.JobConfig)}
 }
 
 // Task is a task which runs a command in a container to produce a
 // file or set of files.
 type Task struct {
-	name   common.TaskName
+	name   task.Name
 	config *config.JobConfig
 }
 
 // Name returns the name of the task
-func (t *Task) Name() common.TaskName {
+func (t *Task) Name() task.Name {
 	return t.name
 }
 

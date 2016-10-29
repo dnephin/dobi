@@ -6,18 +6,18 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 )
 
 // Task is a task which creates a directory on the host
 type Task struct {
-	name   common.TaskName
+	name   task.Name
 	config *config.AliasConfig
 }
 
 // Name returns the name of the task
-func (t *Task) Name() common.TaskName {
+func (t *Task) Name() task.Name {
 	return t.name
 }
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 )
 
@@ -21,14 +21,14 @@ func GetTaskConfig(name, action string, conf *config.ComposeConfig) (types.TaskC
 type actionFunc func(*context.ExecuteContext, *Task) error
 
 type action struct {
-	name common.TaskName
+	name task.Name
 	Run  actionFunc
 	Stop actionFunc
 	deps func() []string
 }
 
 func newAction(
-	name common.TaskName,
+	name task.Name,
 	run actionFunc,
 	stop actionFunc,
 	deps func() []string,
@@ -39,24 +39,24 @@ func newAction(
 	return action{name: name, Run: run, Stop: stop, deps: deps}, nil
 }
 
-func getAction(name string, task string, conf *config.ComposeConfig) (action, error) {
+func getAction(name string, resname string, conf *config.ComposeConfig) (action, error) {
 	switch name {
 	case "", "up":
 		return newAction(
-			common.NewDefaultTaskName(task, "up"), RunUp, StopUp, deps(conf))
+			task.NewDefaultName(resname, "up"), RunUp, StopUp, deps(conf))
 	case "remove", "rm", "down":
-		return newAction(common.NewTaskName(task, "down"), RunDown, nil, noDeps)
+		return newAction(task.NewName(resname, "down"), RunDown, nil, noDeps)
 	case "attach":
 		return newAction(
-			common.NewTaskName(task, "attach"), RunUpAttached, nil, deps(conf))
+			task.NewName(resname, "attach"), RunUpAttached, nil, deps(conf))
 	default:
-		return action{}, fmt.Errorf("Invalid compose action %q for task %q", name, task)
+		return action{}, fmt.Errorf("Invalid compose action %q for task %q", name, resname)
 	}
 }
 
 // NewTask creates a new Task object
-func NewTask(run actionFunc, stop actionFunc) func(common.TaskName, config.Resource) types.Task {
-	return func(name common.TaskName, res config.Resource) types.Task {
+func NewTask(run actionFunc, stop actionFunc) func(task.Name, config.Resource) types.Task {
+	return func(name task.Name, res config.Resource) types.Task {
 		return &Task{
 			name:   name,
 			config: res.(*config.ComposeConfig),

@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -31,7 +31,7 @@ func (s *CreateTaskSuite) SetupTest() {
 	s.Require().Nil(err)
 
 	s.task = &Task{
-		name: common.NewTaskName("resource", "action"),
+		name: task.NewName("resource", "action"),
 		config: &config.MountConfig{
 			Bind:     filepath.Join("a", "b", "c"),
 			Path:     "/target",

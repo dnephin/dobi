@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/tasks/common"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 )
 
@@ -13,14 +13,14 @@ func GetTaskConfig(name, act string, conf *config.AliasConfig) (types.TaskConfig
 	switch act {
 	case "", "run":
 		return types.NewTaskConfig(
-			common.NewDefaultTaskName(name, "run"),
+			task.NewDefaultName(name, "run"),
 			conf,
 			RunDeps(conf),
 			NewTask,
 		), nil
 	case "remove", "rm":
 		return types.NewTaskConfig(
-			common.NewTaskName(name, "rm"),
+			task.NewName(name, "rm"),
 			conf,
 			RemoveDeps(conf),
 			NewTask,
@@ -31,7 +31,7 @@ func GetTaskConfig(name, act string, conf *config.AliasConfig) (types.TaskConfig
 }
 
 // NewTask creates a new Task object
-func NewTask(name common.TaskName, conf config.Resource) types.Task {
+func NewTask(name task.Name, conf config.Resource) types.Task {
 	// TODO: cleaner way to avoid this cast?
 	return &Task{name: name, config: conf.(*config.AliasConfig)}
 }
@@ -49,7 +49,7 @@ func RemoveDeps(conf config.Resource) func() []string {
 		confDeps := conf.Dependencies()
 		deps := []string{}
 		for i := len(confDeps); i > 0; i-- {
-			taskname := common.ParseTaskName(confDeps[i-1])
+			taskname := task.ParseName(confDeps[i-1])
 			deps = append(deps, taskname.Resource()+":"+"rm")
 		}
 		return deps

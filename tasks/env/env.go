@@ -8,8 +8,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 	"github.com/docker/docker/runconfig/opts"
 )
@@ -19,16 +19,16 @@ func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfi
 	switch action {
 	case "", "set":
 		return types.NewTaskConfig(
-			common.NewDefaultTaskName(name, action),
+			task.NewDefaultName(name, action),
 			conf,
-			common.NoDependencies,
+			task.NoDependencies,
 			newTask), nil
 	case "rm":
 		// TODO:
 		return types.NewTaskConfig(
-			common.NewDefaultTaskName(name, action),
+			task.NewDefaultName(name, action),
 			conf,
-			common.NoDependencies,
+			task.NoDependencies,
 			nil), nil
 	default:
 		return nil, fmt.Errorf("Invalid env action %q for task %q", action, name)
@@ -37,16 +37,16 @@ func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfi
 
 // Task sets environment variables
 type Task struct {
-	name   common.TaskName
+	name   task.Name
 	config *config.EnvConfig
 }
 
-func newTask(name common.TaskName, conf config.Resource) types.Task {
+func newTask(name task.Name, conf config.Resource) types.Task {
 	return &Task{name: name, config: conf.(*config.EnvConfig)}
 }
 
 // Name returns the name of the task
-func (t *Task) Name() common.TaskName {
+func (t *Task) Name() task.Name {
 	return t.name
 }
 

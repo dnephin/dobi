@@ -7,24 +7,24 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 )
 
 // RemoveTask is a task which removes the container used by the run task and the
 // artifact created by the run task.
 type RemoveTask struct {
-	name   common.TaskName
+	name   task.Name
 	config *config.JobConfig
 }
 
-func newRemoveTask(name common.TaskName, conf config.Resource) types.Task {
+func newRemoveTask(name task.Name, conf config.Resource) types.Task {
 	return &RemoveTask{name: name, config: conf.(*config.JobConfig)}
 }
 
 // Name returns the name of the task
-func (t *RemoveTask) Name() common.TaskName {
+func (t *RemoveTask) Name() task.Name {
 	return t.name
 }
 

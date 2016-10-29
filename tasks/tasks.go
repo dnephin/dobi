@@ -11,13 +11,13 @@ import (
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/alias"
 	"github.com/dnephin/dobi/tasks/client"
-	"github.com/dnephin/dobi/tasks/common"
 	"github.com/dnephin/dobi/tasks/compose"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/env"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/job"
 	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 )
 
@@ -30,7 +30,7 @@ func (c *TaskCollection) add(task types.TaskConfig) {
 	c.tasks = append(c.tasks, task)
 }
 
-func (c *TaskCollection) contains(name common.TaskName) bool {
+func (c *TaskCollection) contains(name task.Name) bool {
 	return c.Get(name) != nil
 }
 
@@ -39,8 +39,8 @@ func (c *TaskCollection) All() []types.TaskConfig {
 	return c.tasks
 }
 
-// Get returns the TaskConfig for the TaskName
-func (c *TaskCollection) Get(name common.TaskName) types.TaskConfig {
+// Get returns the TaskConfig for the Name
+func (c *TaskCollection) Get(name task.Name) types.TaskConfig {
 	for _, task := range c.tasks {
 		if task.Name().Equal(name) {
 			return task
@@ -56,18 +56,18 @@ func newTaskCollection() *TaskCollection {
 func collectTasks(options RunOptions, execEnv *execenv.ExecEnv) (*TaskCollection, error) {
 	return collect(options, &collectionState{
 		newTaskCollection(),
-		common.NewStack(),
+		task.NewStack(),
 	})
 }
 
 type collectionState struct {
 	tasks     *TaskCollection
-	taskStack *common.Stack
+	taskStack *task.Stack
 }
 
 func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
 	for _, taskname := range options.Tasks {
-		taskname := common.ParseTaskName(taskname)
+		taskname := task.ParseName(taskname)
 		resourceName := taskname.Resource()
 		resource, ok := options.Config.Resources[resourceName]
 		if !ok {
@@ -169,7 +169,7 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 
 func hasModifiedDeps(ctx *context.ExecuteContext, deps []string) bool {
 	for _, dep := range deps {
-		taskName := common.ParseTaskName(dep)
+		taskName := task.ParseName(dep)
 		if ctx.IsModified(taskName) {
 			return true
 		}
@@ -185,7 +185,7 @@ type RunOptions struct {
 	Quiet  bool
 }
 
-func getTaskNames(options RunOptions) []string {
+func getNames(options RunOptions) []string {
 	if len(options.Tasks) > 0 {
 		return options.Tasks
 	}
@@ -199,7 +199,7 @@ func getTaskNames(options RunOptions) []string {
 
 // Run one or more tasks
 func Run(options RunOptions) error {
-	options.Tasks = getTaskNames(options)
+	options.Tasks = getNames(options)
 	if len(options.Tasks) == 0 {
 		return fmt.Errorf("No task to run, and no default task defined.")
 	}

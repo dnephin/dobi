@@ -1,59 +1,59 @@
-package common
+package task
 
 import "strings"
 
-// TaskName is an identifier for a Task
-type TaskName struct {
+// Name is an identifier for a Task
+type Name struct {
 	resource      string
 	action        string
 	defaultAction bool
 }
 
 // Name returns the full name of the task in the form 'resource:action'
-func (t TaskName) Name() string {
+func (t Name) Name() string {
 	return t.resource + ":" + t.action
 }
 
-func (t TaskName) String() string {
+func (t Name) String() string {
 	return t.Name()
 }
 
 // Resource returns the resource name of the task
-func (t TaskName) Resource() string {
+func (t Name) Resource() string {
 	return t.resource
 }
 
 // Action returns the action name of the task
-func (t TaskName) Action() string {
+func (t Name) Action() string {
 	return t.action
 }
 
 // Equal compares two objects and returns true if they are the same
-func (t TaskName) Equal(o TaskName) bool {
+func (t Name) Equal(o Name) bool {
 	return t.resource == o.resource && (t.action == o.action ||
 		(t.defaultAction && o.defaultAction))
 }
 
-// NewTaskName returns a new task name from parts
-func NewTaskName(res, action string) TaskName {
-	return TaskName{
+// NewName returns a new task name from parts
+func NewName(res, action string) Name {
+	return Name{
 		resource:      res,
 		action:        action,
 		defaultAction: action == "",
 	}
 }
 
-// NewDefaultTaskName returns a new task name, for a default action
-func NewDefaultTaskName(res, action string) TaskName {
-	name := NewTaskName(res, action)
+// NewDefaultName returns a new task name, for a default action
+func NewDefaultName(res, action string) Name {
+	name := NewName(res, action)
 	name.defaultAction = true
 	return name
 }
 
-// ParseTaskName returns a new TaskName from a task name string
-func ParseTaskName(name string) TaskName {
+// ParseName returns a new Name from a task name string
+func ParseName(name string) Name {
 	name, action := splitTaskActionName(name)
-	return NewTaskName(name, action)
+	return NewName(name, action)
 }
 
 // splitTaskActionName splits a task name into the resource, action pair
