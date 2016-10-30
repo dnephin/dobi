@@ -3,6 +3,7 @@ package job
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -36,8 +37,9 @@ func newRunTask(name task.Name, conf config.Resource) types.Task {
 // file or set of files.
 type Task struct {
 	types.NoStop
-	name   task.Name
-	config *config.JobConfig
+	name      task.Name
+	config    *config.JobConfig
+	outStream io.Writer
 }
 
 // Name returns the name of the task
@@ -65,7 +67,7 @@ func (t *Task) Repr() string {
 	return fmt.Sprintf("%s%v", t.name.Format("job"), buff.String())
 }
 
-// Run creates the host path if it doesn't already exist
+// Run the job command in a container
 func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
 	if !depsModified {
 		stale, err := t.isStale(ctx)
@@ -173,7 +175,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
-		OutputStream: os.Stdout,
+		OutputStream: t.output(),
 		ErrorStream:  os.Stderr,
 		InputStream:  ioutil.NopCloser(os.Stdin),
 		Stream:       true,
@@ -204,6 +206,13 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	}
 
 	return t.wait(ctx.Client, container.ID)
+}
+
+func (t *Task) output() io.Writer {
+	if t.outStream == nil {
+		return os.Stdout
+	}
+	return io.MultiWriter(t.outStream, os.Stdout)
 }
 
 func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
