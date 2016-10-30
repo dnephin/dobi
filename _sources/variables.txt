@@ -74,6 +74,7 @@ Config Fields
 The following config fields support variables:
 
 * ``job.env``
+* ``job.user``
 * ``job.net-mode``
 * ``job.working-dir``
 * ``image.tag``

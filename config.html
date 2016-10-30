@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Config Reference &mdash; dobi 0.7 documentation</title>
+    <title>Config Reference &mdash; dobi 0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="dobi 0.7 documentation" href="index.html" />
+    <link rel="top" title="dobi 0.8 documentation" href="index.html" />
     <link rel="next" title="Config Variables" href="variables.html" />
     <link rel="prev" title="Examples" href="examples.html" />
    
@@ -350,6 +350,43 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </table>
 <p>The directory to set as the active working directory in the    container. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
+<p><strong>user</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Username or UID to use in the container. Format <code class="docutils literal"><span class="pre">user[:group]</span></code>.</p>
+</div></blockquote>
+<p><strong>ports</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of &#8216;host_port:container_port&#8217;</td>
+</tr>
+</tbody>
+</table>
+<p>Publish ports to the host</p>
+</div></blockquote>
+<p><strong>devices</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of device specs</td>
+</tr>
+</tbody>
+</table>
+<p>Maps the host devices you want to connect to a container</p>
+<p><code class="docutils literal"><span class="pre">{Host:</span> <span class="pre">/dev/fb0,</span> <span class="pre">Container:</span> <span class="pre">/dev/fb0,</span> <span class="pre">Permissions:</span> <span class="pre">rwm}</span></code></p>
+</div></blockquote>
 <p><strong>depends</strong></p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -585,11 +622,61 @@ and using two Compose files.</p>
 </div></blockquote>
 </div>
 </div>
+<div class="section" id="env">
+<h2>env<a class="headerlink" href="#env" title="Permalink to this headline">¶</a></h2>
+<p>An <strong>env</strong> resource provides environment variables to <strong>job</strong> and
+<strong>compose</strong> resources.</p>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Define some variables for a <code class="docutils literal"><span class="pre">job</span></code></p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">env=settings</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">files</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">local.env</span><span class="p p-Indicator">]</span>
+    <span class="l l-Scalar l-Scalar-Plain">variables</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">PORT=3838</span><span class="p p-Indicator">,</span> <span class="nv">HOST=stage</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>files</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filenames</td>
+</tr>
+</tbody>
+</table>
+<p>List of files which contain environment variables</p>
+</div></blockquote>
+<p><strong>variables</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of environment variables</td>
+</tr>
+</tbody>
+</table>
+<p>List of environment variable <code class="docutils literal"><span class="pre">key=value</span></code> pairs</p>
+</div></blockquote>
+<p><strong>description</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+</div></blockquote>
+</div>
+</div>
 <div class="section" id="meta">
 <h2>meta<a class="headerlink" href="#meta" title="Permalink to this headline">¶</a></h2>
 <p>Configure <strong>dobi</strong> and include other config files.</p>
-<div class="section" id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>Set the the project name to <code class="docutils literal"><span class="pre">mywebapp</span></code> and run the <code class="docutils literal"><span class="pre">all</span></code> task by
 default.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">meta</span><span class="p p-Indicator">:</span>
@@ -643,7 +730,7 @@ default.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
 </tr>
-<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">{env.USER}</span></code></td>
+<tr class="field-even field"><th class="field-name">default:</th><td class="field-body"><code class="docutils literal"><span class="pre">{user.name}</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -687,6 +774,7 @@ default.</p>
 <li class="toctree-l2"><a class="reference internal" href="#mount">mount</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#alias">alias</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compose">compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#env">env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#meta">meta</a></li>
 </ul>
 </li>

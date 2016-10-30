@@ -29,4 +29,7 @@ Each resource must be one of the following resource types:
 .. include:: ../gen/config/compose.rst
 
 
+.. include:: ../gen/config/env.rst
+
+
 .. include:: ../gen/config/meta.rst
