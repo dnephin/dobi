@@ -98,13 +98,18 @@ job=lint:
     mounts: [source]
     description: "Run style checks"
 
-job=release:
+job=github-release:
     use: releaser
     mounts: [dist]
     env:
      - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
      - "DOBI_VERSION={env.CIRCLE_TAG}"
     depends: [binary]
+
+job=release-version:
+    use: builder
+    mounts: [dist]
+    command: "bash -ec \"dobi-linux --version | awk '{print $3}'\""
 
 job=docs-build:
     use: docs-img
@@ -198,3 +203,9 @@ alias=ci-circle-main:
 
 alias=ci-circle-examples:
     tasks: [test-examples]
+
+alias=release:
+    tasks:
+      - 'github-release'
+      - 'release-version:capture(DOBI_VERSION)'
+      - 'dist-img:push'
