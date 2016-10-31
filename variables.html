@@ -80,37 +80,116 @@ optional variable.</dd>
 </div>
 <div class="section" id="supported-variables">
 <h2>Supported Variables<a class="headerlink" href="#supported-variables" title="Permalink to this headline">¶</a></h2>
-<p>The following variables are made avariables:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">env.&lt;variable&gt;</span></code> - the value of an environment variable</li>
-<li><code class="docutils literal"><span class="pre">git.sha</span></code> - the current git sha</li>
-<li><code class="docutils literal"><span class="pre">git.short-sha</span></code> - the first 10 characters of the current git sha</li>
-<li><code class="docutils literal"><span class="pre">git.branch</span></code> - the current git branch name</li>
-<li><code class="docutils literal"><span class="pre">time.&lt;format&gt;</span></code> - a date or time using <a class="reference external" href="https://github.com/metakeule/fmtdate#placeholders">fmtdate</a> (note: if your time
-format includes a <code class="docutils literal"><span class="pre">:</span></code> you must add another <code class="docutils literal"><span class="pre">:</span></code> to the end of the format,
-otherwise the string after the final <code class="docutils literal"><span class="pre">:</span></code> will be taken as the default value)</li>
-<li><code class="docutils literal"><span class="pre">fs.cwd</span></code> - the current working directory</li>
-<li><code class="docutils literal"><span class="pre">fs.projectdir</span></code> - the directory which contains the <code class="docutils literal"><span class="pre">dobi.yaml</span></code></li>
-<li><code class="docutils literal"><span class="pre">unique</span></code> - a unique execution id generate from the project name and exec id</li>
-<li><code class="docutils literal"><span class="pre">exec-id</span></code> - an execution id (without project name)</li>
-<li><code class="docutils literal"><span class="pre">project</span></code> - the project name</li>
-</ul>
+<p>The supported variables are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Variable</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">env.&lt;variable&gt;</span></code></td>
+<td>value of an environment variable</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">exec-id</span></code></td>
+<td>execution id (without project name)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">fs.cwd</span></code></td>
+<td>current working directory</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">fs.projectdir</span></code></td>
+<td>directory which contains the <code class="docutils literal"><span class="pre">dobi.yaml</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">git.branch</span></code></td>
+<td>current git branch name</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">git.sha</span></code></td>
+<td>current git sha</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">git.short-sha</span></code></td>
+<td>first 10 characters of the current git sha</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">project</span></code></td>
+<td>project name</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">time.&lt;format&gt;</span></code></td>
+<td>a date or time using <a class="reference external" href="https://github.com/metakeule/fmtdate#placeholders">fmtdate</a>
+(note: if your time format includes a <code class="docutils literal"><span class="pre">:</span></code> you must add
+another <code class="docutils literal"><span class="pre">:</span></code> to the end of the format, otherwise the string
+after the final <code class="docutils literal"><span class="pre">:</span></code> will be taken as the default value)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">unique</span></code></td>
+<td>a unique execution id generate from the project name and exec
+id</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">user.name</span></code></td>
+<td>username of the active user</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">user.uid</span></code></td>
+<td>uid of the active user</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">user.gid</span></code></td>
+<td>primary gid of the active user</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">user.home</span></code></td>
+<td>home directory of the active user</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">user.group</span></code></td>
+<td>primary group name of the active user</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="config-fields">
 <h2>Config Fields<a class="headerlink" href="#config-fields" title="Permalink to this headline">¶</a></h2>
-<p>The following config fields support variables:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">job.env</span></code></li>
-<li><code class="docutils literal"><span class="pre">job.user</span></code></li>
-<li><code class="docutils literal"><span class="pre">job.net-mode</span></code></li>
-<li><code class="docutils literal"><span class="pre">job.working-dir</span></code></li>
-<li><code class="docutils literal"><span class="pre">image.tag</span></code></li>
-<li><code class="docutils literal"><span class="pre">image.args</span></code></li>
-<li><code class="docutils literal"><span class="pre">compose.files</span></code></li>
-<li><code class="docutils literal"><span class="pre">compose.project</span></code></li>
-<li><code class="docutils literal"><span class="pre">mount.path</span></code></li>
-<li><code class="docutils literal"><span class="pre">meta.exec-id</span></code></li>
-</ul>
+<p>Variables are only supported in specific fields:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Resource</th>
+<th class="head">Field</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td rowspan="2">env</td>
+<td>files</td>
+</tr>
+<tr class="row-odd"><td>variables</td>
+</tr>
+<tr class="row-even"><td rowspan="4">job</td>
+<td>env</td>
+</tr>
+<tr class="row-odd"><td>user</td>
+</tr>
+<tr class="row-even"><td>net-mode</td>
+</tr>
+<tr class="row-odd"><td>working-dir</td>
+</tr>
+<tr class="row-even"><td rowspan="2">image</td>
+<td>tag</td>
+</tr>
+<tr class="row-odd"><td>args</td>
+</tr>
+<tr class="row-even"><td rowspan="2">compose</td>
+<td>files</td>
+</tr>
+<tr class="row-odd"><td>project</td>
+</tr>
+<tr class="row-even"><td>mount</td>
+<td>path</td>
+</tr>
+<tr class="row-odd"><td>meta</td>
+<td>exec-id</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

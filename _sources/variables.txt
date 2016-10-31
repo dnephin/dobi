@@ -51,35 +51,65 @@ Use a variable with an empty default value as an optional value:
 Supported Variables
 -------------------
 
-The following variables are made avariables:
+The supported variables are:
 
-* ``env.<variable>`` - the value of an environment variable
-* ``git.sha`` - the current git sha
-* ``git.short-sha`` - the first 10 characters of the current git sha
-* ``git.branch`` - the current git branch name
-* ``time.<format>`` - a date or time using `fmtdate
-  <https://github.com/metakeule/fmtdate#placeholders>`_ (note: if your time
-  format includes a ``:`` you must add another ``:`` to the end of the format,
-  otherwise the string after the final ``:`` will be taken as the default value)
-* ``fs.cwd`` - the current working directory
-* ``fs.projectdir`` - the directory which contains the ``dobi.yaml``
-* ``unique`` - a unique execution id generate from the project name and exec id
-* ``exec-id`` - an execution id (without project name)
-* ``project`` - the project name
+==================  ===========================================================
+Variable            Description
+==================  ===========================================================
+``env.<variable>``  value of an environment variable
+``exec-id``         execution id (without project name)
+
+``fs.cwd``          current working directory
+``fs.projectdir``   directory which contains the ``dobi.yaml``
+
+``git.branch``      current git branch name
+``git.sha``         current git sha
+``git.short-sha``   first 10 characters of the current git sha
+``project``         project name
+``time.<format>``   a date or time using `fmtdate
+                    <https://github.com/metakeule/fmtdate#placeholders>`_
+                    (note: if your time format includes a ``:`` you must add
+                    another ``:`` to the end of the format, otherwise the string
+                    after the final ``:`` will be taken as the default value)
+``unique``          a unique execution id generate from the project name and exec
+                    id
+``user.name``       username of the active user
+``user.uid``        uid of the active user
+``user.gid``        primary gid of the active user
+``user.home``       home directory of the active user
+``user.group``      primary group name of the active user
+==================  ===========================================================
 
 
 Config Fields
 -------------
 
-The following config fields support variables:
+Variables are only supported in specific fields:
 
-* ``job.env``
-* ``job.user``
-* ``job.net-mode``
-* ``job.working-dir``
-* ``image.tag``
-* ``image.args``
-* ``compose.files``
-* ``compose.project``
-* ``mount.path``
-* ``meta.exec-id``
++----------------+-----------------------------------------------------------+
+| Resource       | Field                                                     |
++================+===========================================================+
+| env            | files                                                     |
+|                +-----------------------------------------------------------+
+|                | variables                                                 |
++----------------+-----------------------------------------------------------+
+| job            | env                                                       |
+|                +-----------------------------------------------------------+
+|                | user                                                      |
+|                +-----------------------------------------------------------+
+|                | net-mode                                                  |
+|                +-----------------------------------------------------------+
+|                | working-dir                                               |
++----------------+-----------------------------------------------------------+
+| image          | tag                                                       |
+|                +-----------------------------------------------------------+
+|                | args                                                      |
++----------------+-----------------------------------------------------------+
+| compose        | files                                                     |
+|                +-----------------------------------------------------------+
+|                | project                                                   |
++----------------+-----------------------------------------------------------+
+| mount          | path                                                      |
++----------------+-----------------------------------------------------------+
+| meta           | exec-id                                                   |
++----------------+-----------------------------------------------------------+
