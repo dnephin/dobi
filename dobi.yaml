@@ -39,7 +39,6 @@ image=dist-img:
     image: dnephin/dobi
     tags: ["{env.DOBI_VERSION}"]
     dockerfile: dockerfiles/Dockerfile.dist
-    depends: [deps, binary]
     description: "Build the distribution image"
 
 image=releaser:
@@ -104,7 +103,6 @@ job=github-release:
     env:
      - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
      - "DOBI_VERSION={env.CIRCLE_TAG}"
-    depends: [binary]
 
 job=release-version:
     use: builder
@@ -206,6 +204,8 @@ alias=ci-circle-examples:
 
 alias=release:
     tasks:
+      - 'deps'
+      - 'binary'
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
