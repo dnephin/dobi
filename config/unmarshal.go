@@ -16,6 +16,7 @@ var (
 	reservedNames = map[string]bool{
 		"autoclean": true,
 		"list":      true,
+		"help":      true,
 		META:        true,
 	}
 

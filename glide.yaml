@@ -25,4 +25,3 @@ import:
   - runconfig/opts
 - package: github.com/dnephin/configtf
 - package: github.com/dnephin/go-os-user
-- package: github.com/sevki/goeylinguine

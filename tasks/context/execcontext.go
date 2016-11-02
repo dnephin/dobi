@@ -5,13 +5,14 @@ import (
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/client"
+	"github.com/dnephin/dobi/tasks/task"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified    map[string]bool
-	Resources   *config.ResourceCollection
+	modified    map[task.Name]bool
+	Resources   *ResourceCollection
 	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
@@ -21,7 +22,7 @@ type ExecuteContext struct {
 
 // IsModified returns true if any of the tasks named in names has been modified
 // during this execution
-func (ctx *ExecuteContext) IsModified(names ...string) bool {
+func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 	for _, name := range names {
 		if modified, _ := ctx.modified[name]; modified {
 			return true
@@ -31,7 +32,7 @@ func (ctx *ExecuteContext) IsModified(names ...string) bool {
 }
 
 // SetModified sets the task name as modified
-func (ctx *ExecuteContext) SetModified(name string) {
+func (ctx *ExecuteContext) SetModified(name task.Name) {
 	ctx.modified[name] = true
 }
 
@@ -58,8 +59,8 @@ func NewExecuteContext(
 	}
 
 	return &ExecuteContext{
-		modified:    make(map[string]bool),
-		Resources:   config.Collection,
+		modified:    make(map[task.Name]bool),
+		Resources:   newResourceCollection(),
 		WorkingDir:  config.WorkingDir,
 		Client:      client,
 		authConfigs: authConfigs,

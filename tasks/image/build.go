@@ -10,37 +10,37 @@ import (
 )
 
 // RunBuild builds an image if it is out of date
-func RunBuild(ctx *context.ExecuteContext, t *Task) error {
-	stale, err := buildIsStale(ctx, t)
-	if !stale || err != nil {
-		t.logger().Info("is fresh")
-		return err
+func RunBuild(ctx *context.ExecuteContext, t *Task, hasModifiedDeps bool) (bool, error) {
+	if !hasModifiedDeps {
+		stale, err := buildIsStale(ctx, t)
+		switch {
+		case err != nil:
+			return false, err
+		case !stale:
+			t.logger().Info("is fresh")
+			return false, nil
+		}
 	}
 	t.logger().Debug("is stale")
 
 	if err := buildImage(ctx, t); err != nil {
-		return err
+		return false, err
 	}
 
 	image, err := GetImage(ctx, t.config)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	record := imageModifiedRecord{ImageID: image.ID}
 	if err := updateImageRecord(recordPath(ctx, t.config), record); err != nil {
 		t.logger().Warnf("Failed to update image record: %s", err)
 	}
-	ctx.SetModified(t.name)
 	t.logger().Info("Created")
-	return nil
+	return true, nil
 }
 
 func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
-	if ctx.IsModified(t.config.Dependencies()...) {
-		return true, nil
-	}
-
 	image, err := GetImage(ctx, t.config)
 	switch err {
 	case docker.ErrNoSuchImage:

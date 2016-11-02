@@ -5,44 +5,64 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/iface"
+	"github.com/dnephin/dobi/tasks/task"
+	"github.com/dnephin/dobi/tasks/types"
 )
 
-// GetTask returns a new task for the action
-func GetTask(name, action string, conf *config.ComposeConfig) (iface.Task, error) {
-	composeAction, err := getAction(action, name)
+// GetTaskConfig returns a new task for the action
+func GetTaskConfig(name, action string, conf *config.ComposeConfig) (types.TaskConfig, error) {
+	act, err := getAction(action, name, conf)
 	if err != nil {
 		return nil, err
 	}
-	return NewTask(name, conf, composeAction), nil
+	return types.NewTaskConfig(act.name, conf, act.deps, NewTask(act.Run, act.Stop)), nil
 }
 
-type actionFunc func(ctx *context.ExecuteContext, task *Task) error
+type actionFunc func(*context.ExecuteContext, *Task) error
 
 type action struct {
-	name     string
-	Run      actionFunc
-	Stop     actionFunc
-	withDeps bool
+	name task.Name
+	Run  actionFunc
+	Stop actionFunc
+	deps func() []string
 }
 
-func newAction(name string, run actionFunc, stop actionFunc, withDeps bool) (action, error) {
+func newAction(
+	name task.Name,
+	run actionFunc,
+	stop actionFunc,
+	deps func() []string,
+) (action, error) {
 	if stop == nil {
 		stop = StopNothing
 	}
-	return action{name: name, Run: run, Stop: stop, withDeps: withDeps}, nil
+	return action{name: name, Run: run, Stop: stop, deps: deps}, nil
 }
 
-func getAction(name string, task string) (action, error) {
+func getAction(name string, resname string, conf *config.ComposeConfig) (action, error) {
 	switch name {
 	case "", "up":
-		return newAction("up", RunUp, StopUp, true)
+		return newAction(
+			task.NewDefaultName(resname, "up"), RunUp, StopUp, deps(conf))
 	case "remove", "rm", "down":
-		return newAction("down", RunDown, nil, false)
+		return newAction(task.NewName(resname, "down"), RunDown, nil, noDeps)
 	case "attach":
-		return newAction("attach", RunUpAttached, nil, false)
+		return newAction(
+			task.NewName(resname, "attach"), RunUpAttached, nil, deps(conf))
 	default:
-		return action{}, fmt.Errorf("Invalid compose action %q for task %q", name, task)
+		return action{}, fmt.Errorf("Invalid compose action %q for task %q", name, resname)
+	}
+}
+
+// NewTask creates a new Task object
+func NewTask(run actionFunc, stop actionFunc) func(task.Name, config.Resource) types.Task {
+	return func(name task.Name, res config.Resource) types.Task {
+		return &Task{
+			name:   name,
+			config: res.(*config.ComposeConfig),
+			run:    run,
+			stop:   stop,
+		}
 	}
 }
 
@@ -62,4 +82,14 @@ func StopUp(ctx *context.ExecuteContext, t *Task) error {
 func RunDown(ctx *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project down")
 	return t.execCompose(ctx, "down")
+}
+
+func deps(conf *config.ComposeConfig) func() []string {
+	return func() []string {
+		return conf.Dependencies()
+	}
+}
+
+func noDeps() []string {
+	return []string{}
 }

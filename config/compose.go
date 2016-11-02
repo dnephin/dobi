@@ -61,13 +61,14 @@ func (c *ComposeConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *ComposeConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	conf := *c
 	var err error
-	c.Files, err = env.ResolveSlice(c.Files)
+	conf.Files, err = env.ResolveSlice(c.Files)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
-	c.Project, err = env.Resolve(c.Project)
-	return c, err
+	conf.Project, err = env.Resolve(c.Project)
+	return &conf, err
 }
 
 func composeFromConfig(name string, values map[string]interface{}) (Resource, error) {

@@ -9,16 +9,15 @@ import (
 )
 
 // RunPush pushes an image to the registry
-func RunPush(ctx *context.ExecuteContext, t *Task) error {
+func RunPush(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	pushTag := func(tag string) error {
 		return pushImage(ctx, t, tag)
 	}
 	if err := t.ForEachTag(ctx, pushTag); err != nil {
-		return err
+		return false, err
 	}
-	ctx.SetModified(t.name)
 	t.logger().Info("Pushed")
-	return nil
+	return true, nil
 }
 
 func pushImage(ctx *context.ExecuteContext, t *Task, tag string) error {

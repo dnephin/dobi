@@ -1,5 +1,5 @@
-hash: 09964ed9628f9cb79b98279e68a94387dd04732edcbaf49951141ef6d56e5e91
-updated: 2016-11-01T20:02:26.39519505-02:00
+hash: edfe6d5ec7c2b4d548dfdf51b9b70f4ddf1a78a42dbebbb9e37ef7339a1e82d2
+updated: 2016-10-29T07:14:35.659301218Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -13,7 +13,7 @@ imports:
 - name: github.com/dnephin/go-os-user
   version: 44e2994deb1ed3c8bf21e28cbd5d2e3107b35e0b
 - name: github.com/docker/docker
-  version: cc8b8ce0b3d2d6b3345687464d3a3b1c2c4971ef
+  version: 515e5dade7a006dbd2c42880f1af695da22ece60
   subpackages:
   - api/types/blkiodev
   - api/types/container
@@ -39,13 +39,13 @@ imports:
   - pkg/term/windows
   - runconfig/opts
 - name: github.com/docker/go-connections
-  version: f512407a188ecb16f31a33dbc9c4e4814afc1b03
+  version: 1494b6df4050e60923d68cd8cc6a19e7af9f1c01
   subpackages:
   - nat
 - name: github.com/docker/go-units
   version: 8a7beacffa3009a9ac66bad506b18ffdd110cf97
 - name: github.com/fsouza/go-dockerclient
-  version: 3162ed100df52ad76c94cdf1b8b2a45d4f5e203d
+  version: 348eb84e7de87ad89fd9a2656f56081b2a4d837b
 - name: github.com/gogits/git-module
   version: b3009dc4f5842cf9e2e80fef1e125e79c38e4949
 - name: github.com/golang/mock
@@ -65,16 +65,14 @@ imports:
 - name: github.com/Microsoft/go-winio
   version: ce2922f643c8fd76b46cadc7f404a06282678b34
 - name: github.com/opencontainers/runc
-  version: bc462c96bf7b15b68ab40e86335cefcb692707c1
+  version: 4c8007f34a0077a1040923ee4c7cec64b6e070d4
   subpackages:
   - libcontainer/system
   - libcontainer/user
 - name: github.com/renstrom/dedent
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
-- name: github.com/sevki/goeylinguine
-  version: 0c992e3c76d65323ed970f69caed06bd83e3044a
 - name: github.com/Sirupsen/logrus
-  version: 380f64d344b252a007a59baa61f31820f59cba89
+  version: 26709e2714106fb8ad40b773b711ebce25b78914
 - name: github.com/spf13/cobra
   version: 8e4c18bd418c1b9060ddf7760316aa7c2a468127
   repo: https://github.com/dnephin/cobra
@@ -91,14 +89,13 @@ imports:
 - name: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/net
-  version: 4bb47a1098b37d69980d96237e2ae4ff56bb5a95
+  version: 3fe3024eef808ba2798cc1855690f49e2b860573
   subpackages:
   - context
   - context/ctxhttp
 - name: golang.org/x/sys
   version: c200b10b5d5e122be351b67af224adc6128af5bf
   subpackages:
-  - unix
   - windows
 - name: gopkg.in/yaml.v2
   version: a5b47d31c556af34a302ce5d659e6fea44d90de0

@@ -157,21 +157,22 @@ func (c *JobConfig) String() string {
 
 // Resolve resolves variables in the resource
 func (c *JobConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+	conf := *c
 	var err error
-	c.Env, err = env.ResolveSlice(c.Env)
+	conf.Env, err = env.ResolveSlice(c.Env)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
-	c.WorkingDir, err = env.Resolve(c.WorkingDir)
+	conf.WorkingDir, err = env.Resolve(c.WorkingDir)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
-	c.User, err = env.Resolve(c.User)
+	conf.User, err = env.Resolve(c.User)
 	if err != nil {
-		return c, err
+		return &conf, err
 	}
-	c.NetMode, err = env.Resolve(c.NetMode)
-	return c, err
+	conf.NetMode, err = env.Resolve(c.NetMode)
+	return &conf, err
 }
 
 // ShlexSlice is a type used for config transforming a string into a []string
