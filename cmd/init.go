@@ -5,6 +5,7 @@ import (
 )
 
 
+
 func newInitCommand(opts *dobiOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
