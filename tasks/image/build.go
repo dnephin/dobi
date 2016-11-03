@@ -7,6 +7,7 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	docker "github.com/fsouza/go-dockerclient"
+	"log"
 )
 
 // RunBuild builds an image if it is out of date
@@ -75,15 +76,22 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 }
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
+
+	dockerfile, err := DobiDocker(t.config.Dobifile, t.config.Dockerfile)
+	if err != nil {
+		return err
+	}
+
 	if err := Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.BuildImage(docker.BuildImageOptions{
 			Name:           GetImageName(ctx, t.config),
-			Dockerfile:     t.config.Dockerfile,
+			Dockerfile:     dockerfile,
 			BuildArgs:      buildArgs(t.config.Args),
 			Pull:           t.config.PullBaseImageOnBuild,
 			RmTmpContainer: true,
 			ContextDir:     t.config.Context,
 			OutputStream:   out,
+			//Remote:"github.com/cescoferrar/dobi",
 			RawJSONStream:  true,
 			SuppressOutput: ctx.Quiet,
 		})
@@ -105,4 +113,52 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 		out = append(out, docker.BuildArg{Name: key, Value: value})
 	}
 	return out
+}
+
+func DobiDocker(dobifile []map[string]string, dockerfile string) (string, error) {
+	if len(dobifile) == 0 && dockerfile != "" {
+		return dockerfile, nil
+	}
+	if len(dobifile) != 0 && dockerfile != "" {
+		return buidlDobifile(dobifile)
+	}
+	return "", nil
+}
+
+func buidlDobifile(input []map[string]string) (string, error) {
+	var dobifile string
+	for _, val := range input {
+		for key, value := range val {
+			dobifile = dobifile + key + " " + value + "\n"
+			log.Println(key, value)
+		}
+	}
+	path := ".dobi/sdfdsfsd"
+	_, err := os.Stat(path)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		var file, err = os.Create(path)
+		if err != nil {
+			return "", err
+		}
+		defer file.Close()
+	}
+
+	tempfile, err := os.OpenFile(path, os.O_RDWR, 0644)
+	if err != nil {
+		return "", err
+	}
+	defer tempfile.Close()
+
+	_, err = tempfile.WriteString(dobifile)
+	if err != nil {
+		return "", err
+	}
+	err = tempfile.Sync()
+	if err != nil {
+		return "", err
+	}
+
+	return path, nil
 }

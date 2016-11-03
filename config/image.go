@@ -35,6 +35,9 @@ type ImageConfig struct {
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
 	// path is relative to the **context**.
 	Dockerfile string
+	// Dobifile is a in house version of a dockerfile
+	// type: mapping ``[Valid Docker command]: value``
+	Dobifile []map[string]string
 	// Context The build context used to build the image.
 	// default: ``.``
 	Context string
@@ -73,8 +76,8 @@ func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 }
 
 func (c *ImageConfig) validateBuildOrPull() error {
-	if c.Dockerfile == "" && c.Context == "" && !c.Pull.IsSet() {
-		return fmt.Errorf("one of dockerfile, context, or pull is required")
+	if len(c.Dobifile) == 0 && c.Dockerfile == "" && c.Context == "" && !c.Pull.IsSet() {
+		return fmt.Errorf("one of dockerfile, dobifile, context, or pull is required")
 	}
 	switch {
 	case c.Dockerfile == "" && c.Context != "":
@@ -82,6 +85,10 @@ func (c *ImageConfig) validateBuildOrPull() error {
 	case c.Context == "" && c.Dockerfile != "":
 		c.Context = "."
 	}
+
+	//if c.Dockerfile == "Dockerfile" && len(c.Dobifile) == 0 {
+	//	return fmt.Errorf("Either use a dockerfile or a dobifile")
+	//}
 	return nil
 }
 

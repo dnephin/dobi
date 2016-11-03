@@ -209,3 +209,17 @@ alias=release:
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
+
+
+
+image=dobi:
+    image: test
+    tags: ["latest"]
+    context: .
+#    dockerfile: Dockerfile
+    dobifile:
+      - FROM: busybox
+      - RUN: ls
+      - RUN: env
+      - CMD: pwd
+
