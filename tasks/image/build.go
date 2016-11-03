@@ -77,7 +77,7 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
 
-	dockerfile, err := DobiDocker(t.config.Dobifile, t.config.Dockerfile)
+	dockerfile, err := dobiDocker(t.config.Dobifile, t.config.Dockerfile)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,6 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 			RmTmpContainer: true,
 			ContextDir:     t.config.Context,
 			OutputStream:   out,
-			//Remote:"github.com/cescoferrar/dobi",
 			RawJSONStream:  true,
 			SuppressOutput: ctx.Quiet,
 		})
@@ -115,7 +114,7 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func DobiDocker(dobifile []map[string]string, dockerfile string) (string, error) {
+func dobiDocker(dobifile []map[string]string, dockerfile string) (string, error) {
 	if len(dobifile) == 0 && dockerfile != "" {
 		return dockerfile, nil
 	}

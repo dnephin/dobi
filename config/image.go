@@ -116,6 +116,15 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 		return &conf, err
 	}
 
+	for _, item := range c.Dobifile {
+		for key, value := range item {
+			item[key], err = env.Resolve(value)
+			if err != nil {
+				return &conf, err
+			}
+		}
+	}
+
 	for key, value := range c.Args {
 		conf.Args[key], err = env.Resolve(value)
 		if err != nil {
