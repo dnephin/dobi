@@ -1,17 +1,15 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
+	"github.com/spf13/cobra"
 
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
-	"io"
-	"os"
 	"io/ioutil"
 	"log"
+	"os"
 )
-
 
 func newInitCommand(opts *dobiOptions) *cobra.Command {
 	cmd := &cobra.Command{
@@ -31,19 +29,20 @@ func runInit(opts *dobiOptions) error {
 	if err != nil {
 		return fmt.Errorf("Failed to create client: %s", err)
 	}
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
 	dockeropts := docker.CreateContainerOptions{
 		Name: "fdgdfg",
 		Config: &docker.Config{
-			//Cmd:          []string{"pip","install","cookiecutter"},
-			Cmd:          []string{"ls"},
-			Image:        "busybox:latest",
-			OpenStdin:    true,
-			Tty:          true,
-			AttachStdin:  true,
-			StdinOnce:    true,
-			AttachStderr: true,
-			AttachStdout: true,
-			WorkingDir:   "/",
+			Cmd:        []string{"gh:cescoferraro/go-dobi-cutter"},
+			Image:      "cescoferraro/cookiecutter",
+			Tty:        true,
+			WorkingDir: "/srv/app",
+			Mounts:     []docker.Mount{{Source: pwd, Destination: "/srv/app"}},
 		},
 		HostConfig: &docker.HostConfig{},
 	}
@@ -58,8 +57,8 @@ func runInit(opts *dobiOptions) error {
 
 	_, err = client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
-		OutputStream: io.MultiWriter(os.Stdout, os.Stdout),
-		ErrorStream: os.Stdout,
+		OutputStream: os.Stdout,
+		ErrorStream:  os.Stdout,
 		InputStream:  ioutil.NopCloser(os.Stdin),
 		Stream:       true,
 		Stdin:        true,
@@ -70,6 +69,15 @@ func runInit(opts *dobiOptions) error {
 	if err != nil {
 		return fmt.Errorf("Failed attaching to container %q: %s", container.Name, err)
 	}
+
+	status, err := client.WaitContainer(container.ID)
+	if err != nil {
+		return fmt.Errorf("Failed to wait on container exit: %s", err)
+	}
+	if status != 0 {
+		return fmt.Errorf("Exited with non-zero status code %d", status)
+	}
+
 	inFd, _ := term.GetFdInfo(os.Stdin)
 	state, err := term.SetRawTerminal(inFd)
 	if err != nil {
