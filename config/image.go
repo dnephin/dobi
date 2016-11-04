@@ -79,6 +79,9 @@ func (c *ImageConfig) validateBuildOrPull() error {
 	if len(c.Dobifile) == 0 && c.Dockerfile == "" && c.Context == "" && !c.Pull.IsSet() {
 		return fmt.Errorf("one of dockerfile, dobifile, context, or pull is required")
 	}
+	if c.Dockerfile != "" && len(c.Dobifile) != 0 {
+		return fmt.Errorf("Either use a dockerfile or a dobifile")
+	}
 	switch {
 	case c.Dockerfile == "" && c.Context != "":
 		c.Dockerfile = "Dockerfile"
@@ -86,9 +89,6 @@ func (c *ImageConfig) validateBuildOrPull() error {
 		c.Context = "."
 	}
 
-	//if c.Dockerfile == "Dockerfile" && len(c.Dobifile) == 0 {
-	//	return fmt.Errorf("Either use a dockerfile or a dobifile")
-	//}
 	return nil
 }
 

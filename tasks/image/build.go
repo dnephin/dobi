@@ -7,7 +7,6 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	docker "github.com/fsouza/go-dockerclient"
-	"log"
 )
 
 // RunBuild builds an image if it is out of date
@@ -77,9 +76,12 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
 
-	dockerfile, err := dobiDocker(t.config.Dobifile, t.config.Dockerfile)
+	dockerfile, err := dobiOrDocker(t)
 	if err != nil {
 		return err
+	}
+	if isDobi(t){
+		defer os.Remove(dockerfile)
 	}
 
 	if err := Stream(os.Stdout, func(out io.Writer) error {
@@ -114,27 +116,32 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func dobiDocker(dobifile []map[string]string, dockerfile string) (string, error) {
-	if len(dobifile) == 0 && dockerfile != "" {
-		return dockerfile, nil
+func isDobi(t *Task) (bool){
+	if len(t.config.Dobifile) != 0 && t.config.Dockerfile == "Dockerfile" {
+		return true
 	}
-	if len(dobifile) != 0 && dockerfile != "" {
-		return buidlDobifile(dobifile)
-	}
-	return "", nil
+	return false
 }
 
-func buidlDobifile(input []map[string]string) (string, error) {
+func dobiOrDocker(t  *Task) (string, error) {
+	if isDobi(t) {
+		return parseDobifile(t)
+	}
+	return t.config.Dockerfile, nil
+}
+
+func parseDobifile(t *Task) (string, error) {
 	var dobifile string
-	for _, val := range input {
+	for _, val := range t.config.Dobifile {
 		for key, value := range val {
 			dobifile = dobifile + key + " " + value + "\n"
-			log.Println(key, value)
 		}
 	}
-	path := ".dobi/sdfdsfsd"
-	_, err := os.Stat(path)
+	return createDockerfilefromString(".dobi/Dockerfile." + t.name.Resource(), dobifile)
+}
 
+func createDockerfilefromString(path, str string) (string, error) {
+	_, err := os.Stat(path)
 	// create file if not exists
 	if os.IsNotExist(err) {
 		var file, err = os.Create(path)
@@ -143,14 +150,12 @@ func buidlDobifile(input []map[string]string) (string, error) {
 		}
 		defer file.Close()
 	}
-
 	tempfile, err := os.OpenFile(path, os.O_RDWR, 0644)
 	if err != nil {
 		return "", err
 	}
 	defer tempfile.Close()
-
-	_, err = tempfile.WriteString(dobifile)
+	_, err = tempfile.WriteString(str)
 	if err != nil {
 		return "", err
 	}
@@ -158,6 +163,6 @@ func buidlDobifile(input []map[string]string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return path, nil
 }
+
