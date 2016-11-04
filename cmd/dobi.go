@@ -30,6 +30,7 @@ type dobiOptions struct {
 	quiet    bool
 	tasks    []string
 	version  bool
+	cookie string
 }
 
 // NewRootCommand returns a new root command
