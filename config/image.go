@@ -31,20 +31,20 @@ import (
 type ImageConfig struct {
 	// Image The name of the **image** without a tag. Tags must be specified
 	// in the **tags** field.
-	Image                string `config:"required,validate"`
+	Image string `config:"required,validate"`
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
 	// path is relative to the **context**.
-	Dockerfile           string
+	Dockerfile string
 	// Dobifile is a in house version of a dockerfile
 	// type: mapping ``[Valid Docker command]: value``
-	Content              []map[string]string
+	Content []map[string]string
 	// Context The build context used to build the image.
 	// default: ``.``
-	Context              string
+	Context string
 	// Args Build args used to build the image. Values in the mapping support
 	// :doc:`variables`.
 	// type: mapping ``key: value``
-	Args                 map[string]string
+	Args map[string]string
 	// PullBaseImageOnBuild If **true** the base image used in the
 	// ``Dockerfile`` will be pulled before building the image.
 	PullBaseImageOnBuild bool
@@ -56,13 +56,13 @@ type ImageConfig struct {
 	//   character time unit (ex: ``40s``, ``2h``, ``30min``)
 	// type: string
 	// default: ``always``
-	Pull                 pull
+	Pull pull
 	// Tags The image tags applied to the image before pushing the image to a
 	// registry.  The first tag in the list is used when the image is built.
 	// Each item in the list supports :doc:`variables`.
 	// default: ``['{unique}']``
 	// type: list of tags
-	Tags                 []string
+	Tags []string
 	dependent
 	describable
 }
@@ -76,16 +76,21 @@ func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 }
 
 func (c *ImageConfig) validateBuildOrPull() error {
-	if len(c.Content) == 0 && c.Dockerfile == "" && c.Context == "" && !c.Pull.IsSet() {
-		return fmt.Errorf("one of dockerfile, dobifile, context, or pull is required")
-	}
 	if c.Dockerfile != "" && len(c.Content) != 0 {
-		return fmt.Errorf("Either use a dockerfile or a dobifile")
+		return fmt.Errorf("Either use a dockerfile or a content")
 	}
+	if len(c.Content) != 0 && c.Pull.IsSet() {
+		return fmt.Errorf("cannot use pull and content")
+	}
+
+	if len(c.Content) == 0 && c.Dockerfile == "" {
+		return fmt.Errorf("dockerfile or content have to be present")
+	}
+
 	switch {
-	case c.Dockerfile == "" && c.Context != "":
+	case c.Dockerfile == "":
 		c.Dockerfile = "Dockerfile"
-	case c.Context == "" && c.Dockerfile != "":
+	case c.Context == "":
 		c.Context = "."
 	}
 

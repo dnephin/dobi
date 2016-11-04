@@ -223,4 +223,3 @@ image=dobi:
       - RUN: mkdir {env.HOME:}
       - RUN: env
       - CMD: pwd
-

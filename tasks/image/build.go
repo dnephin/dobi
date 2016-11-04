@@ -4,13 +4,12 @@ import (
 	"io"
 	"os"
 
+	"archive/tar"
+	"bytes"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	docker "github.com/fsouza/go-dockerclient"
-	"bytes"
 	"time"
-	"archive/tar"
-	"log"
 )
 
 // RunBuild builds an image if it is out of date
@@ -79,46 +78,16 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 }
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
-
-	switch isDobi(t) {
+	var err error
+	switch t.hasContent() {
 	case true:
-		inputbuf := bytes.NewBuffer(nil)
-		err := t.WriteContentToBuffer(inputbuf)
-		if err !=nil {
-			return err
-		}
-		if err := Stream(os.Stdout, func(out io.Writer) error {
-			return ctx.Client.BuildImage(docker.BuildImageOptions{
-				Name:           GetImageName(ctx, t.config),
-				BuildArgs:      buildArgs(t.config.Args),
-				Pull:           t.config.PullBaseImageOnBuild,
-				RmTmpContainer: true,
-				InputStream:  inputbuf,
-				OutputStream: out,
-				RawJSONStream:  true,
-				SuppressOutput: ctx.Quiet,
-			})
-		}); err != nil {
-			return err
-		}
-	case false:
-		if err := Stream(os.Stdout, func(out io.Writer) error {
-			return ctx.Client.BuildImage(docker.BuildImageOptions{
-				Name:           GetImageName(ctx, t.config),
-				Dockerfile:     t.config.Dockerfile,
-				BuildArgs:      buildArgs(t.config.Args),
-				Pull:           t.config.PullBaseImageOnBuild,
-				RmTmpContainer: true,
-				ContextDir:     t.config.Context,
-				OutputStream:   out,
-				RawJSONStream:  true,
-				SuppressOutput: ctx.Quiet,
-			})
-		}); err != nil {
-			return err
-		}
+		err = t.runContainerFromTarBall(ctx)
+	default:
+		err = t.runContainerFromDockerfile(ctx)
 	}
-
+	if err != nil {
+		return err
+	}
 	image, err := GetImage(ctx, t.config)
 	if err != nil {
 		return err
@@ -135,25 +104,69 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func isDobi(t *Task) (bool) {
+func (t *Task) hasContent() bool {
 	if len(t.config.Content) != 0 && t.config.Dockerfile == "Dockerfile" {
 		return true
 	}
 	return false
 }
 
-func (t *Task) WriteContentToBuffer(inputbuf bytes.Buffer) error{
+func (t *Task) writeTarball() (*bytes.Buffer, error) {
+	inputbuf := bytes.NewBuffer(nil)
 	rightNow := time.Now()
 	tr := tar.NewWriter(inputbuf)
-	err:= tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 20, ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
-	if err !=nil {
-		return err
+	err := tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 20, ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
+	if err != nil {
+		return inputbuf, err
 	}
 	for _, val := range t.config.Content {
 		for key, value := range val {
+			// its not a good idea to catch this error?
 			tr.Write([]byte(key + " " + value + "\n"))
 		}
 	}
 	tr.Close()
+	return inputbuf, nil
+}
+
+func (t *Task) runContainerFromDockerfile(ctx *context.ExecuteContext) error {
+	if err := Stream(os.Stdout, func(out io.Writer) error {
+		return ctx.Client.BuildImage(docker.BuildImageOptions{
+			Name:           GetImageName(ctx, t.config),
+			Dockerfile:     t.config.Dockerfile,
+			BuildArgs:      buildArgs(t.config.Args),
+			Pull:           t.config.PullBaseImageOnBuild,
+			RmTmpContainer: true,
+			ContextDir:     t.config.Context,
+			OutputStream:   out,
+			RawJSONStream:  true,
+			SuppressOutput: ctx.Quiet,
+		})
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Task) runContainerFromTarBall(ctx *context.ExecuteContext) error {
+	inputbuf, err := t.writeTarball()
+	if err != nil {
+		return err
+	}
+	err = Stream(os.Stdout, func(out io.Writer) error {
+		return ctx.Client.BuildImage(docker.BuildImageOptions{
+			Name:           GetImageName(ctx, t.config),
+			BuildArgs:      buildArgs(t.config.Args),
+			Pull:           t.config.PullBaseImageOnBuild,
+			RmTmpContainer: true,
+			InputStream:    inputbuf,
+			OutputStream:   out,
+			RawJSONStream:  true,
+			SuppressOutput: ctx.Quiet,
+		})
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
