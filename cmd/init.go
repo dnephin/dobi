@@ -28,12 +28,22 @@ func runInit(opts *dobiOptions) error {
 	if err != nil {
 		return fmt.Errorf("Failed to create client: %s", err)
 	}
-
-	pwd, err := os.Getwd()
+	container, err := startCookieCutterContainer(client)
+	if err != nil {
+		return fmt.Errorf("Failed to start container %s", err)
+	}
+	err = attachToCookieContainer(client, container)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func startCookieCutterContainer(client docker.Client) (docker.Container, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return docker.Container{}, err
+	}
 	dockeropts := docker.CreateContainerOptions{
 		Name: "fdgdfg",
 		Config: &docker.Config{
@@ -47,13 +57,16 @@ func runInit(opts *dobiOptions) error {
 	}
 	container, err := client.CreateContainer(dockeropts)
 	if err != nil {
-		return err
+		return container, err
 	}
 	err = client.StartContainer(container.ID, &docker.HostConfig{})
 	if err != nil {
-		return err
+		return container, err
 	}
+	return container, nil
+}
 
+func attachToCookieContainer(container docker.Container, client docker.Client) error {
 	waiter, err := client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
 		OutputStream: os.Stdout,
@@ -66,24 +79,22 @@ func runInit(opts *dobiOptions) error {
 		Stderr:       true,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed attaching to container %q: %s", container.Name, err)
+		return container, fmt.Errorf("Failed attaching to container %q: %s", container.Name, err)
 	}
-
 	err = waiter.Wait()
 	if err != nil {
-		return fmt.Errorf("Failed to wait on container exit: %s", err)
+		return container, fmt.Errorf("Failed to wait on container exit: %s", err)
 	}
 
 	inFd, _ := term.GetFdInfo(os.Stdin)
 	state, err := term.SetRawTerminal(inFd)
 	if err != nil {
-		return err
+		return container, err
 	}
 	defer func() {
 		if err := term.RestoreTerminal(inFd, state); err != nil {
 			log.Println(err.Error())
 		}
 	}()
-
-	return nil
+	return container, nil
 }
