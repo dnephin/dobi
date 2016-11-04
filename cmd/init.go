@@ -6,7 +6,6 @@ import (
 
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -55,14 +54,14 @@ func runInit(opts *dobiOptions) error {
 		return err
 	}
 
-	_, err = client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+	waiter, err := client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
 		OutputStream: os.Stdout,
-		ErrorStream:  os.Stdout,
-		InputStream:  ioutil.NopCloser(os.Stdin),
+		ErrorStream:  os.Stderr,
+		InputStream:  os.Stdin,
 		Stream:       true,
-		Stdin:        true,
 		RawTerminal:  true,
+		Stdin:        true,
 		Stdout:       true,
 		Stderr:       true,
 	})
@@ -70,12 +69,9 @@ func runInit(opts *dobiOptions) error {
 		return fmt.Errorf("Failed attaching to container %q: %s", container.Name, err)
 	}
 
-	status, err := client.WaitContainer(container.ID)
+	err = waiter.Wait()
 	if err != nil {
 		return fmt.Errorf("Failed to wait on container exit: %s", err)
-	}
-	if status != 0 {
-		return fmt.Errorf("Exited with non-zero status code %d", status)
 	}
 
 	inFd, _ := term.GetFdInfo(os.Stdin)
