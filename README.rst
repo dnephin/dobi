@@ -16,6 +16,9 @@ See `Getting Started <https://dnephin.github.io/dobi/>`_
 .. image:: https://img.shields.io/github/release/dnephin/dobi.svg?maxAge=7200
     :target: https://github.com/dnephin/dobi/releases/latest
 
+.. image:: https://badges.gitter.im/dnephin/dobi.png
+    :target: https://gitter.im/dnephin-dobi/Lobby
+
 Features
 --------
 
