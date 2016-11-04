@@ -82,18 +82,11 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 
 	switch isDobi(t) {
 	case true:
-		log.Println("is content")
-		inputbuf, _ := bytes.NewBuffer([]byte{}), bytes.NewBuffer(nil)
-		timee := time.Now()
-		tr := tar.NewWriter(inputbuf)
-		tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 10, ModTime: timee, AccessTime: timee, ChangeTime: timee})
-		for _, val := range t.config.Content {
-			for key, value := range val {
-				tr.Write([]byte(key + " " + value + "\n"))
-				log.Printf(key + " " + value + "\n")
-			}
+		inputbuf := bytes.NewBuffer(nil)
+		err := t.WriteContentToBuffer(inputbuf)
+		if err !=nil {
+			return err
 		}
-		tr.Close()
 		if err := Stream(os.Stdout, func(out io.Writer) error {
 			return ctx.Client.BuildImage(docker.BuildImageOptions{
 				Name:           GetImageName(ctx, t.config),
@@ -101,7 +94,7 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 				Pull:           t.config.PullBaseImageOnBuild,
 				RmTmpContainer: true,
 				InputStream:  inputbuf,
-				OutputStream: os.Stdout,
+				OutputStream: out,
 				RawJSONStream:  true,
 				SuppressOutput: ctx.Quiet,
 			})
@@ -109,7 +102,6 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 			return err
 		}
 	case false:
-		log.Println("is dockerfile")
 		if err := Stream(os.Stdout, func(out io.Writer) error {
 			return ctx.Client.BuildImage(docker.BuildImageOptions{
 				Name:           GetImageName(ctx, t.config),
@@ -150,3 +142,18 @@ func isDobi(t *Task) (bool) {
 	return false
 }
 
+func (t *Task) WriteContentToBuffer(inputbuf bytes.Buffer) error{
+	rightNow := time.Now()
+	tr := tar.NewWriter(inputbuf)
+	err:= tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 20, ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
+	if err !=nil {
+		return err
+	}
+	for _, val := range t.config.Content {
+		for key, value := range val {
+			tr.Write([]byte(key + " " + value + "\n"))
+		}
+	}
+	tr.Close()
+	return nil
+}
