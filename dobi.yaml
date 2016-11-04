@@ -217,7 +217,7 @@ image=dobi:
     tags: ["latest"]
     context: .
 #    dockerfile: Dockerfile
-    dobifile:
+    content:
       - FROM: busybox
       - RUN: ls
       - RUN: mkdir {env.HOME:}

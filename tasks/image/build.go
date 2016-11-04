@@ -117,7 +117,7 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 }
 
 func isDobi(t *Task) (bool){
-	if len(t.config.Dobifile) != 0 && t.config.Dockerfile == "Dockerfile" {
+	if len(t.config.Content) != 0 && t.config.Dockerfile == "Dockerfile" {
 		return true
 	}
 	return false
@@ -132,7 +132,7 @@ func dobiOrDocker(t  *Task) (string, error) {
 
 func parseDobifile(t *Task) (string, error) {
 	var dobifile string
-	for _, val := range t.config.Dobifile {
+	for _, val := range t.config.Content {
 		for key, value := range val {
 			dobifile = dobifile + key + " " + value + "\n"
 		}
