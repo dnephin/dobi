@@ -7,6 +7,10 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	docker "github.com/fsouza/go-dockerclient"
+	"bytes"
+	"time"
+	"archive/tar"
+	"log"
 )
 
 // RunBuild builds an image if it is out of date
@@ -76,28 +80,51 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
 
-	dockerfile, err := dobiOrDocker(t)
-	if err != nil {
-		return err
-	}
-	if isDobi(t){
-		defer os.Remove(dockerfile)
-	}
-
-	if err := Stream(os.Stdout, func(out io.Writer) error {
-		return ctx.Client.BuildImage(docker.BuildImageOptions{
-			Name:           GetImageName(ctx, t.config),
-			Dockerfile:     dockerfile,
-			BuildArgs:      buildArgs(t.config.Args),
-			Pull:           t.config.PullBaseImageOnBuild,
-			RmTmpContainer: true,
-			ContextDir:     t.config.Context,
-			OutputStream:   out,
-			RawJSONStream:  true,
-			SuppressOutput: ctx.Quiet,
-		})
-	}); err != nil {
-		return err
+	switch isDobi(t) {
+	case true:
+		log.Println("is content")
+		inputbuf, _ := bytes.NewBuffer([]byte{}), bytes.NewBuffer(nil)
+		timee := time.Now()
+		tr := tar.NewWriter(inputbuf)
+		tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 10, ModTime: timee, AccessTime: timee, ChangeTime: timee})
+		for _, val := range t.config.Content {
+			for key, value := range val {
+				tr.Write([]byte(key + " " + value + "\n"))
+				log.Printf(key + " " + value + "\n")
+			}
+		}
+		tr.Close()
+		if err := Stream(os.Stdout, func(out io.Writer) error {
+			return ctx.Client.BuildImage(docker.BuildImageOptions{
+				Name:           GetImageName(ctx, t.config),
+				BuildArgs:      buildArgs(t.config.Args),
+				Pull:           t.config.PullBaseImageOnBuild,
+				RmTmpContainer: true,
+				InputStream:  inputbuf,
+				OutputStream: os.Stdout,
+				RawJSONStream:  true,
+				SuppressOutput: ctx.Quiet,
+			})
+		}); err != nil {
+			return err
+		}
+	case false:
+		log.Println("is dockerfile")
+		if err := Stream(os.Stdout, func(out io.Writer) error {
+			return ctx.Client.BuildImage(docker.BuildImageOptions{
+				Name:           GetImageName(ctx, t.config),
+				Dockerfile:     t.config.Dockerfile,
+				BuildArgs:      buildArgs(t.config.Args),
+				Pull:           t.config.PullBaseImageOnBuild,
+				RmTmpContainer: true,
+				ContextDir:     t.config.Context,
+				OutputStream:   out,
+				RawJSONStream:  true,
+				SuppressOutput: ctx.Quiet,
+			})
+		}); err != nil {
+			return err
+		}
 	}
 
 	image, err := GetImage(ctx, t.config)
@@ -116,53 +143,10 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func isDobi(t *Task) (bool){
+func isDobi(t *Task) (bool) {
 	if len(t.config.Content) != 0 && t.config.Dockerfile == "Dockerfile" {
 		return true
 	}
 	return false
-}
-
-func dobiOrDocker(t  *Task) (string, error) {
-	if isDobi(t) {
-		return parseDobifile(t)
-	}
-	return t.config.Dockerfile, nil
-}
-
-func parseDobifile(t *Task) (string, error) {
-	var dobifile string
-	for _, val := range t.config.Content {
-		for key, value := range val {
-			dobifile = dobifile + key + " " + value + "\n"
-		}
-	}
-	return createDockerfilefromString(".dobi/Dockerfile." + t.name.Resource(), dobifile)
-}
-
-func createDockerfilefromString(path, str string) (string, error) {
-	_, err := os.Stat(path)
-	// create file if not exists
-	if os.IsNotExist(err) {
-		var file, err = os.Create(path)
-		if err != nil {
-			return "", err
-		}
-		defer file.Close()
-	}
-	tempfile, err := os.OpenFile(path, os.O_RDWR, 0644)
-	if err != nil {
-		return "", err
-	}
-	defer tempfile.Close()
-	_, err = tempfile.WriteString(str)
-	if err != nil {
-		return "", err
-	}
-	err = tempfile.Sync()
-	if err != nil {
-		return "", err
-	}
-	return path, nil
 }
 
