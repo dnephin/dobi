@@ -105,7 +105,7 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 }
 
 func (t *Task) hasContent() bool {
-	if len(t.config.Content) != 0 {
+	if len(t.config.Steps) != 0 {
 		return true
 	}
 	return false
@@ -119,7 +119,7 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	if err != nil {
 		return inputbuf, err
 	}
-	for _, val := range t.config.Content {
+	for _, val := range t.config.Steps {
 		for key, value := range val {
 			// its not a good idea to catch this error?
 			tr.Write([]byte(key + " " + value + "\n"))
@@ -151,7 +151,7 @@ func (t *Task) runContainerFromDockerfile(ctx *context.ExecuteContext) error {
 
 func (t *Task) getContentSize() int64 {
 	var size int64
-	for _, val := range t.config.Content {
+	for _, val := range t.config.Steps {
 		for key, value := range val {
 			size = size + int64(len([]byte(key+" "+value+"\n")))
 		}

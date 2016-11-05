@@ -37,7 +37,7 @@ type ImageConfig struct {
 	Dockerfile string
 	// Dobifile is a in house version of a dockerfile
 	// type: mapping ``[Valid Docker command]: value``
-	Content []map[string]string
+	Steps []map[string]string
 	// Context The build context used to build the image.
 	// default: ``.``
 	Context string
@@ -79,11 +79,13 @@ func (c *ImageConfig) validateBuildOrPull() error {
 	switch {
 	case c.Context == "":
 		c.Context = "."
-	case c.Pull.IsSet() && c.Dockerfile != "" && len(c.Context) != 0:
-		return fmt.Errorf("is pull is set, you cannot specifie a dockerfile or a content")
-	case len(c.Content) == 0 && c.Dockerfile == "":
+	case c.Pull.IsSet():
+		if c.Dockerfile != "" || len(c.Context) != 0 {
+			return fmt.Errorf("is pull is set, you cannot specifie a dockerfile or a content")
+		}
+	case len(c.Steps) == 0 && c.Dockerfile == "":
 		return fmt.Errorf("use either a dockerfile or set you commands in the content")
-	case len(c.Content) != 0 && c.Dockerfile != "":
+	case len(c.Steps) != 0 && c.Dockerfile != "":
 		return fmt.Errorf("cannot use both a dockerfile and content")
 	}
 	return nil
@@ -113,7 +115,7 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 		return &conf, err
 	}
 
-	for _, item := range c.Content {
+	for _, item := range c.Steps {
 		for key, value := range item {
 			item[key], err = env.Resolve(value)
 			if err != nil {
