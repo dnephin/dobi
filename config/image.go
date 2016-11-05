@@ -76,24 +76,16 @@ func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 }
 
 func (c *ImageConfig) validateBuildOrPull() error {
-	if c.Dockerfile != "" && len(c.Content) != 0 {
-		return fmt.Errorf("Either use a dockerfile or a content")
-	}
-	if len(c.Content) != 0 && c.Pull.IsSet() {
-		return fmt.Errorf("cannot use pull and content")
-	}
-
-	if len(c.Content) == 0 && c.Dockerfile == "" {
-		return fmt.Errorf("dockerfile or content have to be present")
-	}
-
 	switch {
-	case c.Dockerfile == "":
-		c.Dockerfile = "Dockerfile"
 	case c.Context == "":
 		c.Context = "."
+	case c.Pull.IsSet() && c.Dockerfile != "" && len(c.Context) != 0:
+		return fmt.Errorf("is pull is set, you cannot specifie a dockerfile or a content")
+	case len(c.Content) == 0 && c.Dockerfile == "":
+		return fmt.Errorf("use either a dockerfile or set you commands in the content")
+	case len(c.Content) != 0 && c.Dockerfile != "":
+		return fmt.Errorf("cannot use both a dockerfile and content")
 	}
-
 	return nil
 }
 

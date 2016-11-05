@@ -105,7 +105,7 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 }
 
 func (t *Task) hasContent() bool {
-	if len(t.config.Content) != 0 && t.config.Dockerfile == "Dockerfile" {
+	if len(t.config.Content) != 0 {
 		return true
 	}
 	return false
@@ -115,7 +115,7 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	inputbuf := bytes.NewBuffer(nil)
 	rightNow := time.Now()
 	tr := tar.NewWriter(inputbuf)
-	err := tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 20, ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
+	err := tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: t.getContentSize(), ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
 	if err != nil {
 		return inputbuf, err
 	}
@@ -130,7 +130,7 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 }
 
 func (t *Task) runContainerFromDockerfile(ctx *context.ExecuteContext) error {
-	if err := Stream(os.Stdout, func(out io.Writer) error {
+	err := Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.BuildImage(docker.BuildImageOptions{
 			Name:           GetImageName(ctx, t.config),
 			Dockerfile:     t.config.Dockerfile,
@@ -142,10 +142,21 @@ func (t *Task) runContainerFromDockerfile(ctx *context.ExecuteContext) error {
 			RawJSONStream:  true,
 			SuppressOutput: ctx.Quiet,
 		})
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (t *Task) getContentSize() int64 {
+	var size int64
+	for _, val := range t.config.Content {
+		for key, value := range val {
+			size = size + int64(len([]byte(key+" "+value+"\n")))
+		}
+	}
+	return size
 }
 
 func (t *Task) runContainerFromTarBall(ctx *context.ExecuteContext) error {
