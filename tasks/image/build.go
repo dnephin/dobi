@@ -115,7 +115,13 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	inputbuf := bytes.NewBuffer(nil)
 	rightNow := time.Now()
 	tr := tar.NewWriter(inputbuf)
-	err := tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: t.getContentSize(), ModTime: rightNow, AccessTime: rightNow, ChangeTime: rightNow})
+	header := &tar.Header{Name: "Dockerfile",
+		Size:       t.getContentSize(),
+		ModTime:    rightNow,
+		AccessTime: rightNow,
+		ChangeTime: rightNow,
+	}
+	err := tr.WriteHeader(header)
 	if err != nil {
 		return inputbuf, err
 	}
@@ -160,6 +166,10 @@ func (t *Task) getContentSize() int64 {
 }
 
 func (t *Task) runContainerFromTarBall(ctx *context.ExecuteContext) error {
+	err := t.replaceCustomSteps()
+	if err != nil {
+		return err
+	}
 	inputbuf, err := t.writeTarball()
 	if err != nil {
 		return err
