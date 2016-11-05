@@ -76,6 +76,8 @@ type JobConfig struct {
 	// Ports Publish ports to the host
 	// type: list of 'host_port:container_port'
 	Ports []string
+
+	Localmount []MountConfig
 	// Devices Maps the host devices you want to connect to a container
 	// type: list of device specs
 	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``

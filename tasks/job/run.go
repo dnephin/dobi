@@ -164,7 +164,12 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	interactive := t.config.Interactive
 	name := ContainerName(ctx, t.name.Resource())
-	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
+
+	opts, err := t.createOptions(ctx, name)
+	if err != nil {
+		return fmt.Errorf("failed to get container options")
+	}
+	container, err := ctx.Client.CreateContainer(opts)
 	if err != nil {
 		return fmt.Errorf("Failed creating container %q: %s", name, err)
 	}
@@ -215,8 +220,35 @@ func (t *Task) output() io.Writer {
 	return io.MultiWriter(t.outStream, os.Stdout)
 }
 
-func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
+func (t *Task) mergeMounts(ctx *context.ExecuteContext) ([]string, error) {
+	binds := []string{}
+	for i := range t.config.Localmount {
+		binds = append(binds, mount.AsBind(&t.config.Localmount[i], ctx.WorkingDir))
+	}
+	return removeDuplicates(append(binds, t.bindMounts(ctx)...)), nil
+
+}
+
+func removeDuplicates(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+	for v := range elements {
+		if encountered[elements[v]] == true {
+		} else {
+			encountered[elements[v]] = true
+			result = append(result, elements[v])
+		}
+	}
+	return result
+}
+
+func (t *Task) createOptions(ctx *context.ExecuteContext, name string) (docker.CreateContainerOptions, error) {
 	interactive := t.config.Interactive
+
+	mounts, err := t.mergeMounts(ctx)
+	if err != nil {
+		return docker.CreateContainerOptions{}, fmt.Errorf("failed to merge local and global mounts")
+	}
 
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
 	t.logger().Debugf("Image name %q", imageName)
@@ -241,7 +273,7 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			ExposedPorts: exposedPorts,
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:        t.bindMounts(ctx),
+			Binds:        mounts,
 			Privileged:   t.config.Privileged,
 			NetworkMode:  t.config.NetMode,
 			PortBindings: portBinds,
@@ -249,7 +281,7 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 		},
 	}
 	opts = provideDocker(opts)
-	return opts
+	return opts, nil
 }
 
 func getDevices(devices []config.Device) []docker.Device {
