@@ -11,8 +11,8 @@ type stepInjector string
 
 var customSteṕs = map[string]string{
 	"GLIDE":  "{{ .GLIDE }}",
-	"GO-GET": "{{ . }}",
-	"GO-BIN": "{{ .GOBIN }}",
+	"GO-GET": "{{ .GOGET }}",
+	"GO-BIN": "{{.GOBIN}}",
 }
 
 func (step stepInjector) GLIDE() string {
@@ -25,10 +25,12 @@ func (step stepInjector) GLIDE() string {
 
 func (step stepInjector) GOBIN() string {
 	strps := strings.Split(string(step), "/")
-	return "go get -u " + string(step) +
-		" && cp /go/bin/" +
-		strps[len(strps)-1] +
-		"/usr/bin/ && rm -rf /go/src/* /go/pkg/* /go/bin/*"
+	return "go get -u " + string(step) + " && cp /go/bin/" +
+		strps[len(strps)-1] + "/usr/bin/ && rm -rf /go/src/* /go/pkg/* /go/bin/*"
+}
+
+func (step stepInjector) GOGET() string {
+	return "go get -u " + string(step)
 }
 
 func (t *Task) templateStep(key string, STEP map[string]string) error {
@@ -44,7 +46,10 @@ func (t *Task) templateStep(key string, STEP map[string]string) error {
 	}
 	delete(STEP, key)
 	key = "RUN"
-	STEP[key] = buf.String()
+	// I dont know why but text/template replaces & and + from template function
+	// temporary bug fix. There has to be a better way to handle this.
+	// I dont know which other chars would incur to the same error.
+	STEP[key] = strings.Replace(strings.Replace(buf.String(), "&amp;", "&", -1), "&#43;", "+", -1)
 	return nil
 }
 
