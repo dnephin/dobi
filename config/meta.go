@@ -29,6 +29,7 @@ type MetaConfig struct {
 	// Include A list of dobi configuration files to include. Paths are
 	// relative to the current working directory. Includs can be partial
 	// configs that depend on resources in any of the other included files.
+	// This field supports glob patterns.
 	// type: list of filepaths
 	Include []string
 

@@ -36,6 +36,7 @@ type JobConfig struct {
 	Use string `config:"required"`
 	// Artifact A host path to a file or directory that is the output of this
 	// **job**. Paths are relative to the current working directory.
+	// This field supports glob patterns.
 	Artifact string
 	// Command The command to run in the container.
 	// type: shell quoted string
@@ -49,6 +50,7 @@ type JobConfig struct {
 	// of the artifact to determine if the **job** is stale. If the **sources**
 	// list is defined the modified time of **mounts** and the **use** image are
 	// ignored.
+	// This field supports glob patterns.
 	// type: list of files or directories
 	Sources []string
 	// Mounts A list of `mount`_ resources to use when creating the container.

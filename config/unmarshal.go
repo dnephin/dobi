@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
+	"path/filepath"
 )
 
 const (
@@ -81,16 +82,22 @@ func (c *Config) loadMeta(value map[string]interface{}) error {
 
 	// TODO: prevent infinite recursive includes
 	for _, include := range c.Meta.Include {
-		config, err := loadConfig(include)
+		globs, err := filepath.Glob(include)
 		if err != nil {
-			return fmt.Errorf("error including %q: %s", include, err)
+			return err
 		}
-		if !config.Meta.IsZero() {
-			return fmt.Errorf("include %q can not define meta config", include)
-		}
-		for name, resource := range config.Resources {
-			if err := c.add(name, resource); err != nil {
-				return fmt.Errorf("error including %q: %s", include, err)
+		for _, inc := range globs {
+			config, err := loadConfig(inc)
+			if err != nil {
+				return fmt.Errorf("error including %q: %s", inc, err)
+			}
+			if !config.Meta.IsZero() {
+				return fmt.Errorf("include %q can not define meta config", inc)
+			}
+			for name, resource := range config.Resources {
+				if err := c.add(name, resource); err != nil {
+					return fmt.Errorf("error including %q: %s", inc, err)
+				}
 			}
 		}
 	}

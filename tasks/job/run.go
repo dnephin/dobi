@@ -24,6 +24,7 @@ import (
 	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
+	"path/filepath"
 )
 
 // DefaultUnixSocket to connect to the docker API
@@ -90,11 +91,34 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 	return true, nil
 }
 
+func removeDuplicates(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+	for v := range elements {
+		if encountered[elements[v]] == false {
+			encountered[elements[v]] = true
+			result = append(result, elements[v])
+		}
+	}
+	return result
+}
+
+func (t *Task) getAllSources(ctx *context.ExecuteContext) ([]string, error) {
+	var allSources []string
+	for _, value := range t.config.Sources {
+		glob, err := filepath.Glob(value)
+		if err != nil {
+			return allSources, err
+		}
+		allSources = append(allSources, glob...)
+	}
+	return removeDuplicates(allSources), nil
+}
+
 func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	if t.config.Artifact == "" {
 		return true, nil
 	}
-
 	artifactLastModified, err := t.artifactLastModified()
 	if err != nil {
 		t.logger().Warnf("Failed to get artifact last modified: %s", err)
@@ -102,7 +126,11 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	}
 
 	if len(t.config.Sources) != 0 {
-		sourcesLastModified, err := fs.LastModified(t.config.Sources...)
+		allSources, err := t.getAllSources(ctx)
+		if err != nil {
+			return true, err
+		}
+		sourcesLastModified, err := fs.LastModified(allSources...)
 		if err != nil {
 			return true, err
 		}
@@ -138,10 +166,15 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 
 func (t *Task) artifactLastModified() (time.Time, error) {
 	// File or directory doesn't exist
-	if _, err := os.Stat(t.config.Artifact); err != nil {
-		return time.Time{}, nil
+	if _, err := os.Stat(strings.Split(t.config.Artifact, "*")[0]); err != nil {
+		return time.Time{}, err
 	}
-	return fs.LastModified(t.config.Artifact)
+	allArtifacts, err := filepath.Glob(t.config.Artifact)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("could not get artifact globs")
+	}
+	log.Println(allArtifacts)
+	return fs.LastModified(allArtifacts...)
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files
