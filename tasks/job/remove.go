@@ -39,8 +39,8 @@ func (t *RemoveTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 
 	RemoveContainer(logger, ctx.Client, ContainerName(ctx, t.name.Resource()), false)
 
-	if t.config.Artifact != "" {
-		if err := os.RemoveAll(t.config.Artifact); err != nil {
+	for _, path := range t.config.Artifact.Paths() {
+		if err := os.RemoveAll(path); err != nil {
 			logger.Warnf("failed to remove artifact %s: %s", t.config.Artifact, err)
 		}
 	}

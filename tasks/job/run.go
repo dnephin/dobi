@@ -24,7 +24,6 @@ import (
 	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
-	"path/filepath"
 )
 
 // DefaultUnixSocket to connect to the docker API
@@ -59,11 +58,11 @@ func (t *Task) Repr() string {
 	if !t.config.Command.Empty() {
 		buff.WriteString(" " + t.config.Command.String())
 	}
-	if !t.config.Command.Empty() && t.config.Artifact != "" {
+	if !t.config.Command.Empty() && !t.config.Artifact.Empty() {
 		buff.WriteString(" ->")
 	}
-	if t.config.Artifact != "" {
-		buff.WriteString(" " + t.config.Artifact)
+	if !t.config.Artifact.Empty() {
+		buff.WriteString(" " + t.config.Artifact.String())
 	}
 	return fmt.Sprintf("%s%v", t.name.Format("job"), buff.String())
 }
@@ -91,46 +90,24 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 	return true, nil
 }
 
-func removeDuplicates(elements []string) []string {
-	encountered := map[string]bool{}
-	result := []string{}
-	for v := range elements {
-		if encountered[elements[v]] == false {
-			encountered[elements[v]] = true
-			result = append(result, elements[v])
-		}
-	}
-	return result
-}
-
-func (t *Task) getAllSources(ctx *context.ExecuteContext) ([]string, error) {
-	var allSources []string
-	for _, value := range t.config.Sources {
-		glob, err := filepath.Glob(value)
-		if err != nil {
-			return allSources, err
-		}
-		allSources = append(allSources, glob...)
-	}
-	return removeDuplicates(allSources), nil
-}
-
 func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
-	if t.config.Artifact == "" {
+	if t.config.Artifact.Empty() {
 		return true, nil
 	}
+
 	artifactLastModified, err := t.artifactLastModified()
 	if err != nil {
 		t.logger().Warnf("Failed to get artifact last modified: %s", err)
 		return true, err
 	}
 
-	if len(t.config.Sources) != 0 {
-		allSources, err := t.getAllSources(ctx)
-		if err != nil {
-			return true, err
-		}
-		sourcesLastModified, err := fs.LastModified(allSources...)
+	if t.config.Sources.NoMatches() {
+		t.logger().Warnf("No sources found matching: %s", &t.config.Sources)
+		return true, nil
+	}
+
+	if len(t.config.Sources.Paths()) != 0 {
+		sourcesLastModified, err := fs.LastModified(t.config.Sources.Paths()...)
 		if err != nil {
 			return true, err
 		}
@@ -165,16 +142,12 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 }
 
 func (t *Task) artifactLastModified() (time.Time, error) {
+	paths := t.config.Artifact.Paths()
 	// File or directory doesn't exist
-	if _, err := os.Stat(strings.Split(t.config.Artifact, "*")[0]); err != nil {
-		return time.Time{}, err
+	if len(paths) == 0 {
+		return time.Time{}, nil
 	}
-	allArtifacts, err := filepath.Glob(t.config.Artifact)
-	if err != nil {
-		return time.Time{}, fmt.Errorf("could not get artifact globs")
-	}
-	log.Println(allArtifacts)
-	return fs.LastModified(allArtifacts...)
+	return fs.LastModified(paths...)
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files

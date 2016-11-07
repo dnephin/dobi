@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/dnephin/configtf"
 )
 
@@ -29,9 +30,8 @@ type MetaConfig struct {
 	// Include A list of dobi configuration files to include. Paths are
 	// relative to the current working directory. Includs can be partial
 	// configs that depend on resources in any of the other included files.
-	// This field supports glob patterns.
-	// type: list of filepaths
-	Include []string
+	// type: list of file paths or glob patterns
+	Include PathGlobs
 
 	// ExecID A template value used as part of unique identifiers for image tags
 	// and container names. This field supports :doc:`variables`. This value can
@@ -43,7 +43,10 @@ type MetaConfig struct {
 // Validate the MetaConfig
 func (m *MetaConfig) Validate(config *Config) error {
 	if _, ok := config.Resources[m.Default]; m.Default != "" && !ok {
-		return fmt.Errorf("Undefined default resource: %s", m.Default)
+		return fmt.Errorf("undefined default resource: %s", m.Default)
+	}
+	if err := m.Include.Validate(); err != nil {
+		return fmt.Errorf("invalid include: %s", err)
 	}
 	return nil
 }
