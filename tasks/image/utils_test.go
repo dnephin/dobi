@@ -23,3 +23,9 @@ func TestParseAuthRepoPrivateRepo(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, repo, "myrepo.net")
 }
+
+func TestParseAuthRepoPrivateRepoNoUsername(t *testing.T) {
+	repo, err := parseAuthRepo("myrepo.net/foo")
+	assert.Nil(t, err)
+	assert.Equal(t, repo, "myrepo.net")
+}

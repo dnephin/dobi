@@ -33,16 +33,17 @@ func GetCanonicalTag(ctx *context.ExecuteContext, conf *config.ImageConfig) stri
 }
 
 func parseAuthRepo(image string) (string, error) {
-	// This is the approximate logic from
-	// github.com/docker/docker/reference.splitHostname(). That package is
-	// conflicting with other dependencies, so it can't be imported at this time.
-	parts := strings.SplitN(image, "/", 3)
-	switch len(parts) {
-	case 1, 2:
+	return splitHostname(image), nil
+}
+
+// Copied from github.com/docker/docker/reference/reference.go
+// That package is conflicting with other dependencies, so it can't be imported
+// at this time.
+func splitHostname(name string) string {
+	i := strings.IndexRune(name, '/')
+	if i == -1 || (!strings.ContainsAny(name[:i], ".:") && name[:i] != "localhost") {
 		logging.Log.Debugf("Using default registry %q", defaultRepo)
-		return defaultRepo, nil
-	default:
-		logging.Log.Debugf("Using registry %q", parts[0])
-		return parts[0], nil
+		return defaultRepo
 	}
+	return name[:i]
 }
