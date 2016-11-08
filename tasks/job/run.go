@@ -58,11 +58,11 @@ func (t *Task) Repr() string {
 	if !t.config.Command.Empty() {
 		buff.WriteString(" " + t.config.Command.String())
 	}
-	if !t.config.Command.Empty() && t.config.Artifact != "" {
+	if !t.config.Command.Empty() && !t.config.Artifact.Empty() {
 		buff.WriteString(" ->")
 	}
-	if t.config.Artifact != "" {
-		buff.WriteString(" " + t.config.Artifact)
+	if !t.config.Artifact.Empty() {
+		buff.WriteString(" " + t.config.Artifact.String())
 	}
 	return fmt.Sprintf("%s%v", t.name.Format("job"), buff.String())
 }
@@ -91,7 +91,7 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 }
 
 func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
-	if t.config.Artifact == "" {
+	if t.config.Artifact.Empty() {
 		return true, nil
 	}
 
@@ -101,8 +101,13 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 		return true, err
 	}
 
-	if len(t.config.Sources) != 0 {
-		sourcesLastModified, err := fs.LastModified(t.config.Sources...)
+	if t.config.Sources.NoMatches() {
+		t.logger().Warnf("No sources found matching: %s", &t.config.Sources)
+		return true, nil
+	}
+
+	if len(t.config.Sources.Paths()) != 0 {
+		sourcesLastModified, err := fs.LastModified(t.config.Sources.Paths()...)
 		if err != nil {
 			return true, err
 		}
@@ -137,11 +142,12 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 }
 
 func (t *Task) artifactLastModified() (time.Time, error) {
+	paths := t.config.Artifact.Paths()
 	// File or directory doesn't exist
-	if _, err := os.Stat(t.config.Artifact); err != nil {
+	if len(paths) == 0 {
 		return time.Time{}, nil
 	}
-	return fs.LastModified(t.config.Artifact)
+	return fs.LastModified(paths...)
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files

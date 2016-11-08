@@ -34,9 +34,10 @@ type JobConfig struct {
 	// Use The name of an `image`_ resource. The referenced image is used
 	// to created the container for the **job**.
 	Use string `config:"required"`
-	// Artifact A host path to a file or directory that is the output of this
-	// **job**. Paths are relative to the current working directory.
-	Artifact string
+	// Artifact File paths or globs identifying the files created by the **job**.
+	// Paths are relative to the current working directory.
+	// type: list of file paths or glob patterns
+	Artifact PathGlobs
 	// Command The command to run in the container.
 	// type: shell quoted string
 	// example: ``"bash -c 'echo something'"``
@@ -44,13 +45,13 @@ type JobConfig struct {
 	// Entrypoint Override the image entrypoint
 	// type: shell quoted string
 	Entrypoint ShlexSlice
-	// Sources A list of files or directories which are used to create the
+	// Sources File paths or globs of the files used to create the
 	// artifact. The modified time of these files are compared to the modified time
 	// of the artifact to determine if the **job** is stale. If the **sources**
 	// list is defined the modified time of **mounts** and the **use** image are
 	// ignored.
-	// type: list of files or directories
-	Sources []string
+	// type: list of file paths or glob patterns
+	Sources PathGlobs
 	// Mounts A list of `mount`_ resources to use when creating the container.
 	// type: list of mount resources
 	Mounts []string
@@ -98,11 +99,16 @@ func (c *JobConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *JobConfig) Validate(path pth.Path, config *Config) *pth.Error {
-	if err := c.validateUse(config); err != nil {
-		return pth.Errorf(path.Add("use"), err.Error())
+	validators := []validator{
+		newValidator("use", func() error { return c.validateUse(config) }),
+		newValidator("mounts", func() error { return c.validateMounts(config) }),
+		newValidator("artifact", c.Artifact.Validate),
+		newValidator("sources", c.Sources.Validate),
 	}
-	if err := c.validateMounts(config); err != nil {
-		return pth.Errorf(path.Add("mounts"), err.Error())
+	for _, validator := range validators {
+		if err := validator.validate(); err != nil {
+			return pth.Errorf(path.Add(validator.name), err.Error())
+		}
 	}
 	return nil
 }
@@ -144,8 +150,8 @@ func (c *JobConfig) validateMounts(config *Config) error {
 
 func (c *JobConfig) String() string {
 	artifact, command := "", ""
-	if c.Artifact != "" {
-		artifact = fmt.Sprintf(" to create '%s'", c.Artifact)
+	if !c.Artifact.Empty() {
+		artifact = fmt.Sprintf(" to create '%s'", &c.Artifact)
 	}
 	// TODO: look for entrypoint as well as command
 	if !c.Command.Empty() {

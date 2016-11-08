@@ -27,7 +27,7 @@ func (s *JobConfigSuite) SetupTest() {
 func (s *JobConfigSuite) TestString() {
 	s.job.Use = "builder"
 	s.job.Command = ShlexSlice{original: "run"}
-	s.job.Artifact = "foo"
+	s.job.Artifact = PathGlobs{globs: []string{"foo"}}
 	s.Equal(s.job.String(), "Run 'run' using the 'builder' image to create 'foo'")
 }
 
