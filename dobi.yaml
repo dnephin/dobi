@@ -215,11 +215,10 @@ alias=release:
 image=dobi:
     image: test
     tags: ["latest"]
-    context: .
+    context: ./utils
 #    dockerfile: Dockerfile
     steps:
-      - FROM: golang:1.7-alpine
-      - RUN: apk add -U git bash curl tree
-      - GLIDE: 0.12.3
-      - GO-GET: github.com/fatih/color
-      - GO-BIN: github.com/dnephin/filewatcher
+      - FROM golang:1.7-alpine
+      - RUN apk add -U git bash curl tree
+      - RUN pwd
+      - RUN env

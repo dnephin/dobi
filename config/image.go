@@ -37,7 +37,7 @@ type ImageConfig struct {
 	Dockerfile string
 	// Dobifile is a in house version of a dockerfile
 	// type: mapping ``[Valid Docker command]: value``
-	Steps []map[string]string
+	Steps []string
 	// Context The build context used to build the image.
 	// default: ``.``
 	Context string
@@ -116,11 +116,9 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	}
 
 	for _, item := range c.Steps {
-		for key, value := range item {
-			item[key], err = env.Resolve(value)
-			if err != nil {
-				return &conf, err
-			}
+		item, err = env.Resolve(item)
+		if err != nil {
+			return &conf, err
 		}
 	}
 
