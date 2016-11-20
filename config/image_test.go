@@ -39,15 +39,13 @@ func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }
 
-func (s *ImageConfigSuite) TestValidateMissingOneOfRequired() {
-	s.image.Dockerfile = ""
-	s.image.Context = ""
-
+func (s *ImageConfigSuite) TestValidateMultipleOptions() {
+	s.image.Dockerfile = "Dockerfile.wrong"
+	s.image.Pull = pull{pullOnce}
 	conf := NewConfig()
 	err := s.image.Validate(pth.NewPath(""), conf)
 	s.Error(err)
-	s.Contains(err.Error(), "one of dockerfile, context, or pull is required")
-
+	s.Contains(err.Error(), "is pull is set, you cannot specifie a dockerfile or steps")
 }
 
 func TestPullWithDuration(t *testing.T) {
