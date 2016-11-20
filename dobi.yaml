@@ -209,3 +209,9 @@ alias=release:
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
+
+
+job=serve:
+    use: builder
+    command: ls /
+    description: "Watch for code changes and run the unit tests"
