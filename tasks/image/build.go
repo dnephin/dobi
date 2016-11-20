@@ -3,17 +3,19 @@ package image
 import (
 	"io"
 	"os"
+	"strings"
 
 	"archive/tar"
 	"bytes"
-	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/utils/dockerignore"
-	"github.com/dnephin/dobi/utils/fs"
-	docker "github.com/fsouza/go-dockerclient"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"time"
+
+	"github.com/dnephin/dobi/tasks/context"
+	"github.com/dnephin/dobi/utils/dockerignore"
+	"github.com/dnephin/dobi/utils/fs"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // RunBuild builds an image if it is out of date
@@ -108,35 +110,6 @@ func buildArgs(args map[string]string) []docker.BuildArg {
 	return out
 }
 
-func (t *Task) hasSteps() bool {
-	if len(t.config.Steps) != 0 {
-		return true
-	}
-	return false
-}
-
-func (t *Task) writeTarball() (*bytes.Buffer, error) {
-	inputbuf := bytes.NewBuffer(nil)
-	err := t.writeDockerfiletoTarBall(inputbuf)
-	if err != nil {
-		return inputbuf, err
-	}
-	allContext, err := t.scanContext()
-	if err != nil {
-		return inputbuf, err
-	}
-	ignored, err := t.scanIgnored()
-	if err != nil {
-		return inputbuf, err
-	}
-	diff := dockerignore.Difference(allContext, ignored)
-	err = t.writeFilesToTarBall(diff, inputbuf)
-	if err != nil {
-		return inputbuf, err
-	}
-	return inputbuf, nil
-}
-
 func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
 	err := Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.BuildImage(docker.BuildImageOptions{
@@ -154,6 +127,103 @@ func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (t *Task) buildImageFromTarBall(ctx *context.ExecuteContext) error {
+	inputbuf, err := t.writeTarball()
+	if err != nil {
+		return err
+	}
+	err = Stream(os.Stdout, func(out io.Writer) error {
+		return ctx.Client.BuildImage(docker.BuildImageOptions{
+			Name:           GetImageName(ctx, t.config),
+			BuildArgs:      buildArgs(t.config.Args),
+			Pull:           t.config.PullBaseImageOnBuild,
+			RmTmpContainer: true,
+			InputStream:    inputbuf,
+			OutputStream:   out,
+			RawJSONStream:  true,
+			SuppressOutput: ctx.Quiet,
+		})
+	})
+	return err
+}
+
+func (t *Task) writeTarball() (*bytes.Buffer, error) {
+	inputbuf := bytes.NewBuffer(nil)
+	tr := tar.NewWriter(inputbuf)
+	defer tr.Close()
+	paths, err := t.getContext()
+	if err != nil {
+		return inputbuf, err
+	}
+	err = t.writeDockerfiletoTarBall(tr)
+	if err != nil {
+		return inputbuf, err
+	}
+	return inputbuf, t.writeFilesToTarBall(paths, tr)
+}
+
+func (t *Task) getContext() ([]string, error) {
+	allContext, err := t.scanContext()
+	if err != nil {
+		return []string{}, err
+	}
+	ignored, err := t.scanIgnored()
+	if err != nil {
+		return []string{}, err
+	}
+	return dockerignore.Difference(allContext, ignored), nil
+}
+func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
+	rightNow := time.Now()
+	header := &tar.Header{Name: "Dockerfile",
+		Size:       t.getContentSize(),
+		ModTime:    rightNow,
+		AccessTime: rightNow,
+		ChangeTime: rightNow,
+	}
+	err := tr.WriteHeader(header)
+	if err != nil {
+		return err
+	}
+	for _, val := range t.config.Steps {
+		// its not a good idea to catch this error?
+		tr.Write([]byte(val + "\n"))
+	}
+	return err
+}
+
+func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
+	ctx := strings.TrimPrefix(t.config.Context, "./")
+	ctx = strings.TrimPrefix(ctx, ".")
+
+	for _, file := range fullpath {
+
+		byt, err := ioutil.ReadFile(file)
+		if err != nil {
+			return err
+		}
+
+		rightNow := time.Now()
+		header := &tar.Header{Name: strings.TrimPrefix(file, ctx+"/"),
+			Size:       int64(len(byt)),
+			ModTime:    rightNow,
+			AccessTime: rightNow,
+			ChangeTime: rightNow,
+		}
+		err = tr.WriteHeader(header)
+		if err != nil {
+			return err
+		}
+		log.Printf("shoudl write %s", strings.TrimPrefix(file, ctx+"/"))
+		_, err = tr.Write(byt)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -190,95 +260,21 @@ func (t *Task) scanIgnored() ([]string, error) {
 
 func (t *Task) scanContext() ([]string, error) {
 	fileList := []string{}
+	test := []string{}
+
 	err := filepath.Walk(t.config.Context, func(path string, f os.FileInfo, err error) error {
-		fileList = append(fileList, path)
+		if !f.IsDir() {
+			fileList = append(fileList, path)
+			test = append(test, path)
+		}
 		return nil
 	})
-	if err != nil {
-		return []string{}, err
-	}
-	return fileList, nil
+	return test, err
 }
 
-func (t *Task) writeFilesToTarBall(files []string, inputbuf *bytes.Buffer) error {
-	for _, file := range files {
-		fileInfo, err := os.Stat(file)
-		if err != nil {
-			return err
-		}
-		if !fileInfo.IsDir() {
-			log.Println(file)
-			log.Println(fileInfo.Name())
-			tr := tar.NewWriter(inputbuf)
-			rightNow := time.Now()
-			header := &tar.Header{Name: fileInfo.Name(),
-				Size:       fileInfo.Size(),
-				ModTime:    rightNow,
-				AccessTime: rightNow,
-				ChangeTime: rightNow,
-			}
-			err := tr.WriteHeader(header)
-			if err != nil {
-				return err
-			}
-			byt, err := ioutil.ReadFile(file)
-			if err != nil {
-				return err
-			}
-			_, err = tr.Write(byt)
-			if err != nil {
-				return err
-			}
-			tr.Close()
-		}
+func (t *Task) hasSteps() bool {
+	if len(t.config.Steps) != 0 {
+		return true
 	}
-
-	return nil
-}
-
-func (t *Task) writeDockerfiletoTarBall(inputbuf *bytes.Buffer) error {
-	tr := tar.NewWriter(inputbuf)
-	rightNow := time.Now()
-	header := &tar.Header{Name: "Dockerfile",
-		Size:       t.getContentSize(),
-		ModTime:    rightNow,
-		AccessTime: rightNow,
-		ChangeTime: rightNow,
-	}
-	err := tr.WriteHeader(header)
-	if err != nil {
-		return err
-	}
-	for _, val := range t.config.Steps {
-		// its not a good idea to catch this error?
-		tr.Write([]byte(val + "\n"))
-	}
-	err = tr.Close()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-func (t *Task) buildImageFromTarBall(ctx *context.ExecuteContext) error {
-
-	inputbuf, err := t.writeTarball()
-	if err != nil {
-		return err
-	}
-	err = Stream(os.Stdout, func(out io.Writer) error {
-		return ctx.Client.BuildImage(docker.BuildImageOptions{
-			Name:           GetImageName(ctx, t.config),
-			BuildArgs:      buildArgs(t.config.Args),
-			Pull:           t.config.PullBaseImageOnBuild,
-			RmTmpContainer: true,
-			InputStream:    inputbuf,
-			OutputStream:   out,
-			RawJSONStream:  true,
-			SuppressOutput: ctx.Quiet,
-		})
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return false
 }

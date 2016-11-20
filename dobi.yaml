@@ -213,12 +213,11 @@ alias=release:
 
 
 image=dobi:
-    image: test
+    image: dobi
     tags: ["latest"]
-    context: ./utils
+    context: .
 #    dockerfile: Dockerfile
     steps:
       - FROM golang:1.7-alpine
-      - RUN apk add -U git bash curl tree
-      - RUN pwd
-      - RUN env
+      - ADD . /dobi
+      - RUN ls /dobi
