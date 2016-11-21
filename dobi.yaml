@@ -64,6 +64,10 @@ image=example-tester:
 job=binary:
     use: builder
     artifact: ./dist/bin/
+    devices:
+      - host: /dev/ttyACM0
+        container: /dev/ttyACM0
+        permissions: rwm
     mounts: [source, dist]
     command: script/build
     env:

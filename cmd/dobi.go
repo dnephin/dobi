@@ -30,6 +30,7 @@ type dobiOptions struct {
 	quiet    bool
 	tasks    []string
 	version  bool
+	cookie   string
 }
 
 // NewRootCommand returns a new root command
@@ -61,6 +62,7 @@ func NewRootCommand() *cobra.Command {
 
 	flags.SetInterspersed(false)
 	cmd.AddCommand(
+		newInitCommand(&opts),
 		newListCommand(&opts),
 		newCleanCommand(&opts),
 	)
