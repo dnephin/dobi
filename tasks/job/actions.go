@@ -37,7 +37,7 @@ func GetTaskConfig(name, action string, conf *config.JobConfig) (types.TaskConfi
 			deps(conf),
 			newCaptureTask(variable)), nil
 	}
-	return nil, fmt.Errorf("Invalid run action %q for task %q", action, name)
+	return nil, fmt.Errorf("invalid run action %q for task %q", action, name)
 }
 
 func deps(conf *config.JobConfig) func() []string {

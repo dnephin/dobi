@@ -22,6 +22,6 @@ func ExpandUser(path string) (string, error) {
 		parts[0] = os.Getenv("HOME")
 		return filepath.Join(parts...), nil
 	default:
-		return path, fmt.Errorf("Expanding ~user/ paths are not supported yet.")
+		return path, fmt.Errorf("expanding ~user/ paths are not supported yet")
 	}
 }

@@ -31,7 +31,7 @@ func validateName(name string) error {
 			"%q is reserved, please use a different resource name", name)
 	}
 	if strings.Contains(name, ":") {
-		return fmt.Errorf("Invalid character \":\" in resource name %q", name)
+		return fmt.Errorf("invalid character \":\" in resource name %q", name)
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 		resource, err := unmarshalResource(name, resType, value)
 		if err != nil {
-			return fmt.Errorf("Invalid config for resource %q:\n%s", name, err)
+			return fmt.Errorf("invalid config for resource %q:\n%s", name, err)
 		}
 		if err := c.add(resName, resource); err != nil {
 			return err
@@ -76,7 +76,7 @@ func (c *Config) loadMeta(value map[string]interface{}) error {
 	var err error
 	c.Meta, err = NewMetaConfig(META, value)
 	if err != nil {
-		return fmt.Errorf("Invalid \"meta\" config: %s", err)
+		return fmt.Errorf("invalid \"meta\" config: %s", err)
 	}
 
 	// TODO: prevent infinite recursive includes

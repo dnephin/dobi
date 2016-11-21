@@ -76,7 +76,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 		}
 		if val == "" {
 			if !hasDefault {
-				return 0, fmt.Errorf("A value is required for variable %q", tag)
+				return 0, fmt.Errorf("a value is required for variable %q", tag)
 			}
 			val = defValue
 		}
@@ -107,7 +107,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	case "exec-id":
 		return write(e.ExecID, nil)
 	default:
-		return 0, fmt.Errorf("Unknown variable %q", tag)
+		return 0, fmt.Errorf("unknown variable %q", tag)
 	}
 }
 
@@ -118,7 +118,7 @@ func valueFromFilesystem(name string, workingdir string) (string, error) {
 	case "projectdir":
 		return workingdir, nil
 	default:
-		return "", fmt.Errorf("Unknown variable \"fs.%s\"", name)
+		return "", fmt.Errorf("unknown variable \"fs.%s\"", name)
 	}
 }
 
@@ -129,7 +129,7 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 
 	writeError := func(err error) (int, error) {
 		if defValue == "" {
-			return 0, fmt.Errorf("Failed resolving variable {git.%s}: %s", tag, err)
+			return 0, fmt.Errorf("failed resolving variable {git.%s}: %s", tag, err)
 		}
 
 		logging.Log.Warnf("Failed to get variable \"git.%s\", using default", tag)
@@ -159,7 +159,7 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 		commit, err := repo.GetCommit("HEAD")
 		return write(commit.ID.String()[:10], err)
 	default:
-		return 0, fmt.Errorf("Unknown variable \"git.%s\"", tag)
+		return 0, fmt.Errorf("unknown variable \"git.%s\"", tag)
 	}
 }
 

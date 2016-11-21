@@ -71,7 +71,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 		resourceName := taskname.Resource()
 		resource, ok := options.Config.Resources[resourceName]
 		if !ok {
-			return nil, fmt.Errorf("Resource %q does not exist", resourceName)
+			return nil, fmt.Errorf("resource %q does not exist", resourceName)
 		}
 
 		taskConfig, err := buildTaskConfig(resourceName, taskname.Action(), resource)
@@ -154,7 +154,7 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
 		modified, err := task.Run(ctx, depsModified)
 		if err != nil {
-			return fmt.Errorf("Failed to execute task %q: %s", task.Name(), err)
+			return fmt.Errorf("failed to execute task %q: %s", task.Name(), err)
 		}
 		if modified {
 			ctx.SetModified(task.Name())
@@ -201,7 +201,7 @@ func getNames(options RunOptions) []string {
 func Run(options RunOptions) error {
 	options.Tasks = getNames(options)
 	if len(options.Tasks) == 0 {
-		return fmt.Errorf("No task to run, and no default task defined.")
+		return fmt.Errorf("no task to run, and no default task defined")
 	}
 
 	execEnv, err := execenv.NewExecEnvFromConfig(
