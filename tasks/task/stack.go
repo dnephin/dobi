@@ -29,7 +29,7 @@ func (s *Stack) Pop() (Name, error) {
 	var item Name
 	last := len(s.data) - 1
 	if last < 0 {
-		return Name{}, fmt.Errorf("Can't pop empty stack.")
+		return Name{}, fmt.Errorf("can't pop empty stack")
 	}
 	item, s.data = s.data[last], s.data[:last]
 	return item, nil

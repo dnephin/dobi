@@ -56,7 +56,7 @@ func getAction(name string, task string) (action, error) {
 	case "remove", "rm":
 		return newAction("remove", RunRemove, nil)
 	default:
-		return action{}, fmt.Errorf("Invalid image action %q for task %q", name, task)
+		return action{}, fmt.Errorf("invalid image action %q for task %q", name, task)
 	}
 }
 

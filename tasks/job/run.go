@@ -132,7 +132,7 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	imageName := ctx.Resources.Image(t.config.Use)
 	taskImage, err := image.GetImage(ctx, imageName)
 	if err != nil {
-		return true, fmt.Errorf("Failed to get image %q: %s", imageName, err)
+		return true, fmt.Errorf("failed to get image %q: %s", imageName, err)
 	}
 	if artifactLastModified.Before(taskImage.Created) {
 		t.logger().Debug("artifact older than image")
@@ -172,7 +172,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	name := ContainerName(ctx, t.name.Resource())
 	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
 	if err != nil {
-		return fmt.Errorf("Failed creating container %q: %s", name, err)
+		return fmt.Errorf("failed creating container %q: %s", name, err)
 	}
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
@@ -191,7 +191,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 		Stderr:       true,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed attaching to container %q: %s", name, err)
+		return fmt.Errorf("failed attaching to container %q: %s", name, err)
 	}
 
 	if interactive {
@@ -208,7 +208,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 	}
 
 	if err := ctx.Client.StartContainer(container.ID, nil); err != nil {
-		return fmt.Errorf("Failed starting container %q: %s", name, err)
+		return fmt.Errorf("failed starting container %q: %s", name, err)
 	}
 
 	return t.wait(ctx.Client, container.ID)
@@ -305,10 +305,10 @@ func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOpt
 func (t *Task) wait(client client.DockerClient, containerID string) error {
 	status, err := client.WaitContainer(containerID)
 	if err != nil {
-		return fmt.Errorf("Failed to wait on container exit: %s", err)
+		return fmt.Errorf("failed to wait on container exit: %s", err)
 	}
 	if status != 0 {
-		return fmt.Errorf("Exited with non-zero status code %d", status)
+		return fmt.Errorf("exited with non-zero status code %d", status)
 	}
 	return nil
 }

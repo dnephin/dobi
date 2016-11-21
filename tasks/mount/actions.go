@@ -22,7 +22,7 @@ func GetTaskConfig(name, action string, conf *config.MountConfig) (types.TaskCon
 	case "remove", "rm":
 		return newTaskConfig(task.NewName(name, action), NewTask(remove))
 	default:
-		return nil, fmt.Errorf("Invalid mount action %q for task %q", action, name)
+		return nil, fmt.Errorf("invalid mount action %q for task %q", action, name)
 	}
 }
 

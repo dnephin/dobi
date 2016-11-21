@@ -23,7 +23,7 @@ func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfi
 		return types.NewTaskConfig(
 			task.NewName(name, "rm"), conf, task.NoDependencies, newRemoveTask), nil
 	default:
-		return nil, fmt.Errorf("Invalid env action %q for task %q", action, name)
+		return nil, fmt.Errorf("invalid env action %q for task %q", action, name)
 	}
 }
 

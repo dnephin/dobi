@@ -55,7 +55,7 @@ func (c *Config) Sorted() []string {
 // Load a configuration from a filename
 func Load(filename string) (*Config, error) {
 	fmtError := func(err error) error {
-		return fmt.Errorf("Failed to load config from %q: %s", filename, err)
+		return fmt.Errorf("failed to load config from %q: %s", filename, err)
 	}
 
 	config, err := loadConfig(filename)

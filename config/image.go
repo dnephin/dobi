@@ -90,7 +90,7 @@ func (c *ImageConfig) ValidateImage() error {
 	_, tag := docker.ParseRepositoryTag(c.Image)
 	if tag != "" {
 		return fmt.Errorf(
-			"Tag %q must be specified in the `tags` field, not in `image`", tag)
+			"tag %q must be specified in the `tags` field, not in `image`", tag)
 	}
 	return nil
 }

@@ -80,7 +80,7 @@ func runDobi(opts dobiOptions) error {
 
 	client, err := buildClient()
 	if err != nil {
-		return fmt.Errorf("Failed to create client: %s", err)
+		return fmt.Errorf("failed to create client: %s", err)
 	}
 
 	return tasks.Run(tasks.RunOptions{

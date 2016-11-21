@@ -31,7 +31,7 @@ func tagImage(ctx *context.ExecuteContext, t *Task, imageTag string) error {
 		Force: true,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed to add tag %q: %s", imageTag, err)
+		return fmt.Errorf("failed to add tag %q: %s", imageTag, err)
 	}
 	return nil
 }

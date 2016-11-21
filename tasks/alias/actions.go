@@ -18,7 +18,7 @@ func GetTaskConfig(name, act string, conf *config.AliasConfig) (types.TaskConfig
 		return types.NewTaskConfig(
 			task.NewName(name, "rm"), conf, RemoveDeps(conf), NewTask), nil
 	default:
-		return nil, fmt.Errorf("Invalid alias action %q for task %q", act, name)
+		return nil, fmt.Errorf("invalid alias action %q for task %q", act, name)
 	}
 }
 

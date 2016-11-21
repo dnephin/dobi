@@ -50,7 +50,7 @@ func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithTemplate() {
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidTemplate() {
 	_, err := NewExecEnvFromConfig("{env.bogus} ", "", s.tmpDir)
 	s.Error(err)
-	s.Contains(err.Error(), "A value is required for variable \"env.bogus\"")
+	s.Contains(err.Error(), "a value is required for variable \"env.bogus\"")
 }
 
 func (s *ExecEnvSuite) TestValidateExecIDEmpty() {
@@ -93,7 +93,7 @@ func (s *ExecEnvSuite) TestResolveUnknown() {
 	_, err := execEnv.Resolve("{bogus}")
 
 	s.Error(err)
-	s.Contains(err.Error(), "Unknown variable \"bogus\"")
+	s.Contains(err.Error(), "unknown variable \"bogus\"")
 }
 
 func (s *ExecEnvSuite) TestResolveBadTemplate() {

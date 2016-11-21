@@ -27,7 +27,7 @@ func valueFromUser(name string) (string, error) {
 		group, err := user.LookupGid(currentUser.Gid)
 		return group.Name, err
 	default:
-		return "", fmt.Errorf("Unknown variable \"user.%s\"", name)
+		return "", fmt.Errorf("unknown variable \"user.%s\"", name)
 	}
 }
 
