@@ -85,5 +85,5 @@ func TestLoadFromBytesWithInvalidName(t *testing.T) {
 
 	_, err := LoadFromBytes([]byte(conf))
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Invalid character \":\"")
+	assert.Contains(t, err.Error(), "invalid character \":\"")
 }
