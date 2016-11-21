@@ -25,6 +25,12 @@ func GetTaskConfig(name, action string, conf *config.JobConfig) (types.TaskConfi
 			conf,
 			task.NoDependencies,
 			newRemoveTask), nil
+	case "serve", "d":
+		return types.NewTaskConfig(
+			task.NewName(name, action),
+			conf,
+			deps(conf),
+			newRunTask), nil
 	}
 	if strings.HasPrefix(action, "capture") {
 		variable, err := parseCapture(action)

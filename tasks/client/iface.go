@@ -21,4 +21,5 @@ type DockerClient interface {
 	RemoveContainer(docker.RemoveContainerOptions) error
 	StartContainer(string, *docker.HostConfig) error
 	WaitContainer(string) (int, error)
+	ListContainers(opts docker.ListContainersOptions) ([]docker.APIContainers, error)
 }

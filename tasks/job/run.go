@@ -24,6 +24,7 @@ import (
 	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
+	"path/filepath"
 )
 
 // DefaultUnixSocket to connect to the docker API
@@ -167,51 +168,81 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 	return binds
 }
 
+func (t *Task) isServing(ctx *context.ExecuteContext) (bool, error) {
+	name := ContainerName(ctx, t.name.Resource())
+	containers, err := ctx.Client.ListContainers(docker.ListContainersOptions{All: true})
+	if err != nil {
+		return false, err
+	}
+	for _, container := range containers {
+		for _, n := range container.Names {
+			if name == filepath.Base(n) {
+				return true, nil
+			}
+		}
+
+	}
+	return false, nil
+}
+
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
+	var container *docker.Container
 	interactive := t.config.Interactive
 	name := ContainerName(ctx, t.name.Resource())
-	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
+
+	serving, err := t.isServing(ctx)
 	if err != nil {
-		return fmt.Errorf("failed creating container %q: %s", name, err)
+		return fmt.Errorf("listing containers failed %q: %s", name, err)
 	}
-
-	chanSig := t.forwardSignals(ctx.Client, container.ID)
-	defer signal.Stop(chanSig)
-	defer RemoveContainer(t.logger(), ctx.Client, container.ID, true)
-
-	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
-		Container:    container.ID,
-		OutputStream: t.output(),
-		ErrorStream:  os.Stderr,
-		InputStream:  ioutil.NopCloser(os.Stdin),
-		Stream:       true,
-		Stdin:        t.config.Interactive,
-		RawTerminal:  t.config.Interactive,
-		Stdout:       true,
-		Stderr:       true,
-	})
-	if err != nil {
-		return fmt.Errorf("failed attaching to container %q: %s", name, err)
-	}
-
-	if interactive {
-		inFd, _ := term.GetFdInfo(os.Stdin)
-		state, err := term.SetRawTerminal(inFd)
+	if !serving {
+		container, err = ctx.Client.CreateContainer(t.createOptions(ctx, name))
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed creating container %q: %s", name, err)
 		}
-		defer func() {
-			if err := term.RestoreTerminal(inFd, state); err != nil {
-				t.logger().Warnf("Failed to restore fd %v: %s", inFd, err)
+		log.Println(t.name.Action())
+		if err := ctx.Client.StartContainer(container.ID, nil); err != nil {
+			return fmt.Errorf("Failed starting container %q: %s", name, err)
+		}
+		if t.name.Action() != "serve" {
+
+			chanSig := t.forwardSignals(ctx.Client, container.ID)
+			defer signal.Stop(chanSig)
+			defer RemoveContainer(t.logger(), ctx.Client, container.ID, true)
+
+			_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+				Container:    container.ID,
+				OutputStream: t.output(),
+				ErrorStream:  os.Stderr,
+				InputStream:  ioutil.NopCloser(os.Stdin),
+				Stream:       true,
+				Stdin:        t.config.Interactive,
+				RawTerminal:  t.config.Interactive,
+				Stdout:       true,
+				Stderr:       true,
+			})
+			if err != nil {
+				return fmt.Errorf("Failed attaching to container %q: %s", name, err)
 			}
-		}()
-	}
 
-	if err := ctx.Client.StartContainer(container.ID, nil); err != nil {
-		return fmt.Errorf("failed starting container %q: %s", name, err)
-	}
 
-	return t.wait(ctx.Client, container.ID)
+			if interactive {
+				inFd, _ := term.GetFdInfo(os.Stdin)
+				state, err := term.SetRawTerminal(inFd)
+				if err != nil {
+					return err
+				}
+				defer func() {
+					if err := term.RestoreTerminal(inFd, state); err != nil {
+						t.logger().Warnf("Failed to restore fd %v: %s", inFd, err)
+					}
+				}()
+			}
+			return t.wait(ctx.Client, container.ID)
+		}
+	}
+	t.logger().Info("Job is already running")
+	return nil
+
 }
 
 func (t *Task) output() io.Writer {
