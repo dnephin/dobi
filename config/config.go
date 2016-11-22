@@ -12,6 +12,7 @@ import (
 	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/task"
+	"reflect"
 )
 
 // Config is a data object for a full config file
@@ -47,6 +48,32 @@ func (c *Config) Sorted() []string {
 	names := []string{}
 	for name := range c.Resources {
 		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
+// FilterBy returns a list of resource names of the same time as the given interface
+func (c *Config) FilterBy(thing interface{}) []string {
+	filter := reflect.TypeOf(thing)
+	names := []string{}
+	for name := range c.Resources {
+		if filter == reflect.TypeOf(c.Resources[name]) {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	return names
+}
+
+// FilterNot returns a list of resource names that are not the same time as the given interface
+func (c *Config) FilterNot(thing interface{}) []string {
+	filter := reflect.TypeOf(thing)
+	names := []string{}
+	for name := range c.Resources {
+		if filter != reflect.TypeOf(c.Resources[name]) {
+			names = append(names, name)
+		}
 	}
 	sort.Strings(names)
 	return names

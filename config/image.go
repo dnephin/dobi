@@ -192,3 +192,8 @@ func imageFromConfig(name string, values map[string]interface{}) (Resource, erro
 func init() {
 	RegisterResource("image", imageFromConfig)
 }
+
+// Dependencies returns the list of implicit and explicit dependencies
+func (c *ImageConfig) Dependencies() []string {
+	return []string{}
+}

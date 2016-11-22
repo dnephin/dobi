@@ -19,6 +19,12 @@ func GetTaskConfig(name, action string, conf *config.JobConfig) (types.TaskConfi
 			conf,
 			deps(conf),
 			newRunTask), nil
+	case "stop":
+		return types.NewTaskConfig(
+			task.NewDefaultName(name, action),
+			conf,
+			deps(conf),
+			newStopTask), nil
 	case "remove", "rm":
 		return types.NewTaskConfig(
 			task.NewName(name, action),
