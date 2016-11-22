@@ -124,10 +124,7 @@ func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
 			SuppressOutput: ctx.Quiet,
 		})
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (t *Task) buildImageFromTarBall(ctx *context.ExecuteContext) error {
@@ -162,7 +159,11 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	if err != nil {
 		return inputbuf, err
 	}
-	return inputbuf, t.writeFilesToTarBall(paths, tr)
+	err = t.writeFilesToTarBall(paths, tr)
+	if err != nil {
+		return inputbuf, err
+	}
+	return inputbuf, nil
 }
 
 func (t *Task) getContext() ([]string, error) {
@@ -196,18 +197,15 @@ func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 }
 
 func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
-	ctx := strings.TrimPrefix(t.config.Context, "./")
-	ctx = strings.TrimPrefix(ctx, ".")
-
 	for _, file := range fullpath {
-
+		log.Printf("shoudl write %s", strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"))
 		byt, err := ioutil.ReadFile(file)
 		if err != nil {
 			return err
 		}
 
 		rightNow := time.Now()
-		header := &tar.Header{Name: strings.TrimPrefix(file, ctx+"/"),
+		header := &tar.Header{Name: strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"),
 			Size:       int64(len(byt)),
 			ModTime:    rightNow,
 			AccessTime: rightNow,
@@ -217,7 +215,7 @@ func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("shoudl write %s", strings.TrimPrefix(file, ctx+"/"))
+
 		_, err = tr.Write(byt)
 		if err != nil {
 			return err
@@ -236,12 +234,7 @@ func (t *Task) getContentSize() int64 {
 }
 
 func (t *Task) scanIgnored() ([]string, error) {
-	bytesrece, err := ioutil.ReadFile(".dockerignore")
-	if err != nil {
-		return []string{}, nil
-	}
-	r := bytes.NewReader(bytesrece)
-	allIgnored, err := dockerignore.ReadAll(r)
+	allIgnored, err := dockerignore.ReadAll()
 	if err != nil {
 		return []string{}, err
 	}

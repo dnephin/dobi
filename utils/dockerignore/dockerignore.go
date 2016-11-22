@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
@@ -13,11 +13,16 @@ import (
 // to ignore. Note this will trim whitespace from each line as well
 // as use GO's "clean" func to get the shortest/cleanest path for each.
 // A little copy from the analogous package at github.com/docker/docker/builder/dockerignore
-func ReadAll(reader io.Reader) ([]string, error) {
-	if reader == nil {
+func ReadAll() ([]string, error) {
+	bytesrece, err := ioutil.ReadFile(".dockerignore")
+	if err != nil {
+		return []string{}, nil
+	}
+	r := bytes.NewReader(bytesrece)
+	if r == nil {
 		return nil, nil
 	}
-	scanner := bufio.NewScanner(reader)
+	scanner := bufio.NewScanner(r)
 	var excludes []string
 	currentLine := 0
 
@@ -52,12 +57,9 @@ func ReadAll(reader io.Reader) ([]string, error) {
 func Difference(context []string, ignored []string) []string {
 	for _, singleIgnoredFile := range ignored {
 		if index, ok := contains(context, singleIgnoredFile); ok {
-			//log.Println(i)
-			fmt.Println(context[index])
 			context = append(context[:index], context[index+1:]...)
 		}
 	}
-
 	return context
 }
 
