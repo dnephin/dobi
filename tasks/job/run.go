@@ -224,7 +224,6 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 				return fmt.Errorf("Failed attaching to container %q: %s", name, err)
 			}
 
-
 			if interactive {
 				inFd, _ := term.GetFdInfo(os.Stdin)
 				state, err := term.SetRawTerminal(inFd)
