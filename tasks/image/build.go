@@ -151,7 +151,7 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	inputbuf := bytes.NewBuffer(nil)
 	tr := tar.NewWriter(inputbuf)
 	defer tr.Close()
-	paths, err := t.getContext()
+	paths, err := t.getTarContext()
 	if err != nil {
 		return inputbuf, err
 	}
@@ -166,7 +166,7 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	return inputbuf, nil
 }
 
-func (t *Task) getContext() ([]string, error) {
+func (t *Task) getTarContext() ([]string, error) {
 	allContext, err := t.scanContext()
 	if err != nil {
 		return []string{}, err
@@ -180,7 +180,7 @@ func (t *Task) getContext() ([]string, error) {
 func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 	rightNow := time.Now()
 	header := &tar.Header{Name: "Dockerfile",
-		Size:       t.getContentSize(),
+		Size:       t.getStepsSize(),
 		ModTime:    rightNow,
 		AccessTime: rightNow,
 		ChangeTime: rightNow,
@@ -193,21 +193,25 @@ func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 		// its not a good idea to catch this error?
 		tr.Write([]byte(val + "\n"))
 	}
-	return err
+	return nil
 }
 
 func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
 	for _, file := range fullpath {
 		log.Printf("shoudl write %s", strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"))
+		fileInfo, err := os.Stat(file)
+		if err != nil {
+			return err
+		}
 		byt, err := ioutil.ReadFile(file)
 		if err != nil {
 			return err
 		}
-
 		rightNow := time.Now()
 		header := &tar.Header{Name: strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"),
 			Size:       int64(len(byt)),
 			ModTime:    rightNow,
+			Mode:       int64(fileInfo.Mode()),
 			AccessTime: rightNow,
 			ChangeTime: rightNow,
 		}
@@ -225,7 +229,7 @@ func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
 	return nil
 }
 
-func (t *Task) getContentSize() int64 {
+func (t *Task) getStepsSize() int64 {
 	var size int64
 	for _, val := range t.config.Steps {
 		size = size + int64(len([]byte(val+"\n")))
