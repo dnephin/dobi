@@ -8,7 +8,7 @@ import (
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 	docker "github.com/fsouza/go-dockerclient"
-	"k8s.io/kops/_vendor/github.com/pkg/errors"
+	"github.com/pkg/errors"
 	"path/filepath"
 )
 
