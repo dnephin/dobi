@@ -83,8 +83,6 @@ func (c *ImageConfig) validateBuildOrPull() error {
 		if c.Dockerfile != "" || len(c.Context) != 0 {
 			return fmt.Errorf("is pull is set, you cannot specifie a dockerfile or steps")
 		}
-	case len(c.Steps) == 0 && c.Dockerfile == "":
-		return fmt.Errorf("use either a dockerfile or set your steps")
 	case len(c.Steps) != 0 && c.Dockerfile != "":
 		return fmt.Errorf("cannot use both a dockerfile and content")
 	}
