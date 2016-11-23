@@ -56,18 +56,20 @@ func (c *Config) Sorted() []string {
 // FilterBy , if existence is true, returns a list of resource names
 // of the same time as the thing interface. If false, it return all
 // resource that are not the same as the thing interface.
-func (c *Config) FilterBy(existence bool, thing interface{}) []string {
-	filter := reflect.TypeOf(thing)
+func (c *Config) FilterBy(existence bool, thing ...interface{}) []string {
 	names := []string{}
 	for name := range c.Resources {
-		if existence {
-			if filter == reflect.TypeOf(c.Resources[name]) {
-				names = append(names, name)
+		for _, each := range thing {
+			if existence {
+				if reflect.TypeOf(each) == reflect.TypeOf(c.Resources[name]) {
+					names = append(names, name)
+				}
+			} else {
+				if reflect.TypeOf(each) != reflect.TypeOf(c.Resources[name]) {
+					names = append(names, name)
+				}
 			}
-		} else {
-			if filter != reflect.TypeOf(c.Resources[name]) {
-				names = append(names, name)
-			}
+
 		}
 	}
 	sort.Strings(names)

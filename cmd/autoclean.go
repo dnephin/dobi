@@ -38,14 +38,20 @@ func runClean(opts *dobiOptions) error {
 }
 
 func removeTasks(conf *config.Config) []string {
-	resources := conf.FilterBy(false, &config.JobConfig{})
+	resources := conf.FilterBy(false, &config.JobConfig{}, &config.ImageConfig{})
 	tasks := []string{}
 	for i := len(resources) - 1; i >= 0; i-- {
 		tasks = append(tasks, resources[i]+":rm")
 	}
+
 	resources = conf.FilterBy(true, &config.JobConfig{})
 	for i := len(resources) - 1; i >= 0; i-- {
 		tasks = append(tasks, resources[i]+":stop")
+		tasks = append(tasks, resources[i]+":rm")
+	}
+
+	resources = conf.FilterBy(true, &config.ImageConfig{})
+	for i := len(resources) - 1; i >= 0; i-- {
 		tasks = append(tasks, resources[i]+":rm")
 	}
 	return tasks
