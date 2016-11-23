@@ -53,26 +53,21 @@ func (c *Config) Sorted() []string {
 	return names
 }
 
-// FilterBy returns a list of resource names of the same time as the given interface
-func (c *Config) FilterBy(thing interface{}) []string {
+// FilterBy , if existence is true, returns a list of resource names
+// of the same time as the thing interface. If false, it return all
+// resource that are not the same as the thing interface.
+func (c *Config) FilterBy(existence bool, thing interface{}) []string {
 	filter := reflect.TypeOf(thing)
 	names := []string{}
 	for name := range c.Resources {
-		if filter == reflect.TypeOf(c.Resources[name]) {
-			names = append(names, name)
-		}
-	}
-	sort.Strings(names)
-	return names
-}
-
-// FilterNot returns a list of resource names that are not the same time as the given interface
-func (c *Config) FilterNot(thing interface{}) []string {
-	filter := reflect.TypeOf(thing)
-	names := []string{}
-	for name := range c.Resources {
-		if filter != reflect.TypeOf(c.Resources[name]) {
-			names = append(names, name)
+		if existence {
+			if filter == reflect.TypeOf(c.Resources[name]) {
+				names = append(names, name)
+			}
+		} else {
+			if filter != reflect.TypeOf(c.Resources[name]) {
+				names = append(names, name)
+			}
 		}
 	}
 	sort.Strings(names)
