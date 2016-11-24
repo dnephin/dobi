@@ -209,3 +209,25 @@ alias=release:
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
+
+image=mongo-image:
+    image: cescoferraro/mongo
+    tags: [latest]
+    pull: "once"
+
+image=bash-image:
+    image: bash
+    tags: [latest]
+    pull: "once"
+
+
+service=mongo:
+    use: mongo-image
+    replicas: 2
+    mounts: [source]
+    command: pwd
+
+job=bash:
+    use: bash-image
+    depends: [mongo]
+    command: ls

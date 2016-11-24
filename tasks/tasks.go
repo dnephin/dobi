@@ -17,6 +17,7 @@ import (
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/dnephin/dobi/tasks/job"
 	"github.com/dnephin/dobi/tasks/mount"
+	"github.com/dnephin/dobi/tasks/service"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 )
@@ -102,6 +103,8 @@ func buildTaskConfig(name, action string, resource config.Resource) (types.TaskC
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
 		return image.GetTaskConfig(name, action, conf)
+	case *config.ServiceConfig:
+		return service.GetTaskConfig(name, action, conf)
 	case *config.JobConfig:
 		return job.GetTaskConfig(name, action, conf)
 	case *config.MountConfig:

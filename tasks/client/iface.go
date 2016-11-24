@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -21,4 +22,8 @@ type DockerClient interface {
 	RemoveContainer(docker.RemoveContainerOptions) error
 	StartContainer(string, *docker.HostConfig) error
 	WaitContainer(string) (int, error)
+	CreateService(opts docker.CreateServiceOptions) (*swarm.Service, error)
+	ListServices(opts docker.ListServicesOptions) ([]swarm.Service, error)
+	UpdateService(id string, opts docker.UpdateServiceOptions) error
+	RemoveService(opts docker.RemoveServiceOptions) error
 }
