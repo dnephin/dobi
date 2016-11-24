@@ -137,7 +137,7 @@ func (t *ServeTask) Run(ctx *context.ExecuteContext, depsModified bool) (bool, e
 		return true, nil
 	}
 
-	t.logger().Info("already running")
+	t.logger().Info("service already running")
 	return true, nil
 }
 
