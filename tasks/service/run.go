@@ -13,6 +13,8 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"io"
+	"strconv"
+	"strings"
 )
 
 func newServeTask(name task.Name, conf config.Resource) types.Task {
@@ -48,6 +50,25 @@ func (t *ServeTask) serviceOpts(ctx *context.ExecuteContext) docker.CreateServic
 }
 
 // Run the job command in a container
+func (t *ServeTask) endPoints() *swarm.EndpointSpec {
+	var portConfigs []swarm.PortConfig
+	for _, port := range t.config.Ports {
+		split := strings.Split(port, ":")
+		first, _ := strconv.Atoi(split[0])
+		second, _ := strconv.Atoi(split[1])
+		portConfigs = append(portConfigs, swarm.PortConfig{
+			Protocol:      swarm.PortConfigProtocolTCP,
+			TargetPort:    uint32(first),
+			PublishedPort: uint32(second),
+		})
+	}
+	return &swarm.EndpointSpec{
+		Mode:  "vip",
+		Ports: portConfigs,
+	}
+}
+
+// Run the job command in a container
 func (t *ServeTask) serviceSpec(ctx *context.ExecuteContext) swarm.ServiceSpec {
 	name := ContainerName(ctx, t.name.Resource())
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
@@ -65,6 +86,7 @@ func (t *ServeTask) serviceSpec(ctx *context.ExecuteContext) swarm.ServiceSpec {
 				Image: imageName,
 			},
 		},
+		EndpointSpec: t.endPoints(),
 	}
 }
 

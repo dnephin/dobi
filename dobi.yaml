@@ -223,7 +223,8 @@ image=bash-image:
 
 service=mongo:
     use: mongo-image
-    replicas: 2
+    replicas: 1
+    ports: ["27017:27017"]
     mounts: [source]
     command: pwd
 
