@@ -215,18 +215,17 @@ image=mongo-image:
     tags: [latest]
     pull: "once"
 
+service=mongo:
+    use: mongo-image
+    replicas: 2
+    ports: ["27017:27017"]
+    mounts: [source]
+    command: pwd
+
 image=bash-image:
     image: bash
     tags: [latest]
     pull: "once"
-
-
-service=mongo:
-    use: mongo-image
-    replicas: 1
-    ports: ["27017:27017"]
-    mounts: [source]
-    command: pwd
 
 job=bash:
     use: bash-image
