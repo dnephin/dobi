@@ -8,7 +8,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"time"
 
@@ -167,15 +166,32 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 }
 
 func (t *Task) getTarContext() ([]string, error) {
-	allContext, err := t.scanContext()
-	if err != nil {
-		return []string{}, err
+	type Slice []string
+	type Result struct {
+		Slice
+		error
 	}
-	ignored, err := t.scanIgnored()
-	if err != nil {
-		return []string{}, err
+	ignored := make(chan Result)
+	ctx := make(chan Result)
+	go func() {
+		result := new(Result)
+		result.Slice, result.error = t.scanContext()
+		ctx <- result
+	}()
+	go func() {
+		result := new(Result)
+		result.Slice, result.error = t.scanIgnored()
+		ignored <- result
+	}()
+	ctxFiles := <-ctx
+	if ctxFiles.error != nil {
+		return []string{}, ctxFiles.error
 	}
-	return dockerignore.Difference(allContext, ignored), nil
+	ignoredFiles := <-ignored
+	if ignoredFiles.error != nil {
+		return []string{}, ignoredFiles.error
+	}
+	return dockerignore.Difference(ctxFiles.Slice, ignoredFiles.Slice), nil
 }
 func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 	rightNow := time.Now()
@@ -198,7 +214,7 @@ func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 
 func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
 	for _, file := range fullpath {
-		log.Printf("shoudl write %s", strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"))
+		t.logger().Debugf("is writing %s to tarball", strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"))
 		fileInfo, err := os.Stat(file)
 		if err != nil {
 			return err
@@ -244,29 +260,26 @@ func (t *Task) scanIgnored() ([]string, error) {
 	}
 	var resolvedignores []string
 	for _, val := range allIgnored {
-		err := filepath.Walk(val, func(path string, f os.FileInfo, err error) error {
-			resolvedignores = append(resolvedignores, path)
-			return nil
-		})
+		resolvedignores, err = scanRoot2Slice(val, resolvedignores)
 		if err != nil {
-			return []string{}, err
+			return resolvedignores, err
 		}
 	}
 	return resolvedignores, nil
 }
 
 func (t *Task) scanContext() ([]string, error) {
-	fileList := []string{}
-	test := []string{}
+	return scanRoot2Slice(t.config.Context, []string{})
+}
 
-	err := filepath.Walk(t.config.Context, func(path string, f os.FileInfo, err error) error {
+func scanRoot2Slice(root string, placeholder []string) ([]string, error) {
+	err := filepath.Walk(root, func(path string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
-			fileList = append(fileList, path)
-			test = append(test, path)
+			placeholder = append(placeholder, path)
 		}
 		return nil
 	})
-	return test, err
+	return placeholder, err
 }
 
 func (t *Task) hasSteps() bool {
