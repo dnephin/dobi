@@ -171,8 +171,8 @@ func (t *Task) getTarContext() ([]string, error) {
 		Slice
 		error
 	}
-	ignored := make(chan Result)
-	ctx := make(chan Result)
+	ignored := make(chan *Result)
+	ctx := make(chan *Result)
 	go func() {
 		result := new(Result)
 		result.Slice, result.error = t.scanContext()
