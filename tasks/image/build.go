@@ -58,7 +58,6 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	default:
 		return true, err
 	}
-
 	mtime, err := fs.LastModified(t.config.Context)
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
@@ -84,10 +83,9 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
 	var err error
-	switch t.hasSteps() {
-	case true:
+	if t.hasSteps() {
 		err = t.buildImageFromTarBall(ctx)
-	default:
+	} else {
 		err = t.buildImageFromDockerfile(ctx)
 	}
 	if err != nil {
@@ -150,15 +148,11 @@ func (t *Task) writeTarball() (*bytes.Buffer, error) {
 	inputbuf := bytes.NewBuffer(nil)
 	tr := tar.NewWriter(inputbuf)
 	defer tr.Close()
-	paths, err := t.getTarContext()
+	err := t.writeDockerfiletoTarBall(tr)
 	if err != nil {
 		return inputbuf, err
 	}
-	err = t.writeDockerfiletoTarBall(tr)
-	if err != nil {
-		return inputbuf, err
-	}
-	err = t.writeFilesToTarBall(paths, tr)
+	err = t.writeFilesToTarBall(tr)
 	if err != nil {
 		return inputbuf, err
 	}
@@ -212,8 +206,12 @@ func (t *Task) writeDockerfiletoTarBall(tr *tar.Writer) error {
 	return nil
 }
 
-func (t *Task) writeFilesToTarBall(fullpath []string, tr *tar.Writer) error {
-	for _, file := range fullpath {
+func (t *Task) writeFilesToTarBall(tr *tar.Writer) error {
+	paths, err := t.getTarContext()
+	if err != nil {
+		return err
+	}
+	for _, file := range paths {
 		t.logger().Debugf("is writing %s to tarball", strings.TrimPrefix(file, filepath.Base(t.config.Context)+"/"))
 		fileInfo, err := os.Stat(file)
 		if err != nil {
