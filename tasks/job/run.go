@@ -239,6 +239,7 @@ func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.Cr
 			Tty:          interactive,
 			AttachStdin:  interactive,
 			StdinOnce:    interactive,
+			Labels:       t.config.Labels,
 			AttachStderr: true,
 			AttachStdout: true,
 			Env:          t.config.Env,
