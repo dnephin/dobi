@@ -3,7 +3,6 @@ package image
 import (
 	"fmt"
 	"github.com/dnephin/dobi/tasks/context"
-	"log"
 	"strings"
 
 	docker "github.com/fsouza/go-dockerclient"
@@ -30,7 +29,6 @@ func tagImage(ctx *context.ExecuteContext, t *Task, imageTag string) error {
 	case 1:
 	case 2:
 		imageTag = imageTag[strings.Index(imageTag, ":")+1:]
-		log.Println("case 2")
 	default:
 		return fmt.Errorf("Not a valid tag")
 
