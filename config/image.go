@@ -59,7 +59,7 @@ type ImageConfig struct {
 	// Each item in the list supports :doc:`variables`.
 	// default: ``['{unique}']``
 	// type: list of tags
-	Tags []string
+	Tags []string `config:"validate"`
 	dependent
 	describable
 }
@@ -93,6 +93,19 @@ func (c *ImageConfig) ValidateImage() error {
 			"tag %q must be specified in the `tags` field, not in `image`", tag)
 	}
 	return nil
+}
+
+// ValidateTags to ensure the first tag is a basic tag without an image name.
+func (c *ImageConfig) ValidateTags() error {
+	if len(c.Tags) == 0 {
+		return nil
+	}
+	_, tag := docker.ParseRepositoryTag(c.Tags[0])
+	if tag != "" {
+		return fmt.Errorf("the first tag %q may not include an image name", tag)
+	}
+	return nil
+
 }
 
 func (c *ImageConfig) String() string {
