@@ -58,7 +58,7 @@ func Load(filename string) (*Config, error) {
 		return fmt.Errorf("failed to load config from %q: %s", filename, err)
 	}
 
-	config, err := loadConfig(filename)
+	config, err := loadFromFile(filename)
 	if err != nil {
 		return nil, fmtError(err)
 	}
@@ -75,7 +75,7 @@ func Load(filename string) (*Config, error) {
 	return config, nil
 }
 
-func loadConfig(filename string) (*Config, error) {
+func loadFromFile(filename string) (*Config, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err

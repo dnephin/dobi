@@ -80,8 +80,8 @@ func (c *Config) loadMeta(value map[string]interface{}) error {
 	}
 
 	// TODO: prevent infinite recursive includes
-	for _, include := range c.Meta.Include.Paths() {
-		config, err := loadConfig(include)
+	for _, include := range c.Meta.Include {
+		config, err := include.Load()
 		if err != nil {
 			return fmt.Errorf("error including %q: %s", include, err)
 		}

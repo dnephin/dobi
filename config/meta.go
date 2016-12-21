@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/dnephin/configtf"
 )
@@ -30,8 +31,8 @@ type MetaConfig struct {
 	// Include A list of dobi configuration files to include. Paths are
 	// relative to the current working directory. Includs can be partial
 	// configs that depend on resources in any of the other included files.
-	// type: list of file paths or glob patterns
-	Include PathGlobs
+	// type: list of file path globs, or include objects
+	Include []Include
 
 	// ExecID A template value used as part of unique identifiers for image tags
 	// and container names. This field supports :doc:`variables`. This value can
@@ -45,8 +46,10 @@ func (m *MetaConfig) Validate(config *Config) error {
 	if _, ok := config.Resources[m.Default]; m.Default != "" && !ok {
 		return fmt.Errorf("undefined default resource: %s", m.Default)
 	}
-	if err := m.Include.Validate(); err != nil {
-		return fmt.Errorf("invalid include: %s", err)
+	for _, include := range m.Include {
+		if err := include.Validate(); err != nil {
+			return fmt.Errorf("invalid include: %s", err)
+		}
 	}
 	return nil
 }
@@ -55,6 +58,57 @@ func (m *MetaConfig) Validate(config *Config) error {
 // Includes which is ignored
 func (m *MetaConfig) IsZero() bool {
 	return m.Default == "" && m.Project == "" && m.ExecID == ""
+}
+
+type includeable interface {
+	Load() ([]byte, error)
+}
+
+// Include is either a filepath glob or url to a dobi config file
+type Include struct {
+	include includeable
+}
+
+// TransformConfig from raw value to an include object
+func (i *Include) TransformConfig(raw reflect.Value) error {
+	if !raw.IsValid() {
+		return fmt.Errorf("must be a include, was undefined")
+	}
+
+	switch value := raw.Interface().(type) {
+	case string:
+		i.include = includeFile{File: value, Relativity: "project"}
+		return nil
+	case map[string]interface{}:
+		if _, ok := value["file"]; ok {
+			include := includeFile{}
+			return configtf.Transform("meta.include", value, include)
+		}
+		if _, ok := value["url"]; ok {
+			return fmt.Errorf("url includes not yet implemented")
+		}
+	}
+	return fmt.Errorf("must be a string or list of strings, not %T", raw.Interface())
+}
+
+// Validate the include
+func (i *Include) Validate() error {
+	return nil
+}
+
+// Load configuration for the include
+func (i *Include) Load() (*Config, error) {
+	return nil, nil
+}
+
+type includeFile struct {
+	File       string
+	Relativity string
+	Pptional   bool
+}
+
+func (f includeFile) Load() ([]byte, error) {
+	return []byte{}, nil
 }
 
 // NewMetaConfig returns a new MetaConfig from config values
