@@ -30,7 +30,7 @@ import (
 //
 type ImageConfig struct {
 	// Image The name of the **image** without a tag. Tags must be specified
-	// in the **tags** field.
+	// in the **tags** field. This field supports :doc:`variables`.
 	Image string `config:"required,validate"`
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
 	// path is relative to the **context**.
@@ -118,6 +118,11 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	conf := *c
 	var err error
 	conf.Tags, err = env.ResolveSlice(c.Tags)
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.Image, err = env.Resolve(c.Image)
 	if err != nil {
 		return &conf, err
 	}
