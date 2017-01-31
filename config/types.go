@@ -40,7 +40,6 @@ func (p *PathGlobs) TransformConfig(raw reflect.Value) error {
 		return fmt.Errorf("must be a string or list of strings, not %T", value)
 	}
 	return nil
-
 }
 
 func (p *PathGlobs) all() ([]string, error) {

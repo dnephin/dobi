@@ -46,8 +46,10 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	if value, ok := values[META]; ok {
-		if err := c.loadMeta(value); err != nil {
-			return err
+		var err error
+		c.Meta, err = NewMetaConfig(META, value)
+		if err != nil {
+			return fmt.Errorf("invalid \"meta\" config: %s", err)
 		}
 		delete(values, META)
 	}
@@ -72,21 +74,12 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-func (c *Config) loadMeta(value map[string]interface{}) error {
-	var err error
-	c.Meta, err = NewMetaConfig(META, value)
-	if err != nil {
-		return fmt.Errorf("invalid \"meta\" config: %s", err)
-	}
-
+func (c *Config) loadInclude(path string) error {
 	// TODO: prevent infinite recursive includes
 	for _, include := range c.Meta.Include {
-		config, err := include.Load()
+		config, err := include.Load(path)
 		if err != nil {
 			return fmt.Errorf("error including %q: %s", include, err)
-		}
-		if !config.Meta.IsZero() {
-			return fmt.Errorf("include %q can not define meta config", include)
 		}
 		for name, resource := range config.Resources {
 			if err := c.add(name, resource); err != nil {

@@ -54,14 +54,8 @@ func (m *MetaConfig) Validate(config *Config) error {
 	return nil
 }
 
-// IsZero returns true if the struct contains only zero values, except for
-// Includes which is ignored
-func (m *MetaConfig) IsZero() bool {
-	return m.Default == "" && m.Project == "" && m.ExecID == ""
-}
-
 type includeable interface {
-	Load() ([]byte, error)
+	Load(path string) (*Config, error)
 }
 
 // Include is either a filepath glob or url to a dobi config file
@@ -97,18 +91,18 @@ func (i *Include) Validate() error {
 }
 
 // Load configuration for the include
-func (i *Include) Load() (*Config, error) {
+func (i *Include) Load(path string) (*Config, error) {
 	return nil, nil
 }
 
 type includeFile struct {
 	File       string
 	Relativity string
-	Pptional   bool
+	Optional   bool
 }
 
-func (f includeFile) Load() ([]byte, error) {
-	return []byte{}, nil
+func (f includeFile) Load(path string) (*Config, error) {
+	return nil, nil
 }
 
 // NewMetaConfig returns a new MetaConfig from config values
