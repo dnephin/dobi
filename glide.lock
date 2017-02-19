@@ -1,5 +1,5 @@
-hash: edfe6d5ec7c2b4d548dfdf51b9b70f4ddf1a78a42dbebbb9e37ef7339a1e82d2
-updated: 2016-10-29T07:14:35.659301218Z
+hash: 2449294e745e5630958228a7a2adbb31224d73104095aec6d26ebb6e2ec91439
+updated: 2016-11-22T03:05:13.356799819-02:00
 imports:
 - name: github.com/Azure/go-ansiterm
   version: fa152c58bc15761d0200cb75fe958b89a9d4888e
@@ -15,10 +15,13 @@ imports:
 - name: github.com/docker/docker
   version: 515e5dade7a006dbd2c42880f1af695da22ece60
   subpackages:
+  - api/types
   - api/types/blkiodev
   - api/types/container
   - api/types/filters
   - api/types/mount
+  - api/types/network
+  - api/types/registry
   - api/types/strslice
   - api/types/swarm
   - api/types/versions
@@ -31,8 +34,10 @@ imports:
   - pkg/jsonlog
   - pkg/jsonmessage
   - pkg/longpath
+  - pkg/mount
   - pkg/pools
   - pkg/promise
+  - pkg/signal
   - pkg/stdcopy
   - pkg/system
   - pkg/term
@@ -69,6 +74,8 @@ imports:
   subpackages:
   - libcontainer/system
   - libcontainer/user
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/renstrom/dedent
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
 - name: github.com/Sirupsen/logrus
@@ -96,6 +103,7 @@ imports:
 - name: golang.org/x/sys
   version: c200b10b5d5e122be351b67af224adc6128af5bf
   subpackages:
+  - unix
   - windows
 - name: gopkg.in/yaml.v2
   version: a5b47d31c556af34a302ce5d659e6fea44d90de0
