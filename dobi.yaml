@@ -209,3 +209,12 @@ alias=release:
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
+
+image=mongo:
+    image: cescoferraro/mongo
+    tags: ["latest"]
+    pull: "once"
+
+job=serve:
+    use: mongo
+    description: "Runs mongoDB"
