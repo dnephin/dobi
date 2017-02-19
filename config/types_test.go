@@ -15,3 +15,38 @@ func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []string{"one", "two", "three"}, globs.globs)
 }
+
+func TestIncludeTransformFromConfigWithSting(t *testing.T) {
+	include := Include{}
+	value := "path/to/config"
+	err := include.TransformConfig(reflect.ValueOf(value))
+
+	expected := Include{
+		include: includeFile{
+			File:           value,
+			PathRelativity: "project",
+		},
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, include, expected)
+}
+
+func TestIncludeTransformFromConfigWithFile(t *testing.T) {
+	include := Include{}
+	value := map[string]interface{}{
+		"file":            "path/to/config",
+		"path-relativity": "file",
+	}
+	err := include.TransformConfig(reflect.ValueOf(value))
+
+	expected := Include{
+		include: includeFile{
+			File:           "path/to/config",
+			PathRelativity: "file",
+		},
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, include, expected)
+}

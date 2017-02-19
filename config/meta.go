@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/dnephin/configtf"
 )
@@ -52,57 +51,6 @@ func (m *MetaConfig) Validate(config *Config) error {
 		}
 	}
 	return nil
-}
-
-type includeable interface {
-	Load(path string) (*Config, error)
-}
-
-// Include is either a filepath glob or url to a dobi config file
-type Include struct {
-	include includeable
-}
-
-// TransformConfig from raw value to an include object
-func (i *Include) TransformConfig(raw reflect.Value) error {
-	if !raw.IsValid() {
-		return fmt.Errorf("must be a include, was undefined")
-	}
-
-	switch value := raw.Interface().(type) {
-	case string:
-		i.include = includeFile{File: value, Relativity: "project"}
-		return nil
-	case map[string]interface{}:
-		if _, ok := value["file"]; ok {
-			include := includeFile{}
-			return configtf.Transform("meta.include", value, include)
-		}
-		if _, ok := value["url"]; ok {
-			return fmt.Errorf("url includes not yet implemented")
-		}
-	}
-	return fmt.Errorf("must be a string or list of strings, not %T", raw.Interface())
-}
-
-// Validate the include
-func (i *Include) Validate() error {
-	return nil
-}
-
-// Load configuration for the include
-func (i *Include) Load(path string) (*Config, error) {
-	return nil, nil
-}
-
-type includeFile struct {
-	File       string
-	Relativity string
-	Optional   bool
-}
-
-func (f includeFile) Load(path string) (*Config, error) {
-	return nil, nil
 }
 
 // NewMetaConfig returns a new MetaConfig from config values

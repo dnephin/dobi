@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/dnephin/configtf"
 )
 
 // PathGlobs is a list of path globs
@@ -85,4 +87,60 @@ type validator struct {
 
 func newValidator(name string, validate func() error) validator {
 	return validator{name: name, validate: validate}
+}
+
+// includeable types abstract the loading of a configuration file from a path or
+// url
+type includeable interface {
+	Load(path string) (*Config, error)
+}
+
+// Include is either a filepath glob or url to a dobi config file
+type Include struct {
+	include includeable
+	// Namespace is the name prepended to resource names in a config file. A
+	// namepsace is optional.
+	Namespace string
+}
+
+// TransformConfig from raw value to an include object
+func (i *Include) TransformConfig(raw reflect.Value) error {
+	if !raw.IsValid() {
+		return fmt.Errorf("must be a include, was undefined")
+	}
+
+	switch value := raw.Interface().(type) {
+	case string:
+		i.include = includeFile{File: value, PathRelativity: "project"}
+		return nil
+	case map[string]interface{}:
+		if _, ok := value["file"]; ok {
+			include := includeFile{}
+			return configtf.Transform("meta.include", value, include)
+		}
+		if _, ok := value["url"]; ok {
+			return fmt.Errorf("url includes not yet implemented")
+		}
+	}
+	return fmt.Errorf("must be a string or list of strings, not %T", raw.Interface())
+}
+
+// Validate the include
+func (i *Include) Validate() error {
+	return nil
+}
+
+// Load configuration for the include
+func (i *Include) Load(path string) (*Config, error) {
+	return nil, nil
+}
+
+type includeFile struct {
+	File           string
+	PathRelativity string
+	Optional       bool
+}
+
+func (f includeFile) Load(path string) (*Config, error) {
+	return nil, nil
 }

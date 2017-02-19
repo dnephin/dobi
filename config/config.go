@@ -53,11 +53,11 @@ func (c *Config) Sorted() []string {
 }
 
 // PrependPath for each resource and meta config
-func (c *Config) PrependPath(path string) {
-	for _, resource := range c.Resources {
-		resource.PrependPath(path)
-	}
-}
+//func (c *Config) PrependPath(path string) {
+//	for _, resource := range c.Resources {
+//		resource.PrependPath(path)
+//	}
+//}
 
 // Load a configuration from a filename
 func Load(filename string) (*Config, error) {

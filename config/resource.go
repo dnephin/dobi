@@ -10,7 +10,7 @@ type Resource interface {
 	Dependencies() []string
 	Validate(pth.Path, *Config) *pth.Error
 	Resolve(*execenv.ExecEnv) (Resource, error)
-	PrependPath(string)
+	//PrependPath(string)
 	Describe() string
 	String() string
 }
