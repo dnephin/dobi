@@ -83,7 +83,7 @@ job=shell:
     mounts: [source, dist]
     interactive: true
     provide-docker: true
-    command: bash
+    command: sh
     description: "Start an interactive development environment"
 
 job=test-unit:
