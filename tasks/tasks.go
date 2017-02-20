@@ -69,9 +69,9 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 	for _, taskname := range options.Tasks {
 		taskname := task.ParseName(taskname)
 		resourceName := taskname.Resource()
-		resource, ok := options.Config.Resources[resourceName]
-		if !ok {
-			return nil, fmt.Errorf("resource %q does not exist", resourceName)
+		resource, err := options.Config.GetResource(resourceName)
+		if err != nil {
+			return nil, err
 		}
 
 		taskConfig, err := buildTaskConfig(resourceName, taskname.Action(), resource)
@@ -80,6 +80,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 		}
 
 		// TODO: cache tasksConfigs until an env resource invalidates them
+		// TODO: merge duplicate resources from multiple included configs
 
 		if state.taskStack.Contains(taskConfig.Name()) {
 			return nil, fmt.Errorf(

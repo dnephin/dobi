@@ -18,7 +18,13 @@ import (
 type Config struct {
 	Meta       *MetaConfig
 	Resources  map[string]Resource
+	Includes   []IncludeConfig
 	WorkingDir string
+}
+
+type IncludeConfig struct {
+	Namespace string
+	Config    *Config
 }
 
 // NewConfig returns a new Config object
@@ -42,6 +48,35 @@ func (c *Config) contains(name string) bool {
 	return exists
 }
 
+func (c *Config) GetResource(name string) (Resource, error) {
+	if res, ok := c.Resources[name]; ok {
+		return res, nil
+	}
+
+	namespace, resourceName := splitNamespace(name)
+	for _, include := range c.Includes {
+		if namespace != include.Namespace {
+			continue
+		}
+		res, err := include.Config.GetResource(resourceName)
+		if err != nil {
+			continue
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("resource %q does not exist", name)
+}
+
+func splitNamespace(name string) (string, string) {
+	parts := strings.SplitN(name, ".", 2)
+	switch len(parts) {
+	case 2:
+		return parts[0], parts[1]
+	default:
+		return "", name
+	}
+}
+
 // Sorted returns the list of resource names in alphabetical sort order
 func (c *Config) Sorted() []string {
 	names := []string{}
@@ -51,13 +86,6 @@ func (c *Config) Sorted() []string {
 	sort.Strings(names)
 	return names
 }
-
-// PrependPath for each resource and meta config
-//func (c *Config) PrependPath(path string) {
-//	for _, resource := range c.Resources {
-//		resource.PrependPath(path)
-//	}
-//}
 
 // Load a configuration from a filename
 func Load(filename string) (*Config, error) {

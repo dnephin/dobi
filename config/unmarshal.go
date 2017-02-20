@@ -20,6 +20,8 @@ var (
 		META:        true,
 	}
 
+	invalidChars = []string{":", "."}
+
 	resourceTypeRegistry = map[string]resourceFactory{}
 )
 
@@ -30,8 +32,10 @@ func validateName(name string) error {
 		return fmt.Errorf(
 			"%q is reserved, please use a different resource name", name)
 	}
-	if strings.Contains(name, ":") {
-		return fmt.Errorf("invalid character \":\" in resource name %q", name)
+	for _, char := range invalidChars {
+		if strings.Contains(name, char) {
+			return fmt.Errorf("invalid character %q in resource name %q", char, name)
+		}
 	}
 	return nil
 }
@@ -79,13 +83,16 @@ func (c *Config) loadInclude(path string) error {
 	for _, include := range c.Meta.Include {
 		config, err := include.Load(path)
 		if err != nil {
+			if include.Optional {
+				// TODO: log warning
+				continue
+			}
 			return fmt.Errorf("error including %q: %s", include, err)
 		}
-		for name, resource := range config.Resources {
-			if err := c.add(name, resource); err != nil {
-				return fmt.Errorf("error including %q: %s", include, err)
-			}
-		}
+		c.Includes = append(c.Includes, IncludeConfig{
+			Config:    config,
+			Namespace: include.Namespace,
+		})
 	}
 	return nil
 }
