@@ -1,0 +1,34 @@
+
+meta:
+    project: example-init-volume
+    default: populate
+
+
+mount=data:
+    name: '{project}-data'
+    path: /data
+
+mount=source:
+    bind: .
+    path: /source
+
+
+image=runner:
+    image: alpine
+    tags: ['3.5']
+    pull: once
+
+
+job=populate:
+    use: runner
+    mounts: [source, data]
+    command: "sh -c 'cp /source/datafile /data; touch /data/newfile'"
+
+job=view:
+    use: runner
+    mounts: [data]
+    command: "ls -1 /data"
+
+# alias used by dobi test suite to test this example
+alias=test:
+    tasks: [populate, view]
