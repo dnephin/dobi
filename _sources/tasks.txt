@@ -125,6 +125,11 @@ Run a process in a container.
 
 Remove the container (if it exists), and remove the artifact (if one is defined).
 
+``:capture(VARIABLE)``
+
+Capture stdout of the job in an environment variable. The environment variable
+will be available to subsequent tasks.
+
 Mount Tasks
 -----------
 

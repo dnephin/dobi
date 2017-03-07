@@ -79,7 +79,7 @@ image.</p>
 </tr>
 </tbody>
 </table>
-<p>The name of the <strong>image</strong> without a tag. Tags must be specified    in the <strong>tags</strong> field.</p>
+<p>The name of the <strong>image</strong> without a tag. Tags must be specified    in the <strong>tags</strong> field. This field supports <a class="reference internal" href="variables.html"><span class="doc">Config Variables</span></a>.</p>
 </div></blockquote>
 <p><strong>dockerfile</strong></p>
 <blockquote>
@@ -223,11 +223,11 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of file paths or glob patterns</td>
 </tr>
 </tbody>
 </table>
-<p>A host path to a file or directory that is the output of this    <strong>job</strong>. Paths are relative to the current working directory.</p>
+<p>File paths or globs identifying the files created by the <strong>job</strong>.    Paths are relative to the current working directory.</p>
 </div></blockquote>
 <p><strong>command</strong></p>
 <blockquote>
@@ -260,11 +260,11 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of files or directories</td>
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of file paths or glob patterns</td>
 </tr>
 </tbody>
 </table>
-<p>A list of files or directories which are used to create the    artifact. The modified time of these files are compared to the modified time    of the artifact to determine if the <strong>job</strong> is stale. If the <strong>sources</strong>    list is defined the modified time of <strong>mounts</strong> and the <strong>use</strong> image are    ignored.</p>
+<p>File paths or globs of the files used to create the    artifact. The modified time of these files are compared to the modified time    of the artifact to determine if the <strong>job</strong> is stale. If the <strong>sources</strong>    list is defined the modified time of <strong>mounts</strong> and the <strong>use</strong> image are    ignored.</p>
 </div></blockquote>
 <p><strong>mounts</strong></p>
 <blockquote>
@@ -386,6 +386,18 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </table>
 <p>Maps the host devices you want to connect to a container</p>
 <p><code class="docutils literal"><span class="pre">{Host:</span> <span class="pre">/dev/fb0,</span> <span class="pre">Container:</span> <span class="pre">/dev/fb0,</span> <span class="pre">Permissions:</span> <span class="pre">rwm}</span></code></p>
+</div></blockquote>
+<p><strong>labels</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">map of string keys to string values</td>
+</tr>
+</tbody>
+</table>
+<p>sets the labels of the running job container</p>
 </div></blockquote>
 <p><strong>depends</strong></p>
 <blockquote>
@@ -716,7 +728,7 @@ default.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of filepaths</td>
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">list of file paths or glob patterns</td>
 </tr>
 </tbody>
 </table>
@@ -810,7 +822,7 @@ default.</p>
       
       
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/config.txt"
