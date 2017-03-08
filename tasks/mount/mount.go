@@ -10,6 +10,7 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // Task is a mount task
@@ -53,14 +54,21 @@ func (t *createAction) run(ctx *context.ExecuteContext) (bool, error) {
 		return false, nil
 	}
 
-	if err := t.create(ctx); err != nil {
+	var err error
+	switch {
+	case t.task.config.Name != "":
+		err = t.createNamed(ctx)
+	default:
+		err = t.createBind(ctx)
+	}
+	if err != nil {
 		return false, err
 	}
 	logger.Info("Created")
 	return true, nil
 }
 
-func (t *createAction) create(ctx *context.ExecuteContext) error {
+func (t *createAction) createBind(ctx *context.ExecuteContext) error {
 	path := AbsBindPath(t.task.config, ctx.WorkingDir)
 	mode := os.FileMode(t.task.config.Mode)
 
@@ -72,11 +80,23 @@ func (t *createAction) create(ctx *context.ExecuteContext) error {
 	}
 }
 
+func (t *createAction) createNamed(ctx *context.ExecuteContext) error {
+	_, err := ctx.Client.CreateVolume(docker.CreateVolumeOptions{
+		Name: t.task.config.Name,
+	})
+	return err
+}
+
 func (t *createAction) exists(ctx *context.ExecuteContext) bool {
 	_, err := os.Stat(AbsBindPath(t.task.config, ctx.WorkingDir))
-	if err != nil {
-		return false
+	return err == nil
+}
+
+func remove(task *Task, ctx *context.ExecuteContext) (bool, error) {
+	if task.config.Name == "" {
+		logging.ForTask(task).Warn("Bind mounts are not removable")
+		return false, nil
 	}
 
-	return true
+	return true, ctx.Client.RemoveVolume(task.config.Name)
 }

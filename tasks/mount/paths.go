@@ -20,8 +20,12 @@ func AsBind(c *config.MountConfig, workingDir string) string {
 
 // AbsBindPath returns the MountConfig.Bind as an absolute path
 func AbsBindPath(c *config.MountConfig, workingDir string) string {
-	if filepath.IsAbs(c.Bind) {
+	switch {
+	case c.Name != "":
+		return c.Name
+	case filepath.IsAbs(c.Bind):
 		return c.Bind
+	default:
+		return filepath.Join(workingDir, c.Bind)
 	}
-	return filepath.Join(workingDir, c.Bind)
 }
