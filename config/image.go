@@ -30,7 +30,7 @@ import (
 //
 type ImageConfig struct {
 	// Image The name of the **image** without a tag. Tags must be specified
-	// in the **tags** field.
+	// in the **tags** field. This field supports :doc:`variables`.
 	Image string `config:"required,validate"`
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
 	// path is relative to the **context**.
@@ -62,7 +62,7 @@ type ImageConfig struct {
 	// Each item in the list supports :doc:`variables`.
 	// default: ``['{unique}']``
 	// type: list of tags
-	Tags []string
+	Tags []string `config:"validate"`
 	dependent
 	describable
 }
@@ -99,6 +99,19 @@ func (c *ImageConfig) ValidateImage() error {
 	return nil
 }
 
+// ValidateTags to ensure the first tag is a basic tag without an image name.
+func (c *ImageConfig) ValidateTags() error {
+	if len(c.Tags) == 0 {
+		return nil
+	}
+	_, tag := docker.ParseRepositoryTag(c.Tags[0])
+	if tag != "" {
+		return fmt.Errorf("the first tag %q may not include an image name", tag)
+	}
+	return nil
+
+}
+
 func (c *ImageConfig) String() string {
 	dir := filepath.Join(c.Context, c.Dockerfile)
 	return fmt.Sprintf("Build image '%s' from '%s'", c.Image, dir)
@@ -118,6 +131,7 @@ func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 		if err != nil {
 			return &conf, err
 		}
+
 	}
 
 	for key, value := range c.Args {

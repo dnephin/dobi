@@ -2,6 +2,8 @@
 FROM    golang:1.7-alpine
 
 RUN     apk add -U git bash curl tree
+RUN     git config --global http.https://gopkg.in.followRedirects true
+
 RUN     export GLIDE=v0.12.3; \
         export SRC=https://github.com/Masterminds/glide/releases/download/; \
         curl -sL ${SRC}/${GLIDE}/glide-${GLIDE}-linux-amd64.tar.gz | \

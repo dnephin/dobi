@@ -81,6 +81,9 @@ type JobConfig struct {
 	// type: list of device specs
 	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``
 	Devices []Device
+	// Labels sets the labels of the running job container
+	// type: map of string keys to string values
+	Labels map[string]string
 	dependent
 	describable
 }

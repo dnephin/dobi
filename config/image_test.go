@@ -48,6 +48,20 @@ func (s *ImageConfigSuite) TestValidateMultipleOptions() {
 	s.Contains(err.Error(), "is pull is set, you cannot specifie a dockerfile or steps")
 }
 
+func (s *ImageConfigSuite) TestValidateTagsWithValidFirstTag() {
+	s.image.Tags = []string{"good"}
+	err := s.image.ValidateTags()
+	s.Nil(err)
+}
+
+func (s *ImageConfigSuite) TestValidateTagsWithBadFirstTag() {
+	s.image.Tags = []string{"bad:tag"}
+	err := s.image.ValidateTags()
+	if s.Error(err) {
+		s.Contains(err.Error(), "the first tag \"tag\" may not include an image name")
+	}
+}
+
 func TestPullWithDuration(t *testing.T) {
 	p := pull{}
 	now := time.Now()

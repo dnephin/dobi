@@ -38,6 +38,9 @@ func (ctx *ExecuteContext) SetModified(name task.Name) {
 
 // GetAuthConfig returns the auth configuration for the repo
 func (ctx *ExecuteContext) GetAuthConfig(repo string) docker.AuthConfiguration {
+	if ctx.authConfigs == nil {
+		return docker.AuthConfiguration{}
+	}
 	auth, ok := ctx.authConfigs.Configs[repo]
 	if !ok {
 		logging.Log.Warnf("Missing auth config for %q", repo)
