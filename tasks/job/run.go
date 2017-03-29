@@ -177,7 +177,13 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
-	defer RemoveContainer(t.logger(), ctx.Client, container.ID, true)
+	defer func() {
+		removed, err := RemoveContainer(t.logger(), ctx.Client, container.ID)
+		if !removed && err == nil {
+			t.logger().WithFields(log.Fields{"container": container.ID}).Warnf(
+				"Container does not exist")
+		}
+	}()
 
 	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,

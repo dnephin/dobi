@@ -9,5 +9,6 @@ exec filewatcher \
     -x 'dist' \
     -x 'script' \
     -x 'docs' \
+    -x '.idea' \
     -- \
     bash -c 'go test -v ./${dir} || ( echo; echo; echo; echo; exit 1 )'
