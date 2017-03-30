@@ -21,5 +21,8 @@ import:
 - package: github.com/docker/cli
 - package: github.com/gotestyourself/gotestyourself
   version: ^1.2.0
+- package: github.com/docker/cli
+  subpackages:
+  - cli/command/image/build
 - package: github.com/pkg/errors
   version: ^0.8.0

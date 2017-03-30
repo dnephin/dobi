@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eu
+
+
+docker images
+
+(
+
+echo "image=dev creates an image from inline steps"
+docker image inspect example/inline:inline-dockerfile-root
+
+) >/dev/null

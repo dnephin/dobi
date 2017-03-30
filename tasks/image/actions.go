@@ -61,7 +61,7 @@ func getAction(name string, task string) (action, error) {
 }
 
 func defaultAction(conf *config.ImageConfig) string {
-	if conf.Dockerfile != "" || conf.Context != "" {
+	if conf.Dockerfile != "" || conf.Steps != "" {
 		return "build"
 	}
 	return "pull"

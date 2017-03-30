@@ -40,13 +40,21 @@ func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }
 
-func (s *ImageConfigSuite) TestValidateMultipleOptions() {
-	s.image.Dockerfile = "Dockerfile.wrong"
-	s.image.Pull = pull{pullOnce}
+func (s *ImageConfigSuite) TestValidateMissingOneOfRequired() {
+	s.image.Dockerfile = ""
+	s.image.Context = ""
 	conf := NewConfig()
 	err := s.image.Validate(pth.NewPath(""), conf)
 	s.Error(err)
-	s.Contains(err.Error(), "is pull is set, you cannot specifie a dockerfile or steps")
+	s.Contains(err.Error(), "one of dockerfile, steps, context, or pull is required")
+}
+
+func (s *ImageConfigSuite) TestValidateConflictingDockerfileAndSteps() {
+	s.image.Steps = "FROM alpine:3.6"
+	conf := NewConfig()
+	err := s.image.Validate(pth.NewPath(""), conf)
+	s.Error(err)
+	s.Contains(err.Error(), "dockerfile can not be used with steps")
 }
 
 func (s *ImageConfigSuite) TestValidateTagsWithValidFirstTag() {

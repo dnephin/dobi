@@ -9,6 +9,7 @@ import (
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pkg/errors"
 )
 
 // ImageConfig An **image** resource provides actions for working with a Docker
@@ -32,11 +33,11 @@ type ImageConfig struct {
 	// in the **tags** field. This field supports :doc:`variables`.
 	Image string `config:"required,validate"`
 	// Dockerfile The path to the ``Dockerfile`` used to build the image. This
-	// path is relative to the **context**.
+	// path is relative to ``context``. Can not be used with ``steps``
 	Dockerfile string
-	// Dobifile is a in house version of a dockerfile
-	// type: mapping ``[Valid Docker command]: value``
-	Steps []string
+	// Steps An inline Dockerfile used to build  the image. ``steps`` can not
+	// be used with the ``dockerfile`` field.
+	Steps string
 	// Context The build context used to build the image.
 	// default: ``.``
 	Context string
@@ -76,14 +77,14 @@ func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 
 func (c *ImageConfig) validateBuildOrPull() error {
 	switch {
-	case c.Context == "":
+	case c.Dockerfile == "" && c.Steps == "" && c.Context == "" && !c.Pull.IsSet():
+		return errors.New("one of dockerfile, steps, context, or pull is required")
+	case c.Dockerfile != "" && c.Steps != "":
+		return errors.New("dockerfile can not be used with steps")
+	}
+
+	if !c.Pull.IsSet() && c.Context == "" {
 		c.Context = "."
-	case c.Pull.IsSet():
-		if c.Dockerfile != "" || len(c.Context) != 0 {
-			return fmt.Errorf("is pull is set, you cannot specifie a dockerfile or steps")
-		}
-	case len(c.Steps) != 0 && c.Dockerfile != "":
-		return fmt.Errorf("cannot use both a dockerfile and content")
 	}
 	return nil
 }
@@ -92,7 +93,7 @@ func (c *ImageConfig) validateBuildOrPull() error {
 func (c *ImageConfig) ValidateImage() error {
 	_, tag := docker.ParseRepositoryTag(c.Image)
 	if tag != "" {
-		return fmt.Errorf(
+		return errors.Errorf(
 			"tag %q must be specified in the `tags` field, not in `image`", tag)
 	}
 	return nil
@@ -105,7 +106,7 @@ func (c *ImageConfig) ValidateTags() error {
 	}
 	_, tag := docker.ParseRepositoryTag(c.Tags[0])
 	if tag != "" {
-		return fmt.Errorf("the first tag %q may not include an image name", tag)
+		return errors.Errorf("the first tag %q may not include an image name", tag)
 	}
 	return nil
 
@@ -126,6 +127,11 @@ func (c *ImageConfig) Resolve(resolver Resolver) (Resource, error) {
 	}
 
 	conf.Image, err = resolver.Resolve(c.Image)
+	if err != nil {
+		return &conf, err
+	}
+
+	c.Steps, err = resolver.Resolve(c.Steps)
 	if err != nil {
 		return &conf, err
 	}

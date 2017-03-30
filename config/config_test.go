@@ -69,7 +69,8 @@ alias=aliasresource:
 `))
 	defer dir.Remove()
 
-	config, err := Load(dir.Join("dobi.yaml"))
+	yamlPath := dir.Join("dobi.yaml")
+	config, err := Load(yamlPath)
 	require.NoError(t, err)
 	expected := &Config{
 		Meta: &MetaConfig{
@@ -92,6 +93,7 @@ alias=aliasresource:
 			"three": &AliasConfig{Tasks: []string{}},
 		},
 		WorkingDir: dir.Path(),
+		FilePath:   yamlPath,
 	}
 	assert.Equal(t, expected, config)
 }
