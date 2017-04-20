@@ -10,11 +10,14 @@ a ``dobi.yaml`` and run them with ``dobi TASK``.
 
 See `Getting Started <https://dnephin.github.io/dobi/>`_
 
+.. image:: https://img.shields.io/github/release/dnephin/dobi.svg?maxAge=7200
+    :target: https://github.com/dnephin/dobi/releases/latest
+
 .. image:: https://circleci.com/gh/dnephin/dobi/tree/master.svg?style=shield
     :target: https://circleci.com/gh/dnephin/dobi/tree/master
 
-.. image:: https://img.shields.io/github/release/dnephin/dobi.svg?maxAge=7200
-    :target: https://github.com/dnephin/dobi/releases/latest
+.. image:: https://goreportcard.com/badge/github.com/dnephin/dobi
+    :target: https://goreportcard.com/report/github.com/dnephin/dobi
 
 .. image:: https://badges.gitter.im/dnephin/dobi.png
     :target: https://gitter.im/dnephin-dobi/Lobby
@@ -24,7 +27,7 @@ Features
 
 Key features of ``dobi``:
 
-* **fast** - tasks are only run when the resource is stale. If a resource
+* **optimal** - tasks are only run when the resource is stale. If a resource
   hasn't changed the task is skipped.
 * **portable** - all tasks run in a container, so developers are free to use
   different operating systems and environments.
