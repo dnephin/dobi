@@ -9,12 +9,9 @@ import (
 )
 
 const (
-	nocolor = 0
-	red     = 31
-	green   = 32
-	yellow  = 33
-	blue    = 34
-	gray    = 90
+	red    = 31
+	yellow = 33
+	gray   = 90
 )
 
 // LogRepresenter is an interface for objects that can format themselves for
