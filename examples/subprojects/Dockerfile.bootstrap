@@ -1,0 +1,6 @@
+FROM alpine:3.4
+
+COPY create_env.sh /code/create_env.sh
+
+WORKDIR /code
+CMD ["/code/create_env.sh"]

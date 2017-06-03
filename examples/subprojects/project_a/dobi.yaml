@@ -1,0 +1,22 @@
+#
+# project_a dobi file for subprojects example
+# See README.md for docs
+#
+
+#
+# Images
+#
+#
+
+image=project_a_img:
+    image: example/subprojects/project_a
+    context: project_a
+
+#
+# Jobs
+#
+
+job=project_a_build:
+    use: project_a_img
+    sources: ['.env']
+    mounts: ['.env', 'hello_world']

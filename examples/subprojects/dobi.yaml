@@ -1,0 +1,53 @@
+#
+# Master dobi file for subprojects example
+# See README.md for docs
+#
+
+meta:
+    project: subprojects
+    include:
+        - project_a/dobi.yaml
+        - project_b/dobi.yaml
+
+#
+# Mounts
+#
+
+mount=.env:
+    bind: .env
+    path: /code/.env
+    file: true
+
+mount=hello_world:
+    bind: hello_world.sh
+    path: /code/hello_world.sh
+    file: true
+
+#
+# Images
+#
+#
+
+image=env_builder:
+    image: example/env_builder
+    context: .
+    dockerfile: Dockerfile.bootstrap
+
+#
+# Jobs
+#
+
+job=create_env:
+    use: env_builder
+    sources: ['.env']
+    artifact: '.env'
+    mounts: ['.env']
+    interactive: true
+    env: ['HOST_USER_NAME={env.USER:}', 'HOST_USER_ID={env.UID:COULD NOT GET $UID}']
+
+#
+# Aliases
+#
+
+alias=bootstrap:
+    tasks: ['create_env']
