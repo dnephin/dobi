@@ -10,7 +10,7 @@ import (
 	shlex "github.com/kballard/go-shellquote"
 )
 
-// JobConfig A **job** resource uses an `image`_ to run a job in a conatiner.
+// JobConfig A **job** resource uses an `image`_ to run a job in a container.
 // A **job** resource that doesn't have an **artifact** is never considered
 // up-to-date and will always run.  If a job resource has an **artifact**
 // the last modified time of that file will be used as the modified time for the

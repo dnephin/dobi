@@ -90,6 +90,7 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 	return true, nil
 }
 
+// nolint: gocyclo
 func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	if t.config.Artifact.Empty() {
 		return true, nil
@@ -227,7 +228,10 @@ func (t *Task) output() io.Writer {
 	return io.MultiWriter(t.outStream, os.Stdout)
 }
 
-func (t *Task) createOptions(ctx *context.ExecuteContext, name string) docker.CreateContainerOptions {
+func (t *Task) createOptions(
+	ctx *context.ExecuteContext,
+	name string,
+) docker.CreateContainerOptions {
 	interactive := t.config.Interactive
 
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
@@ -284,7 +288,7 @@ func getDevices(devices []config.Device) []docker.Device {
 	return dockerdevices
 }
 
-func asPortBindings(ports []string) (map[docker.Port][]docker.PortBinding, map[docker.Port]struct{}) {
+func asPortBindings(ports []string) (map[docker.Port][]docker.PortBinding, map[docker.Port]struct{}) { // nolint: lll
 	binds := make(map[docker.Port][]docker.PortBinding)
 	exposed := make(map[docker.Port]struct{})
 	for _, port := range ports {
@@ -320,7 +324,10 @@ func (t *Task) wait(client client.DockerClient, containerID string) error {
 	return nil
 }
 
-func (t *Task) forwardSignals(client client.DockerClient, containerID string) chan<- os.Signal {
+func (t *Task) forwardSignals(
+	client client.DockerClient,
+	containerID string,
+) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
 	// TODO: not all of these exist on windows?

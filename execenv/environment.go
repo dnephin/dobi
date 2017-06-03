@@ -67,6 +67,7 @@ func (e *ExecEnv) ResolveSlice(tmpls []string) ([]string, error) {
 	return resolved, nil
 }
 
+// nolint: gocyclo
 func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	tag, defValue, hasDefault := splitDefault(tag)
 

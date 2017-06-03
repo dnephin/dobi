@@ -16,7 +16,11 @@ func ContainerName(ctx *context.ExecuteContext, name string) string {
 
 // RemoveContainer removes a container by ID, and logs a warning if the remove
 // fails.
-func RemoveContainer(logger *log.Entry, client client.DockerClient, containerID string) (bool, error) {
+func RemoveContainer(
+	logger *log.Entry,
+	client client.DockerClient,
+	containerID string,
+) (bool, error) {
 	logger.Debug("Removing container")
 	err := client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            containerID,
