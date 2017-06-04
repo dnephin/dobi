@@ -84,8 +84,8 @@ type JobConfig struct {
 	// Labels sets the labels of the running job container
 	// type: map of string keys to string values
 	Labels map[string]string
-	dependent
-	describable
+	Dependent
+	Annotations
 }
 
 // Device is the defined structure to attach host devices to containers

@@ -60,8 +60,8 @@ type ImageConfig struct {
 	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string `config:"validate"`
-	dependent
-	describable
+	Dependent
+	Annotations
 }
 
 // Validate checks that all fields have acceptable values
