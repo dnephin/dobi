@@ -28,7 +28,7 @@ type EnvConfig struct {
 	// Variables List of environment variable ``key=value`` pairs
 	// type: list of environment variables
 	Variables []string
-	describable
+	Annotations
 }
 
 // Dependencies returns the list of job dependencies

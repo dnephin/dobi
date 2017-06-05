@@ -11,28 +11,37 @@ type Resource interface {
 	Validate(pth.Path, *Config) *pth.Error
 	Resolve(*execenv.ExecEnv) (Resource, error)
 	Describe() string
+	CategoryTags() []string
 	String() string
 }
 
-// describebale can be used to provide part of the Resource interface
-type describable struct {
+// Annotations provides a description and tags to a resource
+type Annotations struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
+	// Tags
+	Tags []string
 }
 
-func (d *describable) Describe() string {
-	return d.Description
+// Describe returns the resource description
+func (a *Annotations) Describe() string {
+	return a.Description
 }
 
-// dependent can be used to provide part of the Resource interface
-type dependent struct {
+// CategoryTags tags returns the list of tags
+func (a *Annotations) CategoryTags() []string {
+	return a.Tags
+}
+
+// Dependent can be used to provide part of the Resource interface
+type Dependent struct {
 	// Depends The list of task dependencies.
 	// type: list of tasks
 	Depends []string
 }
 
 // Dependencies returns the list of tasks
-func (d *dependent) Dependencies() []string {
+func (d *Dependent) Dependencies() []string {
 	return d.Depends
 }

@@ -23,7 +23,7 @@ type AliasConfig struct {
 	// Tasks The list of tasks
 	// type: list of tasks
 	Tasks []string `config:"required"`
-	describable
+	Annotations
 }
 
 // Dependencies returns the list of tasks
