@@ -76,17 +76,34 @@ func (c *ImageConfig) Validate(path pth.Path, config *Config) *pth.Error {
 }
 
 func (c *ImageConfig) validateBuildOrPull() error {
+	c.setDefaultContext()
+
 	switch {
-	case c.Dockerfile == "" && c.Steps == "" && c.Context == "" && !c.Pull.IsSet():
-		return errors.New("one of dockerfile, steps, context, or pull is required")
+	case c.Context == "" && !c.Pull.IsSet():
+		return errors.New("one of context, or pull is required")
 	case c.Dockerfile != "" && c.Steps != "":
 		return errors.New("dockerfile can not be used with steps")
 	}
+	c.setDefaultDockerfile()
+	return nil
+}
 
-	if !c.Pull.IsSet() && c.Context == "" {
+func (c *ImageConfig) setDefaultContext() {
+	if c.Dockerfile != "" && c.Context == "" {
 		c.Context = "."
 	}
-	return nil
+}
+
+func (c *ImageConfig) setDefaultDockerfile() {
+	if c.Context != "" && c.Steps == "" && c.Dockerfile == "" {
+		c.Dockerfile = "Dockerfile"
+	}
+}
+
+// IsBuildable returns true if the config has the minimum required fields to
+// build an image
+func (c *ImageConfig) IsBuildable() bool {
+	return c.Context != "" && (c.Steps != "" || c.Dockerfile != "")
 }
 
 // ValidateImage validates the image field does not include a tag
@@ -131,7 +148,7 @@ func (c *ImageConfig) Resolve(resolver Resolver) (Resource, error) {
 		return &conf, err
 	}
 
-	c.Steps, err = resolver.Resolve(c.Steps)
+	conf.Steps, err = resolver.Resolve(c.Steps)
 	if err != nil {
 		return &conf, err
 	}
@@ -192,7 +209,7 @@ func (p *pull) IsSet() bool {
 	return p.action != nil
 }
 
-func pullAlways(lastPull *time.Time) bool {
+func pullAlways(_ *time.Time) bool {
 	return true
 }
 

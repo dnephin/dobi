@@ -12,6 +12,7 @@ import (
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pkg/errors"
 )
 
 // RunBuild builds an image if it is out of date
@@ -27,7 +28,11 @@ func RunBuild(ctx *context.ExecuteContext, t *Task, hasModifiedDeps bool) (bool,
 		}
 	}
 	t.logger().Debug("is stale")
-	// TODO: check if required fields are set (dockerfile, or steps, and context)
+
+	if !t.config.IsBuildable() {
+		return false, errors.Errorf(
+			"%s is not buildable, missing required fields", t.name.Resource())
+	}
 
 	if err := buildImage(ctx, t); err != nil {
 		return false, err
@@ -157,7 +162,7 @@ func getBuildContext(config *config.ImageConfig) (io.Reader, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	if err := build.ValidateContextDirectory(contextDir, excludes); err != nil {
+	if err = build.ValidateContextDirectory(contextDir, excludes); err != nil {
 		return nil, "", err
 
 	}

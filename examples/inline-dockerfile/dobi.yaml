@@ -5,8 +5,9 @@ meta:
 
 image=dev:
   image: example/inline
+  context: .
   steps: |
-    FROM  alpine:3.5
+    FROM  alpine:3.6
     RUN   apk add -U tree
     WORKDIR /work
     RUN   mkdir a b && touch a/a b/b c d
@@ -14,7 +15,3 @@ image=dev:
 
 job=tree:
   use: dev
-  interactive: true
-
-alias=test:
-  tasks: [tree]

@@ -20,14 +20,14 @@ func TestSorted(t *testing.T) {
 }
 
 func TestResourceResolveDoesNotMutate(t *testing.T) {
-	resolver := &fakeResolver{}
+	resolver := newFakeResolver(nil)
 
 	for name, fromConfigFunc := range resourceTypeRegistry {
 		value := make(map[string]interface{})
-		resource, err := fromConfigFunc(name, value)
-		assert.Nil(t, err)
+		resource, err := fromConfigFunc("resourcename", value)
+		assert.NoError(t, err)
 		resolved, err := resource.Resolve(resolver)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		assert.True(t, resource != resolved,
 			"Expected different pointers for %q: %p, %p",
 			name, resource, resolved)
@@ -35,14 +35,31 @@ func TestResourceResolveDoesNotMutate(t *testing.T) {
 }
 
 type fakeResolver struct {
+	mapping map[string]string
 }
 
 func (r *fakeResolver) Resolve(tmpl string) (string, error) {
+	value, ok := r.mapping[tmpl]
+	if ok {
+		return value, nil
+	}
 	return tmpl, nil
 }
 
 func (r *fakeResolver) ResolveSlice(tmpls []string) ([]string, error) {
-	return tmpls, nil
+	values := []string{}
+	for _, key := range tmpls {
+		value, _ := r.Resolve(key)
+		values = append(values, value)
+	}
+	return values, nil
+}
+
+func newFakeResolver(mapping map[string]string) *fakeResolver {
+	if mapping == nil {
+		mapping = make(map[string]string)
+	}
+	return &fakeResolver{mapping: mapping}
 }
 
 // FIXME: not a full config
