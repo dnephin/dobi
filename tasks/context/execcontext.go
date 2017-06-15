@@ -38,11 +38,24 @@ func (ctx *ExecuteContext) SetModified(name task.Name) {
 
 // GetAuthConfig returns the auth configuration for the repo
 func (ctx *ExecuteContext) GetAuthConfig(repo string) docker.AuthConfiguration {
+	if ctx.authConfigs == nil {
+		return docker.AuthConfiguration{}
+	}
 	auth, ok := ctx.authConfigs.Configs[repo]
 	if !ok {
 		logging.Log.Warnf("Missing auth config for %q", repo)
 	}
 	return auth
+}
+
+// GetAuthConfigs returns all the authorization configs in the config file. This
+// is used by build, because the repo isn't known until after the Dockerfile is
+// parsed.
+func (ctx *ExecuteContext) GetAuthConfigs() docker.AuthConfigurations {
+	if ctx.authConfigs == nil {
+		return docker.AuthConfigurations{}
+	}
+	return *ctx.authConfigs
 }
 
 // NewExecuteContext craetes a new empty ExecuteContext

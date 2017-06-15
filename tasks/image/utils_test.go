@@ -19,7 +19,7 @@ func TestParseAuthRepoPrivateRepoAndPort(t *testing.T) {
 }
 
 func TestParseAuthRepoPrivateRepo(t *testing.T) {
-	repo, err := parseAuthRepo("myrepo.net/dnephin/foo")
+	repo, err := parseAuthRepo("myrepo.net/dnephin/foo:tag")
 	assert.Nil(t, err)
 	assert.Equal(t, repo, "myrepo.net")
 }

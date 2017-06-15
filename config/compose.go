@@ -40,8 +40,8 @@ type ComposeConfig struct {
 	// StopGrace Seconds to wait for containers to stop before killing them.
 	// default: ``5``
 	StopGrace int
-	dependent
-	describable
+	Dependent
+	Annotations
 }
 
 // StopGraceString returns StopGrace as a string

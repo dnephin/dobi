@@ -26,4 +26,6 @@ type DockerClient interface {
 	ListServices(opts docker.ListServicesOptions) ([]swarm.Service, error)
 	UpdateService(id string, opts docker.UpdateServiceOptions) error
 	RemoveService(opts docker.RemoveServiceOptions) error
+	CreateVolume(opts docker.CreateVolumeOptions) (*docker.Volume, error)
+	RemoveVolume(name string) error
 }

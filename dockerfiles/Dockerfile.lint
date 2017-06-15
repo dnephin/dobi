@@ -3,12 +3,13 @@ FROM    golang:1.7-alpine
 
 RUN     apk add -U python py-pip python-dev musl-dev gcc git bash
 RUN     pip install pre-commit
-RUN     go get -u github.com/golang/lint/golint
+
+RUN     go get -u gopkg.in/alecthomas/gometalinter.v1 && \
+        mv /go/bin/gometalinter.v1 /usr/local/bin/gometalinter && \
+        gometalinter --install
 
 WORKDIR /go/src/github.com/dnephin/dobi
 COPY    .pre-commit-config.yaml ./
-
-# run pre-commit once to git pull hooks
-RUN     git init && pre-commit run -a -v
+RUN     git init && pre-commit install-hooks
 
 CMD     ["pre-commit", "run", "-a", "-v"]

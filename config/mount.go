@@ -9,7 +9,8 @@ import (
 	"github.com/dnephin/dobi/utils/fs"
 )
 
-// MountConfig A **mount** resource creates a host bind mount.
+// MountConfig A **mount** resource creates a host bind mount or named volume
+// mount.
 // name: mount
 // example: A mount named ``source`` that mounts the current host directory as
 // ``/app/code`` in the container.
@@ -20,12 +21,18 @@ import (
 //         bind: .
 //         path: /app/code
 //
+//     mount=named:
+//         name: app-data
+//         path: /data
+//
 type MountConfig struct {
 	// Bind The host path to create and mount. This field supports expansion of
 	// `~` to the current users home directory.
-	Bind string `config:"required"`
+	Bind string
 	// Path The container path of the mount
 	Path string `config:"required"`
+	// Name The name of a named volume
+	Name string
 	// ReadOnly Set the mount to be read-only
 	ReadOnly bool
 	// File When true create an empty file instead of a directory
@@ -34,7 +41,7 @@ type MountConfig struct {
 	// created.
 	// default: ``0755`` *(for directories)*, ``0644`` *(for files)*
 	Mode int `config:"validate"`
-	describable
+	Annotations
 }
 
 // Dependencies returns an empty list, Mount resources have no dependencies
@@ -44,12 +51,22 @@ func (c *MountConfig) Dependencies() []string {
 
 // Validate checks that all fields have acceptable values
 func (c *MountConfig) Validate(path pth.Path, config *Config) *pth.Error {
+	switch {
+	case c.Bind != "" && c.Name != "":
+		return pth.Errorf(path, "\"name\" and \"bind\" can not be used together")
+	case c.Bind == "" && c.Name == "":
+		return pth.Errorf(path, "One of \"name\" or \"bind\" must be set")
+	case c.Name != "" && c.Mode != 0:
+		return pth.Errorf(path, "\"mode\" can not be used with named volumes")
+	case c.Name != "" && c.File:
+		return pth.Errorf(path, "\"file\" can not be used with named volumes")
+	}
 	return nil
 }
 
 // ValidateMode validates Mode and sets a default
 func (c *MountConfig) ValidateMode() error {
-	if c.Mode != 0 {
+	if c.Mode != 0 || c.Name != "" {
 		return nil
 	}
 	switch c.File {
@@ -62,14 +79,16 @@ func (c *MountConfig) ValidateMode() error {
 }
 
 func (c *MountConfig) String() string {
-	var filetype string
-	switch c.File {
-	case true:
-		filetype = "file"
+	var mount string
+	switch {
+	case c.File:
+		mount = fmt.Sprintf("file %q", c.Bind)
+	case c.Name != "":
+		mount = "named volume"
 	default:
-		filetype = "directory"
+		mount = fmt.Sprintf("directory %q", c.Bind)
 	}
-	return fmt.Sprintf("Create %s %q to be mounted at %q", filetype, c.Bind, c.Path)
+	return fmt.Sprintf("Create %s to be mounted at %q", mount, c.Path)
 }
 
 // Resolve resolves variables in the resource
@@ -77,6 +96,10 @@ func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
 	conf := *c
 	var err error
 	conf.Path, err = env.Resolve(c.Path)
+	if err != nil {
+		return &conf, err
+	}
+	conf.Name, err = env.Resolve(c.Name)
 	if err != nil {
 		return &conf, err
 	}

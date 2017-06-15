@@ -10,7 +10,7 @@ import (
 	shlex "github.com/kballard/go-shellquote"
 )
 
-// JobConfig A **job** resource uses an `image`_ to run a job in a conatiner.
+// JobConfig A **job** resource uses an `image`_ to run a job in a container.
 // A **job** resource that doesn't have an **artifact** is never considered
 // up-to-date and will always run.  If a job resource has an **artifact**
 // the last modified time of that file will be used as the modified time for the
@@ -81,8 +81,11 @@ type JobConfig struct {
 	// type: list of device specs
 	// example: ``{Host: /dev/fb0, Container: /dev/fb0, Permissions: rwm}``
 	Devices []Device
-	dependent
-	describable
+	// Labels sets the labels of the running job container
+	// type: map of string keys to string values
+	Labels map[string]string
+	Dependent
+	Annotations
 }
 
 // Device is the defined structure to attach host devices to containers

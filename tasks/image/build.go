@@ -86,6 +86,7 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 			OutputStream:   out,
 			RawJSONStream:  true,
 			SuppressOutput: ctx.Quiet,
+			AuthConfigs:    ctx.GetAuthConfigs(),
 		})
 	}); err != nil {
 		return err

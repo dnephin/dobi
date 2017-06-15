@@ -12,6 +12,7 @@ import (
 	"github.com/dnephin/dobi/tasks/types"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // Task creates a Docker image
@@ -48,7 +49,13 @@ func (t *Task) ForEachTag(ctx *context.ExecuteContext, each func(string) error) 
 	}
 
 	for _, tag := range t.config.Tags {
-		if err := each(t.config.Image + ":" + tag); err != nil {
+		imageTag := t.config.Image + ":" + tag
+		// If the tag is already a complete image name then use it directly
+		if _, hasTag := docker.ParseRepositoryTag(tag); hasTag != "" {
+			imageTag = tag
+		}
+
+		if err := each(imageTag); err != nil {
 			return err
 		}
 	}

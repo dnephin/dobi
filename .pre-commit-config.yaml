@@ -1,5 +1,5 @@
 - repo: git://github.com/pre-commit/pre-commit-hooks
-  sha: 'v0.5.1'
+  sha: v0.7.1
   hooks:
     - id: check-merge-conflict
     - id: end-of-file-fixer
@@ -15,12 +15,5 @@
       exclude: '^vendor/'
 
 - repo: git://github.com/dnephin/pre-commit-golang
-  sha: HEAD
-  hooks:
-    - id: go-fmt
-      exclude: '^vendor/'
-      args: ['-s']
-    - id: go-lint
-      exclude: '^vendor/'
-    - id: go-vet
-      exclude: '^vendor/'
+  sha: v0.2
+  hooks: [{id: gometalinter}]

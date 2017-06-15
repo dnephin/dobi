@@ -97,6 +97,12 @@ job=lint:
     mounts: [source]
     description: "Run style checks"
 
+job=lint-shell:
+    use: linter
+    mounts: [source]
+    command: bash
+    interactive: true
+
 job=github-release:
     use: releaser
     mounts: [dist]

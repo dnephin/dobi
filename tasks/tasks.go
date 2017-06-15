@@ -54,7 +54,7 @@ func newTaskCollection() *TaskCollection {
 	return &TaskCollection{}
 }
 
-func collectTasks(options RunOptions, execEnv *execenv.ExecEnv) (*TaskCollection, error) {
+func collectTasks(options RunOptions) (*TaskCollection, error) {
 	return collect(options, &collectionState{
 		newTaskCollection(),
 		task.NewStack(),
@@ -216,7 +216,7 @@ func Run(options RunOptions) error {
 		return err
 	}
 
-	tasks, err := collectTasks(options, execEnv)
+	tasks, err := collectTasks(options)
 	if err != nil {
 		return err
 	}

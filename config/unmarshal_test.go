@@ -1,9 +1,10 @@
 package config
 
 import (
+	"testing"
+
 	"github.com/renstrom/dedent"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestLoadFromBytes(t *testing.T) {
