@@ -1,4 +1,4 @@
-FROM    alpine:3.4
+FROM    alpine:3.5
 
 RUN     apk -U add bash curl
 RUN     export VERSION="v0.4.0"; \

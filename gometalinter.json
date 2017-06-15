@@ -2,20 +2,30 @@
   "Vendor": true,
   "Deadline": "2m",
   "Sort": ["linter", "severity", "path"],
-  "Exclude": ["tasks/client/mock_iface.go"],
+  "Exclude": ["vendor", "tasks/client/mock_iface.go"],
+  "Skip": [".glide"],
 
   "DisableAll": true,
   "Enable": [
     "deadcode",
+    "goconst",
     "gocyclo",
     "gofmt",
     "goimports",
     "golint",
+    "gosimple",
     "ineffassign",
     "interfacer",
+    "errcheck",
     "lll",
+    "megacheck",
     "misspell",
-    "vet"
+    "structcheck",
+    "unconvert",
+    "unparam",
+    "unused",
+    "varcheck",
+    "vetshadow"
   ],
 
   "Cyclo": 9,
