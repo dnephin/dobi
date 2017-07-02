@@ -11,7 +11,8 @@ RUN     export GLIDE=v0.12.3; \
         mv linux-amd64/glide /usr/bin/glide && \
         chmod +x /usr/bin/glide
 
-RUN     go get github.com/dnephin/filewatcher && \
+RUN     cache=2017-07-02; \
+        go get github.com/dnephin/filewatcher && \
         cp /go/bin/filewatcher /usr/bin/ && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 

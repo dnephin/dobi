@@ -1,14 +1,11 @@
 #!/bin/bash
 
 exec filewatcher \
-    -x '.git' \
-    -x '.dobi' \
-    -x '.glide' \
-    -x 'vendor' \
-    -x '**/*.swp' \
     -x 'dist' \
-    -x 'script' \
+    -x 'dockerfiles' \
     -x 'docs' \
-    -x '.idea' \
+    -x 'examples' \
+    -x 'script' \
+    -x 'vendor' \
     -- \
-    bash -c 'go test -v ./${dir} || ( echo; echo; echo; echo; exit 1 )'
+    go test -v -timeout 10s './${dir}'
