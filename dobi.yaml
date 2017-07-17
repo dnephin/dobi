@@ -96,6 +96,7 @@ job=lint:
     use: linter
     mounts: [source]
     description: "Run style checks"
+    depends: [mocks]
 
 job=lint-shell:
     use: linter
