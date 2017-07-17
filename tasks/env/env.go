@@ -10,7 +10,7 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
-	"github.com/docker/docker/runconfig/opts"
+	"github.com/docker/cli/opts"
 )
 
 // GetTaskConfig returns a new task for the action

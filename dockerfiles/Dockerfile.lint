@@ -1,4 +1,4 @@
-FROM    golang:1.8-alpine
+FROM    golang:1.8.3-alpine
 
 RUN     apk add -U python py-pip python-dev musl-dev gcc git bash
 RUN     pip install pre-commit
