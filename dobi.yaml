@@ -169,6 +169,7 @@ job=test-examples:
       - 'DOCKER_API_VERSION={env.DOCKER_API_VERSION:}'
       - 'COMPOSE_API_VERSION={env.DOCKER_API_VERSION:}'
       - 'DOBI_EXAMPLE={env.DOBI_EXAMPLE:}'
+      - 'SKIP_CLEANUP={env.SKIP_CLEANUP:}'
 
 image=refactorer:
     image: dnephin/go-refactor

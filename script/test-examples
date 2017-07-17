@@ -1,24 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu -o pipefail
 
 dobi="/go/bin/dobi-linux"
+prefixout="$PWD/script/prefixout"
 
-trap "if [[ -f output ]]; then cat output; fi" EXIT
+SKIP_CLEANUP=${SKIP_CLEANUP:-}
 
 function test_example {
     local example="$1"
-    pushd "$example"
-
-    $dobi test | tee output
-    bash -ex -o pipefail assertions
-
-    # Cleanup, skip it on circleci because it struggles with removing things
-    if [[ -n "${CIRCLE_BRANCH:-}" ]]; then
-        $dobi autoclean
-    fi
-    rm -f output
-
-    popd
+    (
+        cd "$example"
+        $dobi test | tee output
+        bash -ex -o pipefail assertions
+        [[ -z "$SKIP_CLEANUP" ]] && (echo CLEANUP; $dobi autoclean)
+        rm -f output
+    ) |& $prefixout "$(basename $example)"
 }
 
 if [[ "$DOBI_EXAMPLE" != "" ]]; then
