@@ -67,21 +67,21 @@ func NewTask(run actionFunc, stop actionFunc) func(task.Name, config.Resource) t
 }
 
 // RunUp starts the Compose project
-func RunUp(ctx *context.ExecuteContext, t *Task) error {
+func RunUp(_ *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project up")
-	return t.execCompose(ctx, "up", "-d")
+	return t.execCompose("up", "-d")
 }
 
 // StopUp stops the project
-func StopUp(ctx *context.ExecuteContext, t *Task) error {
+func StopUp(_ *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project stop")
-	return t.execCompose(ctx, "stop", "-t", t.config.StopGraceString())
+	return t.execCompose("stop", "-t", t.config.StopGraceString())
 }
 
 // RunDown removes all the project resources
-func RunDown(ctx *context.ExecuteContext, t *Task) error {
+func RunDown(_ *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project down")
-	return t.execCompose(ctx, "down")
+	return t.execCompose("down")
 }
 
 func deps(conf *config.ComposeConfig) func() []string {

@@ -13,7 +13,7 @@ import (
 func RunUpAttached(ctx *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project up")
 
-	cmd := t.composeCommand(ctx, "up", "-t", t.config.StopGraceString())
+	cmd := t.buildCommand("up", "-t", t.config.StopGraceString())
 	if err := cmd.Start(); err != nil {
 		return err
 	}

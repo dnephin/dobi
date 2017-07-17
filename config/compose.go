@@ -46,7 +46,7 @@ type ComposeConfig struct {
 
 // StopGraceString returns StopGrace as a string
 func (c *ComposeConfig) StopGraceString() string {
-	return strconv.FormatInt(int64(c.StopGrace), 10)
+	return strconv.Itoa(c.StopGrace)
 }
 
 // Validate the resource

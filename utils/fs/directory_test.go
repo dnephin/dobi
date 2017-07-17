@@ -58,7 +58,9 @@ func touch(name string, mtime time.Time) error {
 	if err != nil {
 		return err
 	}
-	w.Close()
+	if err := w.Close(); err != nil {
+		return err
+	}
 
 	return os.Chtimes(name, mtime, mtime)
 }

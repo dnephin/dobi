@@ -38,6 +38,7 @@ func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
 	s.Equal(expected, execEnv.Unique())
 }
 
+// nolint: errcheck
 func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithTemplate() {
 	os.Setenv("EXEC_ID", "Use-This")
 	defer os.Unsetenv("EXEC_ID")
@@ -112,6 +113,7 @@ func (s *ExecEnvSuite) TestResolveEnvironmentNoDefault() {
 	s.Contains(err.Error(), "required for variable \"env.foo\"")
 }
 
+// nolint: errcheck
 func (s *ExecEnvSuite) TestResolveEnvironment() {
 	defer os.Unsetenv("FOO")
 	os.Setenv("FOO", "stars")

@@ -30,10 +30,6 @@ func (c *TaskCollection) add(task types.TaskConfig) {
 	c.tasks = append(c.tasks, task)
 }
 
-func (c *TaskCollection) contains(name task.Name) bool {
-	return c.Get(name) != nil
-}
-
 // All returns all the tasks in the dependency order
 func (c *TaskCollection) All() []types.TaskConfig {
 	return c.tasks
@@ -92,7 +88,7 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 			return nil, err
 		}
 		state.tasks.add(taskConfig)
-		state.taskStack.Pop()
+		state.taskStack.Pop() // nolint: errcheck
 	}
 	return state.tasks, nil
 }

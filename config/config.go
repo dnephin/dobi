@@ -103,8 +103,7 @@ func validate(config *Config) error {
 			return err
 		}
 	}
-	config.Meta.Validate(config)
-	return nil
+	return config.Meta.Validate(config)
 }
 
 // ValidateResourcesExist checks that the list of resources is defined in the
