@@ -4,13 +4,15 @@ set -eu -o pipefail
 dobi="/go/bin/dobi-linux"
 prefixout="$PWD/script/prefixout"
 
+SKIP_CLEANUP=${SKIP_CLEANUP:-}
+
 function test_example {
     local example="$1"
     (
         cd "$example"
         $dobi test | tee output
         bash -ex -o pipefail assertions
-        $dobi autoclean
+        [[ -z "$SKIP_CLEANUP" ]] && (echo CLEANUP; $dobi autoclean)
         rm -f output
     ) |& $prefixout "$(basename $example)"
 }
