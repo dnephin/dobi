@@ -57,7 +57,7 @@ func (c *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			return err
 		}
 
-		if err := validateName(resName); err != nil {
+		if err = validateName(resName); err != nil {
 			return err
 		}
 

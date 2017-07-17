@@ -48,11 +48,11 @@ func (t *Task) Stop(ctx *context.ExecuteContext) error {
 }
 
 // StopNothing implements the Stop interface but does nothing
-func StopNothing(ctx *context.ExecuteContext, t *Task) error {
+func StopNothing(_ *context.ExecuteContext, _ *Task) error {
 	return nil
 }
 
-func buildCommandArgs(ctx *context.ExecuteContext, conf *config.ComposeConfig) []string {
+func buildCommandArgs(conf *config.ComposeConfig) []string {
 	args := []string{}
 	for _, filename := range conf.Files {
 		args = append(args, "-f", filename)
@@ -60,16 +60,16 @@ func buildCommandArgs(ctx *context.ExecuteContext, conf *config.ComposeConfig) [
 	return append(args, "-p", conf.Project)
 }
 
-func (t *Task) execCompose(ctx *context.ExecuteContext, args ...string) error {
-	if err := t.composeCommand(ctx, args...).Run(); err != nil {
+func (t *Task) execCompose(args ...string) error {
+	if err := t.buildCommand(args...).Run(); err != nil {
 		return err
 	}
 	t.logger().Info("Done")
 	return nil
 }
 
-func (t *Task) composeCommand(ctx *context.ExecuteContext, args ...string) *exec.Cmd {
-	args = append(buildCommandArgs(ctx, t.config), args...)
+func (t *Task) buildCommand(args ...string) *exec.Cmd {
+	args = append(buildCommandArgs(t.config), args...)
 	cmd := exec.Command("docker-compose", args...)
 	t.logger().Debugf("Args: %s", args)
 	cmd.Stdout = os.Stdout

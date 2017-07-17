@@ -66,7 +66,7 @@ func (t *Task) ForEachTag(ctx *context.ExecuteContext, each func(string) error) 
 func Stream(out io.Writer, streamer func(out io.Writer) error) error {
 	outFd, isTTY := term.GetFdInfo(out)
 	rpipe, wpipe := io.Pipe()
-	defer rpipe.Close()
+	defer rpipe.Close() // nolint: errcheck
 
 	errChan := make(chan error)
 
@@ -76,7 +76,7 @@ func Stream(out io.Writer, streamer func(out io.Writer) error) error {
 	}()
 
 	err := streamer(wpipe)
-	wpipe.Close()
+	wpipe.Close() // nolint: errcheck
 	if err != nil {
 		<-errChan
 		return err

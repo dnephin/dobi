@@ -1,5 +1,4 @@
-
-FROM    golang:1.7-alpine
+FROM    golang:1.8.3-alpine
 
 RUN     apk add -U git bash curl tree
 RUN     git config --global http.https://gopkg.in.followRedirects true
@@ -11,9 +10,11 @@ RUN     export GLIDE=v0.12.3; \
         mv linux-amd64/glide /usr/bin/glide && \
         chmod +x /usr/bin/glide
 
-RUN     cache=2017-07-02; \
-        go get github.com/dnephin/filewatcher && \
-        cp /go/bin/filewatcher /usr/bin/ && \
+ARG     FILEWATCHER_SHA=2e12ea42f6c8c089b19e992145bb94e8adaecedb
+RUN     go get -d github.com/dnephin/filewatcher && \
+        cd /go/src/github.com/dnephin/filewatcher && \
+        git checkout -q "$FILEWATCHER_SHA" && \
+        go build -v -o /usr/bin/filewatcher . && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 RUN     go get github.com/mitchellh/gox && \

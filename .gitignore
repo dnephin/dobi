@@ -5,5 +5,4 @@ dist
 docs/gen
 docs/build
 docs/doctrees
-tasks/client/mock_iface.go
 .glide

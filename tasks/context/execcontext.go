@@ -24,7 +24,7 @@ type ExecuteContext struct {
 // during this execution
 func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 	for _, name := range names {
-		if modified, _ := ctx.modified[name]; modified {
+		if modified := ctx.modified[name]; modified {
 			return true
 		}
 	}

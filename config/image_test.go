@@ -7,6 +7,7 @@ import (
 
 	pth "github.com/dnephin/configtf/path"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -68,7 +69,8 @@ func TestPullWithDuration(t *testing.T) {
 	p := pull{}
 	now := time.Now()
 	old := now.Add(-time.Duration(32 * 60 * 10e9))
-	p.TransformConfig(reflect.ValueOf("30m"))
+	err := p.TransformConfig(reflect.ValueOf("30m"))
+	require.NoError(t, err)
 
 	assert.Equal(t, p.Required(&now), false)
 	assert.Equal(t, p.Required(&old), true)

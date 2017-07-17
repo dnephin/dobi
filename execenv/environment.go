@@ -57,8 +57,8 @@ func (e *ExecEnv) Resolve(tmpl string) (string, error) {
 // ResolveSlice resolves all strings in the slice
 func (e *ExecEnv) ResolveSlice(tmpls []string) ([]string, error) {
 	resolved := []string{}
-	for _, item := range tmpls {
-		item, err := e.Resolve(item)
+	for _, tmpl := range tmpls {
+		item, err := e.Resolve(tmpl)
 		if err != nil {
 			return tmpls, err
 		}

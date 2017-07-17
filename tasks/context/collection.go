@@ -35,7 +35,7 @@ type eachMountFunc func(name string, vol *config.MountConfig)
 // EachMount iterates all the mounts in names and calls f for each
 func (c *ResourceCollection) EachMount(names []string, f eachMountFunc) {
 	for _, name := range names {
-		mount, _ := c.mounts[name]
+		mount := c.mounts[name]
 		f(name, mount)
 	}
 }
