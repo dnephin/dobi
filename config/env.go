@@ -6,7 +6,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 )
 
 // EnvConfig An **env** resource provides environment variables to **job** and
@@ -42,16 +41,16 @@ func (c *EnvConfig) Validate(pth.Path, *Config) *pth.Error {
 }
 
 // Resolve resolves variables in the config
-func (c *EnvConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *EnvConfig) Resolve(resolver resolver) (Resource, error) {
 	conf := *c
 	var err error
 
-	conf.Files, err = env.ResolveSlice(c.Files)
+	conf.Files, err = resolver.ResolveSlice(c.Files)
 	if err != nil {
 		return &conf, err
 	}
 
-	conf.Variables, err = env.ResolveSlice(c.Variables)
+	conf.Variables, err = resolver.ResolveSlice(c.Variables)
 	return &conf, err
 }
 

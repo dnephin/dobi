@@ -3,7 +3,6 @@ package config
 import (
 	"testing"
 
-	"github.com/dnephin/dobi/execenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,16 +31,27 @@ func (s *ConfigSuite) TestSorted() {
 }
 
 func TestResourceResolveDoesNotMutate(t *testing.T) {
-	env := execenv.NewExecEnv("execid", "project", ".")
+	resolver := &fakeResolver{}
 
 	for name, fromConfigFunc := range resourceTypeRegistry {
 		value := make(map[string]interface{})
 		resource, err := fromConfigFunc(name, value)
 		assert.Nil(t, err)
-		resolved, err := resource.Resolve(env)
+		resolved, err := resource.Resolve(resolver)
 		assert.Nil(t, err)
 		assert.True(t, resource != resolved,
 			"Expected different pointers for %q: %p, %p",
 			name, resource, resolved)
 	}
+}
+
+type fakeResolver struct {
+}
+
+func (r *fakeResolver) Resolve(tmpl string) (string, error) {
+	return tmpl, nil
+}
+
+func (r *fakeResolver) ResolveSlice(tmpls []string) ([]string, error) {
+	return tmpls, nil
 }

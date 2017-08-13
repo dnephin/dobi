@@ -2,14 +2,13 @@ package config
 
 import (
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 )
 
 // Resource is an interface for each configurable type
 type Resource interface {
 	Dependencies() []string
 	Validate(pth.Path, *Config) *pth.Error
-	Resolve(*execenv.ExecEnv) (Resource, error)
+	Resolve(resolver) (Resource, error)
 	Describe() string
 	CategoryTags() []string
 	String() string
@@ -44,4 +43,9 @@ type Dependent struct {
 // Dependencies returns the list of tasks
 func (d *Dependent) Dependencies() []string {
 	return d.Depends
+}
+
+type resolver interface {
+	Resolve(tmpl string) (string, error)
+	ResolveSlice(tmpls []string) ([]string, error)
 }

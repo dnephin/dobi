@@ -7,7 +7,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 )
 
 // ComposeConfig A **compose** resource runs ``docker-compose`` to create an
@@ -60,14 +59,14 @@ func (c *ComposeConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *ComposeConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *ComposeConfig) Resolve(resolver resolver) (Resource, error) {
 	conf := *c
 	var err error
-	conf.Files, err = env.ResolveSlice(c.Files)
+	conf.Files, err = resolver.ResolveSlice(c.Files)
 	if err != nil {
 		return &conf, err
 	}
-	conf.Project, err = env.Resolve(c.Project)
+	conf.Project, err = resolver.Resolve(c.Project)
 	return &conf, err
 }
 

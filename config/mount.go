@@ -5,7 +5,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/utils/fs"
 )
 
@@ -92,14 +91,14 @@ func (c *MountConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *MountConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *MountConfig) Resolve(resolver resolver) (Resource, error) {
 	conf := *c
 	var err error
-	conf.Path, err = env.Resolve(c.Path)
+	conf.Path, err = resolver.Resolve(c.Path)
 	if err != nil {
 		return &conf, err
 	}
-	conf.Name, err = env.Resolve(c.Name)
+	conf.Name, err = resolver.Resolve(c.Name)
 	if err != nil {
 		return &conf, err
 	}

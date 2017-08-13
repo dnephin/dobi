@@ -6,7 +6,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 )
 
 // AliasConfig An **alias** resource is a list of other tasks which will be run
@@ -41,7 +40,7 @@ func (c *AliasConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *AliasConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *AliasConfig) Resolve(_ resolver) (Resource, error) {
 	copy := *c
 	return &copy, nil
 }

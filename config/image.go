@@ -8,7 +8,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -114,21 +113,21 @@ func (c *ImageConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *ImageConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *ImageConfig) Resolve(resolver resolver) (Resource, error) {
 	conf := *c
 	var err error
-	conf.Tags, err = env.ResolveSlice(c.Tags)
+	conf.Tags, err = resolver.ResolveSlice(c.Tags)
 	if err != nil {
 		return &conf, err
 	}
 
-	conf.Image, err = env.Resolve(c.Image)
+	conf.Image, err = resolver.Resolve(c.Image)
 	if err != nil {
 		return &conf, err
 	}
 
 	for key, value := range c.Args {
-		conf.Args[key], err = env.Resolve(value)
+		conf.Args[key], err = resolver.Resolve(value)
 		if err != nil {
 			return &conf, err
 		}
