@@ -36,7 +36,7 @@ func (c *TaskCollection) All() []types.TaskConfig {
 }
 
 // Get returns the TaskConfig for the Name
-func (c *TaskCollection) Get(name task.Name) types.TaskConfig {
+func (c *TaskCollection) Get(name types.Name) types.TaskConfig {
 	for _, task := range c.tasks {
 		if task.Name().Equal(name) {
 			return task
@@ -63,7 +63,7 @@ type collectionState struct {
 
 func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
 	for _, taskname := range options.Tasks {
-		taskname := task.ParseName(taskname)
+		taskname := types.ParseName(taskname)
 		resourceName := taskname.Resource()
 		resource, ok := options.Config.Resources[resourceName]
 		if !ok {
@@ -165,7 +165,7 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 
 func hasModifiedDeps(ctx *context.ExecuteContext, deps []string) bool {
 	for _, dep := range deps {
-		taskName := task.ParseName(dep)
+		taskName := types.ParseName(dep)
 		if ctx.IsModified(taskName) {
 			return true
 		}

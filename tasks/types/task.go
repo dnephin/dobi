@@ -4,38 +4,37 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
-	"github.com/dnephin/dobi/tasks/task"
 )
 
 // Task interface performs some operation with a resource config
 type Task interface {
 	logging.LogRepresenter
-	Name() task.Name
+	Name() Name
 	Run(*context.ExecuteContext, bool) (bool, error)
 	Stop(*context.ExecuteContext) error
 }
 
-// RunFunc is a function which performs the task. It received a context and a
+// RunFunc is a function which performs the task. It receives a context and a
 // bool indicating if any dependencies were modified. It should return true if
 // the resource was modified, otherwise false.
 type RunFunc func(*context.ExecuteContext, bool) (bool, error)
 
 // TaskConfig is a data object which stores the full configuration of a Task
 type TaskConfig interface {
-	Name() task.Name
+	Name() Name
 	Resource() config.Resource
 	Dependencies() []string
 	Task(config.Resource) Task
 }
 
 type taskConfig struct {
-	name      task.Name
+	name      Name
 	resource  config.Resource
 	deps      func() []string
-	buildTask func(task.Name, config.Resource) Task
+	buildTask func(Name, config.Resource) Task
 }
 
-func (t taskConfig) Name() task.Name {
+func (t taskConfig) Name() Name {
 	return t.name
 }
 
@@ -52,11 +51,11 @@ func (t taskConfig) Task(res config.Resource) Task {
 }
 
 // TaskBuilder is a function which creates a new Task from a name and config
-type TaskBuilder func(task.Name, config.Resource) Task
+type TaskBuilder func(Name, config.Resource) Task
 
 // NewTaskConfig returns a TaskConfig from components
 func NewTaskConfig(
-	name task.Name,
+	name Name,
 	resource config.Resource,
 	deps func() []string,
 	buildTask TaskBuilder,

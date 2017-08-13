@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/dnephin/dobi/logging"
-	"github.com/dnephin/dobi/tasks/types"
 	git "github.com/gogits/git-module"
 	"github.com/metakeule/fmtdate"
 	fasttmpl "github.com/valyala/fasttemplate"
@@ -29,7 +28,6 @@ type ExecEnv struct {
 	tmplCache  map[string]string
 	workingDir string
 	startTime  time.Time
-	defered    []types.Task
 }
 
 // Unique returns a unique id for this execution

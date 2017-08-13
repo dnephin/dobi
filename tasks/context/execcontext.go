@@ -5,14 +5,16 @@ import (
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/client"
-	"github.com/dnephin/dobi/tasks/task"
+	"github.com/dnephin/dobi/tasks/types"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified    map[task.Name]bool
+	modified map[types.Name]bool
+	// TODO: replace this with deferred
 	Resources   *ResourceCollection
+	defered     []types.Task
 	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
@@ -22,7 +24,7 @@ type ExecuteContext struct {
 
 // IsModified returns true if any of the tasks named in names has been modified
 // during this execution
-func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
+func (ctx *ExecuteContext) IsModified(names ...types.Name) bool {
 	for _, name := range names {
 		if modified := ctx.modified[name]; modified {
 			return true
@@ -32,7 +34,7 @@ func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 }
 
 // SetModified sets the task name as modified
-func (ctx *ExecuteContext) SetModified(name task.Name) {
+func (ctx *ExecuteContext) SetModified(name types.Name) {
 	ctx.modified[name] = true
 }
 
@@ -58,7 +60,7 @@ func (ctx *ExecuteContext) GetAuthConfigs() docker.AuthConfigurations {
 	return *ctx.authConfigs
 }
 
-// NewExecuteContext craetes a new empty ExecuteContext
+// NewExecuteContext creates and returns a new empty ExecuteContext
 func NewExecuteContext(
 	config *config.Config,
 	client client.DockerClient,
@@ -72,7 +74,7 @@ func NewExecuteContext(
 	}
 
 	return &ExecuteContext{
-		modified:    make(map[task.Name]bool),
+		modified:    make(map[types.Name]bool),
 		Resources:   newResourceCollection(),
 		WorkingDir:  config.WorkingDir,
 		Client:      client,
