@@ -2,7 +2,6 @@ package config
 
 import (
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
 	"github.com/pkg/errors"
 )
@@ -11,7 +10,7 @@ import (
 type Resource interface {
 	Dependencies() []string
 	Validate(pth.Path, *Config) *pth.Error
-	Resolve(*execenv.ExecEnv) (Resource, error)
+	Resolve(Resolver) (Resource, error)
 	Describe() string
 	CategoryTags() []string
 	String() string
@@ -70,4 +69,10 @@ type Dependent struct {
 // Dependencies returns the list of tasks
 func (d *Dependent) Dependencies() []string {
 	return d.Depends
+}
+
+// Resolver is an interface for a type that returns values for variables
+type Resolver interface {
+	Resolve(tmpl string) (string, error)
+	ResolveSlice(tmpls []string) ([]string, error)
 }
