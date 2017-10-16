@@ -32,14 +32,20 @@ func TestInclude(t *testing.T) {
 		{
 			opts: listOptions{tags: []string{"one"}},
 			resource: &testconfig.FakeResource{
-				Annotations: config.Annotations{Description: "foo"},
+				Annotations: config.Annotations{
+					Annotations: config.AnnotationFields{Description: "foo"},
+				},
 			},
 			expected: false,
 		},
 		{
 			opts: listOptions{tags: []string{"one"}},
 			resource: &testconfig.FakeResource{
-				Annotations: config.Annotations{Tags: []string{"one", "two"}},
+				Annotations: config.Annotations{
+					Annotations: config.AnnotationFields{
+						Tags: []string{"one", "two"},
+					},
+				},
 			},
 			expected: true,
 		},

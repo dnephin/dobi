@@ -17,21 +17,25 @@ type Resource interface {
 
 // Annotations provides a description and tags to a resource
 type Annotations struct {
+	Annotations AnnotationFields
+}
+
+// Describe returns the resource description
+func (a *Annotations) Describe() string {
+	return a.Annotations.Description
+}
+
+// CategoryTags tags returns the list of tags
+func (a *Annotations) CategoryTags() []string {
+	return a.Annotations.Tags
+}
+
+type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
 	// Tags
 	Tags []string
-}
-
-// Describe returns the resource description
-func (a *Annotations) Describe() string {
-	return a.Description
-}
-
-// CategoryTags tags returns the list of tags
-func (a *Annotations) CategoryTags() []string {
-	return a.Tags
 }
 
 // Dependent can be used to provide part of the Resource interface
