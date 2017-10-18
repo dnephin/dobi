@@ -1,6 +1,6 @@
 FROM    docker/compose:1.8.0
 
-RUN     apk add -U bash git curl
+RUN     apk add -U bash git curl expect
 
 # TODO: upgrade docker
 RUN     export VERSION=1.12.1; \

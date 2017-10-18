@@ -35,7 +35,3 @@ alias=tag-images:
 alias=clean:
     tasks: ['app:rm', 'db:rm']
     description: "Remove all the images"
-
-# alias used by dobi test suite to test this example
-alias=test:
-    tasks: [tag-images]

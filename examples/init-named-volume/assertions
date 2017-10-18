@@ -1,9 +1,0 @@
-#!/bin/bash
-set -e
-
-(
-
-echo "the volume contains the correct file"
-[[ $(docker run --rm -v example-init-volume-data:/data alpine:3.5 ls -1 data | xargs ) == "datafile newfile" ]]
-
-) >/dev/null

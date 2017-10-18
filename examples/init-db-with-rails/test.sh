@@ -1,7 +1,18 @@
-#!/bin/bash
-set -eu
+#!/usr/bin/env bash
+# SUMMARY: Test initialize a database 
+# LABELS:
+# REPEAT:
+# AUTHOR:
+set -eu -o pipefail
 
-(
+cleanup() {
+    echo "running cleanup"
+    rm db/export.sql
+    dobi autoclean
+}
+trap "cleanup" EXIT
+
+dobi dev-environment
 
 echo "image=rails creates an image with two tags"
 docker inspect --type image \
@@ -18,5 +29,3 @@ echo "image=database-img creates an image with two tags"
 docker inspect --type image \
     example/database:examplerailsdb \
     example/database:examplerailsdb-root
-
-) >/dev/null

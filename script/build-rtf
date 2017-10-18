@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -eo pipefail
+
+# TODO: use a sha
+go get -d github.com/linuxkit/rtf
