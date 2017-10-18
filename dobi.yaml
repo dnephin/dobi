@@ -180,7 +180,9 @@ job=examples-shell:
 job=build-rtf:
     use: builder
     mounts: [source, dist]
+    sources: [script/build-rtf]
     command: script/build-rtf
+    artifact: dist/bin/rtf
 
 image=refactorer:
     image: dnephin/go-refactor

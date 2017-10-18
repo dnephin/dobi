@@ -10,6 +10,7 @@ machine:
 general:
   branches:
     ignore: [gh-pages]
+  artifacts: ['_results', 'dist']
 
 dependencies:
   override: [script/ci-deps]

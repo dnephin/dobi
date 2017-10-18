@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SUMMARY: Test initialize a database 
+# SUMMARY: Test initialize a database
 # LABELS:
 # REPEAT:
 # AUTHOR:
