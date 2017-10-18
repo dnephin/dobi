@@ -3,10 +3,10 @@ package job
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/context"
 	docker "github.com/fsouza/go-dockerclient"
+	log "github.com/sirupsen/logrus"
 )
 
 // ContainerName returns the name of the container

@@ -97,7 +97,7 @@ imports:
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
 - name: github.com/sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
-- name: github.com/Sirupsen/logrus
+- name: github.com/sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
 - name: github.com/spf13/cobra
   version: 5d13e8c9d917d962ffc593fb2529d281ae04a7fd

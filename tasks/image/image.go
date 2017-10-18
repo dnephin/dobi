@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/context"
@@ -13,6 +12,7 @@ import (
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
+	log "github.com/sirupsen/logrus"
 )
 
 // Task creates a Docker image

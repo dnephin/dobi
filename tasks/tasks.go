@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/execenv"
 	"github.com/dnephin/dobi/logging"
@@ -19,6 +18,7 @@ import (
 	"github.com/dnephin/dobi/tasks/mount"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
+	log "github.com/sirupsen/logrus"
 )
 
 // TaskCollection is a collection of Task objects
