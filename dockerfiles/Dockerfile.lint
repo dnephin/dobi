@@ -1,9 +1,9 @@
-FROM    golang:1.8.3-alpine
+FROM    golang:1.9.1-alpine
 
 RUN     apk add -U python py-pip python-dev musl-dev gcc git bash
 RUN     pip install pre-commit
 
-ARG     GOML_SHA=a2a7c55269a5a0c55dac907ea81e5502d568d760
+ARG     GOML_SHA=7f9672e7ea538b8682e83395d50b12f09bb17b91
 RUN     go get -d github.com/alecthomas/gometalinter && \
         cd /go/src/github.com/alecthomas/gometalinter && \
         git checkout -q "$GOML_SHA" && \

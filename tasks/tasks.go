@@ -127,9 +127,9 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 
 	defer func() {
 		logging.Log.Debug("stopping tasks")
-		for _, task := range reversed(startedTasks) {
-			if err := task.Stop(ctx); err != nil {
-				logging.Log.Warnf("Failed to stop task %q: %s", task.Name(), err)
+		for _, startedTask := range reversed(startedTasks) {
+			if err := startedTask.Stop(ctx); err != nil {
+				logging.Log.Warnf("Failed to stop task %q: %s", startedTask.Name(), err)
 			}
 		}
 	}()
@@ -142,22 +142,22 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 		}
 		ctx.Resources.Add(taskConfig.Name().Resource(), resource)
 
-		task := taskConfig.Task(resource)
-		startedTasks = append(startedTasks, task)
+		currentTask := taskConfig.Task(resource)
+		startedTasks = append(startedTasks, currentTask)
 		start := time.Now()
-		logging.Log.WithFields(log.Fields{"time": start, "task": task}).Debug("Start")
+		logging.Log.WithFields(log.Fields{"time": start, "task": currentTask}).Debug("Start")
 
 		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
-		modified, err := task.Run(ctx, depsModified)
+		modified, err := currentTask.Run(ctx, depsModified)
 		if err != nil {
-			return fmt.Errorf("failed to execute task %q: %s", task.Name(), err)
+			return fmt.Errorf("failed to execute task %q: %s", currentTask.Name(), err)
 		}
 		if modified {
-			ctx.SetModified(task.Name())
+			ctx.SetModified(currentTask.Name())
 		}
 		logging.Log.WithFields(log.Fields{
 			"elapsed": time.Since(start),
-			"task":    task,
+			"task":    currentTask,
 		}).Debug("Complete")
 	}
 	return nil
