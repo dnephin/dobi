@@ -25,11 +25,12 @@ var (
 )
 
 type dobiOptions struct {
-	filename string
-	verbose  bool
-	quiet    bool
-	tasks    []string
-	version  bool
+	filename    string
+	verbose     bool
+	quiet       bool
+	noBindMount bool
+	tasks       []string
+	version     bool
 }
 
 // NewRootCommand returns a new root command
@@ -57,6 +58,8 @@ func NewRootCommand() *cobra.Command {
 	flags.StringVarP(&opts.filename, "filename", "f", "dobi.yaml", "Path to config file")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "Verbose")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "Quiet")
+	flags.BoolVar(&opts.noBindMount, "no-bind-mount", false,
+		"Provide mounts as a layer in an image instead of a bind mount")
 	flags.BoolVar(&opts.version, "version", false, "Print version and exit")
 
 	flags.SetInterspersed(false)
@@ -84,10 +87,11 @@ func runDobi(opts dobiOptions) error {
 	}
 
 	return tasks.Run(tasks.RunOptions{
-		Client: client,
-		Config: conf,
-		Tasks:  opts.tasks,
-		Quiet:  opts.quiet,
+		Client:    client,
+		Config:    conf,
+		Tasks:     opts.tasks,
+		Quiet:     opts.quiet,
+		BindMount: !opts.noBindMount,
 	})
 }
 

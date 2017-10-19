@@ -17,7 +17,7 @@ type ExecuteContext struct {
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
 	Env         *execenv.ExecEnv
-	Quiet       bool
+	Settings    Settings
 }
 
 // IsModified returns true if any of the tasks named in names has been modified
@@ -63,7 +63,7 @@ func NewExecuteContext(
 	config *config.Config,
 	client client.DockerClient,
 	execEnv *execenv.ExecEnv,
-	quiet bool,
+	settings Settings,
 ) *ExecuteContext {
 
 	authConfigs, err := docker.NewAuthConfigurationsFromDockerCfg()
@@ -78,6 +78,6 @@ func NewExecuteContext(
 		Client:      client,
 		authConfigs: authConfigs,
 		Env:         execEnv,
-		Quiet:       quiet,
+		Settings:    settings,
 	}
 }

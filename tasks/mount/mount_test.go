@@ -42,7 +42,7 @@ func (s *CreateTaskSuite) SetupTest() {
 	s.action = &createAction{task: s.task}
 
 	s.ctx = context.NewExecuteContext(
-		&config.Config{WorkingDir: s.path}, nil, nil, false)
+		&config.Config{WorkingDir: s.path}, nil, nil, context.Settings{})
 }
 
 func (s *CreateTaskSuite) TearDownTest() {

@@ -169,7 +169,6 @@ func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
 }
 
 func (t *Task) runContainer(ctx *context.ExecuteContext) error {
-	interactive := t.config.Interactive
 	name := ContainerName(ctx, t.name.Resource())
 	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
 	if err != nil {
@@ -201,7 +200,7 @@ func (t *Task) runContainer(ctx *context.ExecuteContext) error {
 		return fmt.Errorf("failed attaching to container %q: %s", name, err)
 	}
 
-	if interactive {
+	if t.config.Interactive {
 		inFd, _ := term.GetFdInfo(os.Stdin)
 		state, err := term.SetRawTerminal(inFd)
 		if err != nil {
