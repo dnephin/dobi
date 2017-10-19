@@ -64,6 +64,8 @@ imports:
   version: 13f360950a79f5864a972c786a10a50e44b69541
   subpackages:
   - gomock
+- name: github.com/gotestyourself/gotestyourself
+  version: 5aac0d55ecf82c21113b05a175041f7a24a56ce7
 - name: github.com/hashicorp/go-cleanhttp
   version: 3573b8b52aa7b37b9358d966a898feb387f62437
 - name: github.com/inconshreveable/mousetrap
@@ -96,7 +98,7 @@ imports:
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
 - name: github.com/sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
-- name: github.com/Sirupsen/logrus
+- name: github.com/sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
 - name: github.com/spf13/cobra
   version: 5d13e8c9d917d962ffc593fb2529d281ae04a7fd

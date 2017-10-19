@@ -13,7 +13,8 @@ image=app:
       - '{git.sha}'
       - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.APP_VERSION}'
-    description: "Build the application image"
+    annotations:
+        description: "Build the application image"
 
 image=db:
     image: example/tagged-db
@@ -25,13 +26,16 @@ image=db:
       - '{git.sha}'
       - '{time.YYYY-MM-DDThh-mm:}'
       - '{env.DB_VERSION:dev}'
-    description: "Build the database image"
+    annotations:
+        description: "Build the database image"
 
 
 alias=tag-images:
     tasks: ['app:tag', 'db:tag']
-    description: "Build and tag images"
+    annotations:
+        description: "Build and tag images"
 
 alias=clean:
     tasks: ['app:rm', 'db:rm']
-    description: "Remove all the images"
+    annotations:
+        description: "Remove all the images"

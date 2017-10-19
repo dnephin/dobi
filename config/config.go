@@ -96,7 +96,7 @@ func validate(config *Config) error {
 		if err := configtf.ValidateFields(path, resource); err != nil {
 			return err
 		}
-		if err := ValidateResourcesExist(path, config, resource.Dependencies()); err != nil {
+		if err := validateResourcesExist(path, config, resource.Dependencies()); err != nil {
 			return err
 		}
 		if err := resource.Validate(path, config); err != nil {
@@ -106,9 +106,9 @@ func validate(config *Config) error {
 	return config.Meta.Validate(config)
 }
 
-// ValidateResourcesExist checks that the list of resources is defined in the
+// validateResourcesExist checks that the list of resources is defined in the
 // config and returns an error if a resources is not defined.
-func ValidateResourcesExist(path pth.Path, c *Config, names []string) error {
+func validateResourcesExist(path pth.Path, c *Config, names []string) error {
 	missing := []string{}
 	for _, name := range names {
 		resource := task.ParseName(name).Resource()
