@@ -3,7 +3,7 @@ import:
 - package: gopkg.in/yaml.v2
 - package: github.com/fsouza/go-dockerclient
 - package: github.com/spf13/pflag
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
 - package: github.com/stretchr/testify
 - package: github.com/renstrom/dedent
 - package: github.com/kballard/go-shellquote
@@ -13,6 +13,7 @@ import:
 - package: github.com/gogits/git-module
 - package: github.com/metakeule/fmtdate
 - package: github.com/golang/mock
+  version: v1.0.0
 - package: github.com/docker/go-connections
 - package: github.com/docker/docker
 - package: github.com/dnephin/configtf

@@ -1,5 +1,5 @@
-hash: 50f4aecf21602a6f14b4a77f2882c8ff91edab16625f62ec4d38c2bd854f440f
-updated: 2017-07-17T00:04:28.158123253Z
+hash: 3ea50baaca1fcd7eafbce6769e082a5c9ede441e0ff9659c497ed639161e663c
+updated: 2017-10-19T16:47:00.048293267Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: 19f72df4d05d31cbe1c56bfc8045c96babff6c7e
@@ -46,7 +46,6 @@ imports:
   - pkg/system
   - pkg/term
   - pkg/term/windows
-  - runconfig/opts
 - name: github.com/docker/go-connections
   version: 3ede32e2033de7505e6500d6c868c2b9ed9f169d
   subpackages:
@@ -62,7 +61,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/golang/mock
-  version: 93f6609a15b7de76bd49259f1f9a6b58df358936
+  version: 13f360950a79f5864a972c786a10a50e44b69541
   subpackages:
   - gomock
 - name: github.com/hashicorp/go-cleanhttp

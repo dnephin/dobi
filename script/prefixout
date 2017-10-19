@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -eu -o pipefail
-exec awk -v prefix="$1" '{print prefix " | " $0}'

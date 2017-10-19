@@ -24,7 +24,3 @@ job=app:
     command: "nc -l 0.0.0.0 8080"
     depends: [setup]
     description: "Run the application"
-
-# alias used by dobi test suite to test this example
-alias=test:
-    tasks: [bash]

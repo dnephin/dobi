@@ -7,11 +7,11 @@ import (
 	"sort"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/task"
+	log "github.com/sirupsen/logrus"
 )
 
 // Config is a data object for a full config file

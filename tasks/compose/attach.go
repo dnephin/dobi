@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/dnephin/dobi/tasks/context"
+	log "github.com/sirupsen/logrus"
 )
 
 // RunUpAttached starts the Compose project

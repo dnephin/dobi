@@ -28,7 +28,3 @@ job=view:
     use: runner
     mounts: [data]
     command: "ls -1 /data"
-
-# alias used by dobi test suite to test this example
-alias=test:
-    tasks: [populate, view]

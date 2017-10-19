@@ -1,0 +1,15 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+
+spawn dobi app
+match_max 100000
+expect "Unique id for the project (default: *): "
+send -- "\r"
+expect "Username (default: root): "
+send -- "myuser\r"
+expect "Listen port (default: 8080): "
+send -- "8889\r"
+expect "nc -l 0.0.0.0 8080"
+send -- ""
+expect eof
