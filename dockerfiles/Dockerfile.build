@@ -21,8 +21,10 @@ RUN     go get github.com/mitchellh/gox && \
         cp /go/bin/gox /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
-RUN     go get github.com/golang/mock/mockgen && \
-        cp /go/bin/mockgen /usr/bin && \
+RUN     go get -d github.com/golang/mock/mockgen && \
+        cd /go/src/github.com/golang/mock && \
+        git checkout -q "v1.0.0" && \
+        go build -v -o /usr/local/bin/mockgen ./mockgen && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 WORKDIR /go/src/github.com/dnephin/dobi

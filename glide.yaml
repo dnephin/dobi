@@ -13,6 +13,7 @@ import:
 - package: github.com/gogits/git-module
 - package: github.com/metakeule/fmtdate
 - package: github.com/golang/mock
+  version: v1.0.0
 - package: github.com/docker/go-connections
 - package: github.com/docker/docker
 - package: github.com/dnephin/configtf
