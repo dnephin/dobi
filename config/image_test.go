@@ -35,7 +35,7 @@ func (s *ImageConfigSuite) TestString() {
 func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.image.Depends = []string{"one", "two"}
 	conf := NewConfig()
-	err := ValidateResourcesExist(pth.NewPath(""), conf, s.image.Dependencies())
+	err := validateResourcesExist(pth.NewPath(""), conf, s.image.Dependencies())
 	s.Error(err)
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }

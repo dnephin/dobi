@@ -3,6 +3,8 @@ package config
 import (
 	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/execenv"
+	"github.com/dnephin/dobi/logging"
+	"github.com/pkg/errors"
 )
 
 // Resource is an interface for each configurable type
@@ -17,17 +19,36 @@ type Resource interface {
 
 // Annotations provides a description and tags to a resource
 type Annotations struct {
+	// Description of a resource
+	// Deprecated use Annotations.Description
+	Description string `config:"validate"`
 	Annotations AnnotationFields
 }
 
 // Describe returns the resource description
 func (a *Annotations) Describe() string {
-	return a.Annotations.Description
+	if a.Annotations.Description != "" {
+		return a.Annotations.Description
+	}
+	// fall back to old deprecated field
+	return a.Description
 }
 
 // CategoryTags tags returns the list of tags
 func (a *Annotations) CategoryTags() []string {
 	return a.Annotations.Tags
+}
+
+// ValidateDescription prints a warning if set
+func (a *Annotations) ValidateDescription() error {
+	if a.Description != "" && a.Annotations.Description != "" {
+		return errors.Errorf(
+			"deprecated description will be ignored in favor of annotations.description")
+	}
+	if a.Description != "" {
+		logging.Log.Warn("description is deprecated. Use annotations.description")
+	}
+	return nil
 }
 
 // AnnotationFields used to annotate a resource
