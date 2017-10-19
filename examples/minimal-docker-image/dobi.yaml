@@ -23,15 +23,18 @@ job=binary:
     use: builder
     artifact: ./dist/bin/hello
     mounts: [source, dist]
-    description: "Build the static binary"
+    annotations:
+        description: "Build the static binary"
 
 image=dist-img:
     image: example/hello
     dockerfile: Dockerfile.dist
     tags: ['{user.name}']
     depends: [binary]
-    description: "Build the distribution image"
+    annotations:
+        description: "Build the distribution image"
 
 job=run-dist:
     use: dist-img
-    description: "Run the distribution image"
+    annotations:
+        description: "Run the distribution image"

@@ -30,6 +30,7 @@ func (a *Annotations) CategoryTags() []string {
 	return a.Annotations.Tags
 }
 
+// AnnotationFields used to annotate a resource
 type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
