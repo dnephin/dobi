@@ -180,6 +180,18 @@ func (_mr *MockDockerClientMockRecorder) WaitContainer(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "WaitContainer", reflect.TypeOf((*MockDockerClient)(nil).WaitContainer), arg0)
 }
 
+// DownloadFromContainer mocks base method
+func (_m *MockDockerClient) DownloadFromContainer(id string, opts go_dockerclient.DownloadFromContainerOptions) error {
+	ret := _m.ctrl.Call(_m, "DownloadFromContainer", id, opts)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DownloadFromContainer indicates an expected call of DownloadFromContainer
+func (_mr *MockDockerClientMockRecorder) DownloadFromContainer(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "DownloadFromContainer", reflect.TypeOf((*MockDockerClient)(nil).DownloadFromContainer), arg0, arg1)
+}
+
 // CreateVolume mocks base method
 func (_m *MockDockerClient) CreateVolume(opts go_dockerclient.CreateVolumeOptions) (*go_dockerclient.Volume, error) {
 	ret := _m.ctrl.Call(_m, "CreateVolume", opts)

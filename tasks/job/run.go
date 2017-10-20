@@ -186,7 +186,10 @@ func removeContainerWithLogging(
 	}
 }
 
-func (t *Task) runContainer(ctx *context.ExecuteContext, options docker.CreateContainerOptions) error {
+func (t *Task) runContainer(
+	ctx *context.ExecuteContext,
+	options docker.CreateContainerOptions,
+) error {
 	name := options.Name
 	container, err := ctx.Client.CreateContainer(options)
 	if err != nil {
