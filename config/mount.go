@@ -90,6 +90,11 @@ func (c *MountConfig) String() string {
 	return fmt.Sprintf("Create %s to be mounted at %q", mount, c.Path)
 }
 
+// IsBind returns true if the mount is a bind mount to a host directory
+func (c *MountConfig) IsBind() bool {
+	return c.Bind != ""
+}
+
 // Resolve resolves variables in the resource
 func (c *MountConfig) Resolve(resolver Resolver) (Resource, error) {
 	conf := *c

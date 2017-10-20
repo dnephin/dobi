@@ -165,14 +165,6 @@ func (t *Task) mountsLastModified(ctx *context.ExecuteContext) (time.Time, error
 	return fs.LastModified(mountPaths...)
 }
 
-func getBindMountsForHostConfig(ctx *context.ExecuteContext, mounts []string) []string {
-	binds := []string{}
-	ctx.Resources.EachMount(mounts, func(name string, config *config.MountConfig) {
-		binds = append(binds, mount.AsBind(config, ctx.WorkingDir))
-	})
-	return binds
-}
-
 func (t *Task) runContainerWithBinds(ctx *context.ExecuteContext) error {
 	name := containerName(ctx, t.name.Resource())
 	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
@@ -275,7 +267,7 @@ func (t *Task) createOptions(
 			ExposedPorts: exposedPorts,
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:        getBindMountsForHostConfig(ctx, t.config.Mounts),
+			Binds:        getMountsForHostConfig(ctx, t.config.Mounts),
 			Privileged:   t.config.Privileged,
 			NetworkMode:  t.config.NetMode,
 			PortBindings: portBinds,
@@ -286,6 +278,17 @@ func (t *Task) createOptions(
 		opts = provideDocker(opts)
 	}
 	return opts
+}
+
+func getMountsForHostConfig(ctx *context.ExecuteContext, mounts []string) []string {
+	binds := []string{}
+	ctx.Resources.EachMount(mounts, func(name string, mountConfig *config.MountConfig) {
+		if !ctx.Settings.BindMount && mountConfig.IsBind() {
+			return
+		}
+		binds = append(binds, mount.AsBind(mountConfig, ctx.WorkingDir))
+	})
+	return binds
 }
 
 func getDevices(devices []config.Device) []docker.Device {
