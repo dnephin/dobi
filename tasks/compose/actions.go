@@ -49,6 +49,9 @@ func getAction(name string, resname string, conf *config.ComposeConfig) (action,
 	case "attach":
 		return newAction(
 			task.NewName(resname, "attach"), RunUpAttached, nil, deps(conf))
+	case "detach":
+		return newAction(
+			task.NewDefaultName(resname, "detach"), RunUp, nil, deps(conf))
 	default:
 		return action{}, fmt.Errorf("invalid compose action %q for task %q", name, resname)
 	}
