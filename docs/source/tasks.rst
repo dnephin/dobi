@@ -176,7 +176,9 @@ Compose Tasks
 ~~~~~~~~~~~~~~~~~~~
 
 Up runs ``docker-compose up -d`` with the files and project name from
-the resource to create a new isolated environment.
+the resource to create a new isolated environment. When the ``dobi`` task
+execution is complete the project is stopped with ``docker-compose stop``.
+To keep the project running use ``:attach`` or ``:detach``.
 
 ``:down``
 ~~~~~~~~~
@@ -190,3 +192,9 @@ by Compose.
 ~~~~~~~~~~~
 
 Attach runs ``docker-compose up`` and attaches to the logs.
+
+``:detach``
+~~~~~~~~~~~
+
+Detach runs ``docker-compose up -d`` and the project continues to run when ``dobi``
+exits.
