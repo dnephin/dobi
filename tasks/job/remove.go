@@ -37,7 +37,7 @@ func (t *RemoveTask) Repr() string {
 func (t *RemoveTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 	logger := logging.ForTask(t)
 
-	RemoveContainer(logger, ctx.Client, ContainerName(ctx, t.name.Resource())) // nolint: errcheck
+	removeContainer(logger, ctx.Client, containerName(ctx, t.name.Resource())) // nolint: errcheck
 
 	for _, path := range t.config.Artifact.Paths() {
 		if err := os.RemoveAll(path); err != nil {

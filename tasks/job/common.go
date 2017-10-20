@@ -9,14 +9,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ContainerName returns the name of the container
-func ContainerName(ctx *context.ExecuteContext, name string) string {
+// containerName returns the name of the container
+func containerName(ctx *context.ExecuteContext, name string) string {
 	return fmt.Sprintf("%s-%s", ctx.Env.Unique(), name)
 }
 
-// RemoveContainer removes a container by ID, and logs a warning if the remove
+// removeContainer removes a container by ID, and logs a warning if the remove
 // fails.
-func RemoveContainer(
+func removeContainer(
 	logger *log.Entry,
 	client client.DockerClient,
 	containerID string,

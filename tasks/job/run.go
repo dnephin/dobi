@@ -82,7 +82,12 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 	t.logger().Debug("is stale")
 
 	t.logger().Info("Start")
-	err := t.runContainer(ctx)
+	var err error
+	if ctx.Settings.BindMount {
+		err = t.runContainerWithBinds(ctx)
+	} else {
+		err = t.runWithBuildAndCopy(ctx)
+	}
 	if err != nil {
 		return false, err
 	}
@@ -160,30 +165,44 @@ func (t *Task) mountsLastModified(ctx *context.ExecuteContext) (time.Time, error
 	return fs.LastModified(mountPaths...)
 }
 
-func (t *Task) bindMounts(ctx *context.ExecuteContext) []string {
+func getBindMountsForHostConfig(ctx *context.ExecuteContext, mounts []string) []string {
 	binds := []string{}
-	ctx.Resources.EachMount(t.config.Mounts, func(name string, config *config.MountConfig) {
+	ctx.Resources.EachMount(mounts, func(name string, config *config.MountConfig) {
 		binds = append(binds, mount.AsBind(config, ctx.WorkingDir))
 	})
 	return binds
 }
 
-func (t *Task) runContainer(ctx *context.ExecuteContext) error {
-	name := ContainerName(ctx, t.name.Resource())
-	container, err := ctx.Client.CreateContainer(t.createOptions(ctx, name))
+func (t *Task) runContainerWithBinds(ctx *context.ExecuteContext) error {
+	name := containerName(ctx, t.name.Resource())
+	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
+	options := t.createOptions(ctx, name, imageName)
+
+	defer removeContainerWithLogging(t.logger(), ctx.Client, name)
+	return t.runContainer(ctx, options)
+}
+
+func removeContainerWithLogging(
+	logger *log.Entry,
+	client client.DockerClient,
+	containerID string,
+) {
+	removed, err := removeContainer(logger, client, containerID)
+	if !removed && err == nil {
+		logger.WithFields(log.Fields{"container": containerID}).Warn(
+			"Container does not exist")
+	}
+}
+
+func (t *Task) runContainer(ctx *context.ExecuteContext, options docker.CreateContainerOptions) error {
+	name := options.Name
+	container, err := ctx.Client.CreateContainer(options)
 	if err != nil {
 		return fmt.Errorf("failed creating container %q: %s", name, err)
 	}
 
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
-	defer func() {
-		removed, err := RemoveContainer(t.logger(), ctx.Client, container.ID)
-		if !removed && err == nil {
-			t.logger().WithFields(log.Fields{"container": container.ID}).Warnf(
-				"Container does not exist")
-		}
-	}()
 
 	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
@@ -230,12 +249,11 @@ func (t *Task) output() io.Writer {
 func (t *Task) createOptions(
 	ctx *context.ExecuteContext,
 	name string,
+	imageName string,
 ) docker.CreateContainerOptions {
-	interactive := t.config.Interactive
-
-	imageName := image.GetImageName(ctx, ctx.Resources.Image(t.config.Use))
 	t.logger().Debugf("Image name %q", imageName)
 
+	interactive := t.config.Interactive
 	portBinds, exposedPorts := asPortBindings(t.config.Ports)
 	// TODO: only set Tty if running in a tty
 	opts := docker.CreateContainerOptions{
@@ -257,7 +275,7 @@ func (t *Task) createOptions(
 			ExposedPorts: exposedPorts,
 		},
 		HostConfig: &docker.HostConfig{
-			Binds:        t.bindMounts(ctx),
+			Binds:        getBindMountsForHostConfig(ctx, t.config.Mounts),
 			Privileged:   t.config.Privileged,
 			NetworkMode:  t.config.NetMode,
 			PortBindings: portBinds,
