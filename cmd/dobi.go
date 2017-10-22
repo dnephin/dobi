@@ -58,7 +58,10 @@ func NewRootCommand() *cobra.Command {
 	flags.StringVarP(&opts.filename, "filename", "f", "dobi.yaml", "Path to config file")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "Verbose")
 	flags.BoolVarP(&opts.quiet, "quiet", "q", false, "Quiet")
-	flags.BoolVar(&opts.noBindMount, "no-bind-mount", false,
+	flags.BoolVar(
+		&opts.noBindMount,
+		"no-bind-mount",
+		defaultBoolValue("DOBI_NO_BIND_MOUNT"),
 		"Provide mounts as a layer in an image instead of a bind mount")
 	flags.BoolVar(&opts.version, "version", false, "Print version and exit")
 
@@ -126,4 +129,8 @@ func buildClient() (client.DockerClient, error) {
 
 func printVersion() {
 	fmt.Printf("dobi version %v (build: %v, date: %s)\n", version, gitsha, buildDate)
+}
+
+func defaultBoolValue(key string) bool {
+	return os.Getenv(key) != ""
 }

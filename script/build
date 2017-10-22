@@ -10,3 +10,8 @@ gox \
     -output="/go/bin/dobi-{{.OS}}" \
     -arch="amd64" -os="$oslist" \
     .
+
+if [[ -e /go/bin/dobi-linux ]]; then
+    echo "linking dobi to dobi-linux"
+    ln -sf dobi-linux /go/bin/dobi || true
+fi

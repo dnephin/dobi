@@ -1,16 +1,18 @@
 package job
 
 import (
+	"archive/tar"
 	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
-	"github.com/Microsoft/go-winio/archive/tar"
 	"github.com/dnephin/dobi/config"
+	"github.com/dnephin/dobi/logging"
 	"github.com/dnephin/dobi/tasks/client"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/image"
@@ -19,7 +21,6 @@ import (
 	"github.com/fsouza/go-dockerclient"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"sort"
 )
 
 func (t *Task) runWithBuildAndCopy(ctx *context.ExecuteContext) error {
@@ -71,11 +72,18 @@ func getBindMounts(ctx *context.ExecuteContext, cfg *config.JobConfig) []config.
 
 func buildDockerfileWithCopy(baseImage string, mounts []config.MountConfig) *bytes.Buffer {
 	buf := bytes.NewBufferString("FROM " + baseImage + "\n")
-	// TODO: sort by shortest path first
+
+	sortMountsByShortestPath(mounts)
 	for _, mount := range mounts {
 		buf.WriteString(fmt.Sprintf("COPY %s %s\n", mount.Bind, mount.Path))
 	}
 	return buf
+}
+
+func sortMountsByShortestPath(mounts []config.MountConfig) {
+	sort.Slice(mounts, func(i, j int) bool {
+		return mounts[i].Path < mounts[j].Path
+	})
 }
 
 func buildTarContext(
@@ -159,7 +167,7 @@ func newArtifactPath(mountBind, mountPath, glob string) artifactPath {
 
 // containerDir used as the path for a container copy API call
 func (p artifactPath) containerDir() string {
-	return filepath.Dir(p.containerGlob())
+	return filepathDirWithDirectorySlash(p.containerGlob())
 }
 
 // containerGlob used to match files in the archive returned by the API
@@ -168,12 +176,14 @@ func (p artifactPath) containerGlob() string {
 }
 
 // the host prefix to prepend to the archive paths
-func (p artifactPath) hostBase() string {
-	return p.mountBind
+func (p artifactPath) hostPath(path string) string {
+	return rebasePath(path, p.mountPath, p.mountBind)
 }
 
-// the container path to strip from archive paths
-// func (p artifactPath) containerPrefix() string { }
+// containerAbsPath strips the archive directory from the path
+func (p artifactPath) containerAbsPath(path string) string {
+	return filepath.Join(filepath.Dir(filepath.Clean(p.mountPath)), path)
+}
 
 func getArtifactPath(
 	workingDir string,
@@ -186,7 +196,7 @@ func getArtifactPath(
 	for _, mount := range mounts {
 		absBindPath := filepathJoinPreserveDirectorySlash(workingDir, mount.Bind)
 
-		if !hasPathPrefix(filepath.Dir(absGlob), absBindPath) {
+		if !hasPathPrefix(filepathDirWithDirectorySlash(absGlob), absBindPath) {
 			continue
 		}
 		return newArtifactPath(absBindPath, mount.Path, absGlob), nil
@@ -218,18 +228,23 @@ func hasPathPrefix(path, prefix string) bool {
 }
 
 func filepathJoinPreserveDirectorySlash(elem ...string) string {
-	sep := string(filepath.Separator)
 	trailingSlash := ""
-	if strings.HasSuffix(elem[len(elem)-1], sep) {
-		trailingSlash = sep
+	if endsWithSlash(elem[len(elem)-1]) {
+		trailingSlash = string(filepath.Separator)
 	}
 	return filepath.Join(elem...) + trailingSlash
 }
 
+func filepathDirWithDirectorySlash(path string) string {
+	return filepath.Dir(path) + string(filepath.Separator)
+}
+
 func rebasePath(path, oldPrefix, newPrefix string) string {
-	return filepathJoinPreserveDirectorySlash(
-		newPrefix,
-		strings.TrimPrefix(path, oldPrefix))
+	relativePath := strings.TrimPrefix(path, oldPrefix)
+	if relativePath == "" {
+		return newPrefix
+	}
+	return filepathJoinPreserveDirectorySlash(newPrefix, relativePath)
 }
 
 func unpack(source io.Reader, path artifactPath) error {
@@ -244,9 +259,8 @@ func unpack(source io.Reader, path artifactPath) error {
 			return err
 		}
 
-		// TODO: remove debug
-		fmt.Println("Archive Path: ", header.Name)
-		match, err := filepath.Match(path.containerGlob(), header.Name)
+		containerPath := path.containerAbsPath(header.Name)
+		match, err := fileMatchesGlob(containerPath, path.containerGlob())
 		switch {
 		case err != nil:
 			return err
@@ -260,11 +274,52 @@ func unpack(source io.Reader, path artifactPath) error {
 	}
 }
 
-// create files and directories from tar archive entries
-func createFromTar(tarReader *tar.Reader, header *tar.Header, path artifactPath) error {
-	// If directory, create it if it doesn't exist
+func fileMatchesGlob(path string, glob string) (bool, error) {
+	// Directory glob should match entire tree
+	if endsWithSlash(glob) && strings.HasPrefix(path, glob) {
+		return true, nil
+	}
 
-	// If file, create the parent directories if they don't exist
-	// then create the file and write to it
+	return filepath.Match(glob, path)
+}
+
+func endsWithSlash(path string) bool {
+	return strings.HasSuffix(path, string(filepath.Separator))
+}
+
+// create files and directories from tar archive entries
+func createFromTar(tarReader io.Reader, header *tar.Header, path artifactPath) error {
+	hostPath := path.hostPath(path.containerAbsPath(header.Name))
+	fileMode := header.FileInfo().Mode()
+
+	switch header.Typeflag {
+	case tar.TypeDir:
+		logging.Log.Debugf("Creating dir %s", hostPath)
+		return os.MkdirAll(hostPath, fileMode)
+
+	case tar.TypeReg, tar.TypeRegA:
+		logging.Log.Debugf("Creating file %s", hostPath)
+		if err := os.MkdirAll(filepath.Dir(hostPath), 0755); err != nil {
+			return err
+		}
+		file, err := os.OpenFile(hostPath, os.O_RDWR|os.O_CREATE, fileMode)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(file, tarReader)
+		return err
+
+	case tar.TypeSymlink:
+		logging.Log.Debugf("Creating symlink %s", hostPath)
+		if err := os.MkdirAll(filepath.Dir(hostPath), 0755); err != nil {
+			return err
+		}
+
+		return os.Symlink(header.Linkname, hostPath)
+
+	default:
+		logging.Log.Warnf("Unhandled file type from archive %s: %s", header.Typeflag, header.Name)
+	}
+
 	return nil
 }
