@@ -265,7 +265,9 @@ func (t *Task) createOptions(
 			Devices:      getDevices(t.config.Devices),
 		},
 	}
-	opts = provideDocker(opts)
+	if t.config.ProvideDocker {
+		opts = provideDocker(opts)
+	}
 	return opts
 }
 
