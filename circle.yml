@@ -1,29 +1,85 @@
+version: 2
 
-machine:
-  pre:
-    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
-  services:
-    - docker
-  environment:
-    DOCKER_API_VERSION: '1.22'
+jobs:
 
-general:
-  branches:
-    ignore: [gh-pages]
-  artifacts: ['_results', 'dist']
+  build:
+    docker: [{image: 'docker:17.07-git'}]
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.07.0-ce
+      - run: docker version
+      - restore_cache:
+          keys:
+           - 'dot-glide-{{ checksum "glide.lock" }}'
+           - 'dot-glide-'
+      - run:
+          name: "Build dobi binary"
+          command: |
+            apk add --no-cache bash
+            bash -c 'cat dockerfiles/Dockerfile.build <(echo COPY . .) | \
+                docker build -t dobi-dev -f - .'
+            docker run --name build dobi-dev bash -ec 'glide install; go install .'
+            mkdir /ci
+            docker cp build:/go/bin/dobi /ci/dobi
+            docker cp build:/go/src/github.com/dnephin/dobi/.glide ./.glide
+            docker cp build:/go/src/github.com/dnephin/dobi/vendor /ci/
+      - persist_to_workspace:
+          root: /ci
+          paths: [dobi, vendor]
+      - save_cache:
+          key: 'dot-glide-{{ checksum "glide.lock" }}'
+          paths: [.glide]
 
-dependencies:
-  override: [script/ci-deps]
-  cache_directories: [vendor]
 
-test:
-  override:
-    - script/ci-run:
-        parallel: true
+  lint:
+    docker: [{image: 'alpine:3.6'}]
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.07.0-ce
+      - run:
+          name: "install certs"
+          command: |
+            # TODO: use an image with ca-certs installed
+            apk add --no-cache ca-certificates
+      - attach_workspace:
+          at: /ci
+      - run:
+          name: "Lint"
+          command: |
+            export DOBI_NO_BIND_MOUNT=1
+            cp -r /ci/vendor ./vendor
+            cp /ci/dobi /usr/local/bin/dobi
+            dobi lint
 
-deployment:
-  release:
-    tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - 'docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS'
-      - 'DOBI_EXEC_ID=release circle/dobi release'
+
+# artifacts: ['_results', 'dist']
+
+
+#  release:
+#    steps:
+#      - run: |
+#          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+#          DOBI_EXEC_ID=release circle/dobi release
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: [gh-pages]
+      - lint:
+          requires: [build]
+#      - cross:
+#          requires: [build]
+#      - test:
+#          requires: [build]
+#      - test-examples:
+#          requires: [build]
+#      - release:
+#          requires: [lint, cross, test, test-examples]
+#          filters:
+#            tags: /v[0-9]+(\.[0-9]+)*/
