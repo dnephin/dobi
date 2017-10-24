@@ -6,6 +6,10 @@ defaults:
   steps:
     - setup_remote_docker: &setup_docker
         version: 17.07.0-ce
+  filters: &default_filters
+    branches: {ignore: [gh-pages]}
+    tags: {only: '/v[0-9]+(\.[0-9]+)*/'}
+
 
 jobs:
 
@@ -70,7 +74,7 @@ jobs:
           name: "Build documentation"
           command: script/ci/step dobi docs-build
       - store_artifacts:
-          path: docs/build/html
+          path: docs/build/html.tar.gz
           destination: docs
 
   test-unit:
@@ -98,32 +102,40 @@ jobs:
           path: _results
           destination: test-examples-results
 
-
-#  release:
-#    steps:
-#      - run: |
-#          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-#          DOBI_EXEC_ID=release circle/dobi release
+  release:
+    docker: [{image: 'docker:17.07-git'}]
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run: |
+          apk add --no-cache bash
+          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+          script/ci/step dobi release
 
 workflows:
   version: 2
   ci:
     jobs:
       - build:
-          filters:
-            branches:
-              ignore: [gh-pages]
+          filters: *default_filters
       - lint:
           requires: [build]
+          filters: *default_filters
       - cross:
           requires: [build]
+          filters: *default_filters
       - docs:
           requires: [build]
+          filters: *default_filters
       - test-unit:
           requires: [build]
+          filters: *default_filters
       - test-examples:
           requires: [build]
-#      - release:
-#          requires: [lint, cross, test, test-examples]
-#          filters:
-#            tags: /v[0-9]+(\.[0-9]+)*/
+          filters: *default_filters
+      - release:
+          requires: [lint, cross, docs, test-unit, test-examples]
+          filters:
+            tags: {only: '/v[0-9]+(\.[0-9]+)*/'}
+            branches: {ignore: '/.*/'}

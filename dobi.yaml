@@ -56,6 +56,11 @@ image=example-tester:
     dockerfile: Dockerfile.test-examples
     context: dockerfiles/
 
+image=circleci-alpine:
+    image: dnephin/circleci-alpine-step
+    tags: [latest]
+    dockerfile: Dockerfile.circleci
+    context: dockerfiles/ci
 
 #
 # Jobs
