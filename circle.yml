@@ -1,29 +1,141 @@
+version: 2
 
-machine:
-  pre:
-    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
-  services:
-    - docker
-  environment:
-    DOCKER_API_VERSION: '1.22'
+defaults:
+  docker: &default_docker
+    - image: dnephin/circleci-alpine-step@sha256:75f925e006ea379870ea7d2ce6539072e584f62a74063d73a9b1c2fd75ec233f
+  steps:
+    - setup_remote_docker: &setup_docker
+        version: 17.07.0-ce
+  filters: &default_filters
+    branches: {ignore: [gh-pages]}
+    tags: {only: '/v[0-9]+(\.[0-9]+)*/'}
 
-general:
-  branches:
-    ignore: [gh-pages]
-  artifacts: ['_results', 'dist']
 
-dependencies:
-  override: [script/ci-deps]
-  cache_directories: [vendor]
+jobs:
 
-test:
-  override:
-    - script/ci-run:
-        parallel: true
+  build:
+    docker: [{image: 'docker:17.07-git'}]
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - run: docker version
+      - restore_cache:
+          keys:
+           - 'dot-glide-{{ checksum "glide.lock" }}'
+           - 'dot-glide-'
+      - run:
+          name: "Build dobi binary"
+          command: |
+            apk add --no-cache bash
+            bash -c 'cat dockerfiles/Dockerfile.build <(echo COPY . .) | \
+                docker build -t dobi-dev -f - .'
+            docker run --name build dobi-dev bash -ec 'glide install; go install .'
+            mkdir /work
+            docker cp build:/go/bin/dobi /work/dobi
+            docker cp build:/go/src/github.com/dnephin/dobi/.glide ./.glide
+            docker cp build:/go/src/github.com/dnephin/dobi/vendor /work/
+      - persist_to_workspace:
+          root: /work
+          paths: [dobi, vendor]
+      - save_cache:
+          key: 'dot-glide-{{ checksum "glide.lock" }}'
+          paths: [.glide]
 
-deployment:
+  lint:
+    docker: *default_docker
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run:
+          name: "Lint"
+          command: script/ci/step dobi lint
+
+  cross:
+    docker: *default_docker
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run:
+          name: "Build binaries"
+          command: script/ci/step dobi binary
+      - store_artifacts:
+          path: dist/bin
+          destination: bin
+
+  docs:
+    docker: *default_docker
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run:
+          name: "Build documentation"
+          command: script/ci/step dobi docs-build
+      - store_artifacts:
+          path: docs/build/html.tar.gz
+          destination: docs
+
+  test-unit:
+    docker: *default_docker
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run:
+          name: "Run unit tests"
+          command: script/ci/step dobi test-unit
+
+  test-examples:
+    docker: *default_docker
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run:
+          name: "Run example tests"
+          command: |
+            cp -r "$DOCKER_CERT_PATH" ./circleci-certs
+            script/ci/step dobi test-examples
+      - store_artifacts:
+          path: _results
+          destination: test-examples-results
+
   release:
-    tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - 'docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS'
-      - 'DOBI_EXEC_ID=release circle/dobi release'
+    docker: [{image: 'docker:17.07-git'}]
+    steps:
+      - checkout
+      - setup_remote_docker: *setup_docker
+      - attach_workspace: {at: /work}
+      - run: |
+          apk add --no-cache bash
+          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+          script/ci/step dobi release
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - build:
+          filters: *default_filters
+      - lint:
+          requires: [build]
+          filters: *default_filters
+      - cross:
+          requires: [build]
+          filters: *default_filters
+      - docs:
+          requires: [build]
+          filters: *default_filters
+      - test-unit:
+          requires: [build]
+          filters: *default_filters
+      - test-examples:
+          requires: [build]
+          filters: *default_filters
+      - release:
+          requires: [lint, cross, docs, test-unit, test-examples]
+          filters:
+            tags: {only: '/v[0-9]+(\.[0-9]+)*/'}
+            branches: {ignore: '/.*/'}

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+export DOBI_NO_BIND_MOUNT=1
+
+if [[ ! -e ./vendor ]]; then
+    cp -r /work/vendor ./vendor
+fi
+if [[ ! -e /usr/local/bin/dobi ]]; then
+    cp /work/dobi /usr/local/bin/dobi
+fi
+
+if [[ $@ ]]; then
+    exec "$@"
+fi

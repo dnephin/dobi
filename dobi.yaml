@@ -56,6 +56,11 @@ image=example-tester:
     dockerfile: Dockerfile.test-examples
     context: dockerfiles/
 
+image=circleci-alpine:
+    image: dnephin/circleci-alpine-step
+    tags: [latest]
+    dockerfile: Dockerfile.circleci
+    context: dockerfiles/ci
 
 #
 # Jobs
@@ -218,12 +223,6 @@ alias=all:
 
 alias=binary-linux:
     tasks: [linux-only, binary]
-
-alias=ci-circle-main:
-    tasks: [lint, test-unit, docs-build, binary]
-
-alias=ci-circle-examples:
-    tasks: [test-examples]
 
 alias=release:
     tasks:
