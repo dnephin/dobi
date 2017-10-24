@@ -219,12 +219,6 @@ alias=all:
 alias=binary-linux:
     tasks: [linux-only, binary]
 
-alias=ci-circle-main:
-    tasks: [lint, test-unit, docs-build, binary]
-
-alias=ci-circle-examples:
-    tasks: [test-examples]
-
 alias=release:
     tasks:
       - 'deps'
