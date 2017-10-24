@@ -5,3 +5,4 @@ set -eu
 mkdir -p docs/gen/config
 go run docs/script/configtypes.go
 sphinx-build -b html -d docs/doctrees docs/source docs/build/html
+tar -czf docs/build/html.tar.gz -C docs/build/html .

@@ -35,10 +35,12 @@ func (t *Task) runWithBuildAndCopy(ctx *context.ExecuteContext) error {
 
 	defer removeContainerWithLogging(t.logger(), ctx.Client, name)
 	options := t.createOptions(ctx, name, imageName)
-	if err := t.runContainer(ctx, options); err != nil {
-		return err
+	runErr := t.runContainer(ctx, options)
+	copyErr := copyFilesToHost(t.logger(), ctx, t.config, name)
+	if runErr != nil {
+		return runErr
 	}
-	return copyFilesToHost(t.logger(), ctx, t.config, name)
+	return copyErr
 }
 
 func (t *Task) buildImageWithMounts(ctx *context.ExecuteContext, imageName string) error {
@@ -180,9 +182,14 @@ func (p artifactPath) hostPath(path string) string {
 	return rebasePath(path, p.mountPath, p.mountBind)
 }
 
-// containerAbsPath strips the archive directory from the path
-func (p artifactPath) containerAbsPath(path string) string {
-	return filepath.Join(filepath.Dir(filepath.Clean(p.mountPath)), path)
+// pathFromArchive strips the archive directory from the path and returns the
+// absolute path to the file in a container
+func (p artifactPath) pathFromArchive(path string) string {
+	parts := strings.SplitN(path, string(filepath.Separator), 2)
+	if len(parts) == 1 || parts[1] == "" {
+		return p.containerDir()
+	}
+	return filepathJoinPreserveDirectorySlash(p.containerDir(), parts[1])
 }
 
 func getArtifactPath(
@@ -196,10 +203,13 @@ func getArtifactPath(
 	for _, mount := range mounts {
 		absBindPath := filepathJoinPreserveDirectorySlash(workingDir, mount.Bind)
 
-		if !hasPathPrefix(filepathDirWithDirectorySlash(absGlob), absBindPath) {
-			continue
+		if mount.File && hasPathPrefix(absGlob, absBindPath) {
+			return newArtifactPath(absBindPath, mount.Path, absGlob), nil
 		}
-		return newArtifactPath(absBindPath, mount.Path, absGlob), nil
+
+		if hasPathPrefix(filepathDirWithDirectorySlash(absGlob), absBindPath) {
+			return newArtifactPath(absBindPath, mount.Path, absGlob), nil
+		}
 	}
 	return artifactPath{}, errors.Errorf("no mount found for artifact %s", glob)
 }
@@ -259,7 +269,7 @@ func unpack(source io.Reader, path artifactPath) error {
 			return err
 		}
 
-		containerPath := path.containerAbsPath(header.Name)
+		containerPath := path.pathFromArchive(header.Name)
 		match, err := fileMatchesGlob(containerPath, path.containerGlob())
 		switch {
 		case err != nil:
@@ -289,7 +299,7 @@ func endsWithSlash(path string) bool {
 
 // create files and directories from tar archive entries
 func createFromTar(tarReader io.Reader, header *tar.Header, path artifactPath) error {
-	hostPath := path.hostPath(path.containerAbsPath(header.Name))
+	hostPath := path.hostPath(path.pathFromArchive(header.Name))
 	fileMode := header.FileInfo().Mode()
 
 	switch header.Typeflag {

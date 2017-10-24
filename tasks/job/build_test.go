@@ -38,6 +38,11 @@ func TestGetArtifactPath(t *testing.T) {
 			Bind: "./dist/bin/",
 			Path: "/go/bin/",
 		},
+		{
+			Bind: ".env",
+			Path: "/code/.env",
+			File: true,
+		},
 	}
 
 	var testcases = []struct {
@@ -49,6 +54,11 @@ func TestGetArtifactPath(t *testing.T) {
 			doc:      "directory glob, exact match with mount",
 			glob:     "./dist/bin/",
 			expected: newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/"),
+		},
+		{
+			doc:      "file glob, exact match with mount",
+			glob:     ".env",
+			expected: newArtifactPath("/work/.env", "/code/.env", "/work/.env"),
 		},
 	}
 	for _, testcase := range testcases {
@@ -125,9 +135,46 @@ func TestArtifactPathContainerGlob(t *testing.T) {
 
 func TestArtifactPathHostPath(t *testing.T) {
 	path := newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/")
-	filep := path.containerAbsPath("bin/dobi-darwin")
-	assert.Equal(t, "/go/bin/dobi-darwin", filep)
-	assert.Equal(t, "/work/dist/bin/dobi-darwin", path.hostPath(filep))
+	containerPath := "/go/bin/dobi-darwin"
+	assert.Equal(t, "/work/dist/bin/dobi-darwin", path.hostPath(containerPath))
+}
+
+func TestArtifactPathFromArchive(t *testing.T) {
+	var testcases = []struct {
+		artifactPath artifactPath
+		archivePath  string
+		expected     string
+	}{
+		{
+			artifactPath: newArtifactPath(
+				"/work/dist/bin/",
+				"/go/bin/",
+				"/work/dist/bin/"),
+			archivePath: "bin/dobi-darwin",
+			expected:    "/go/bin/dobi-darwin",
+		},
+		{
+			artifactPath: newArtifactPath(
+				"/work/",
+				"/go/src/github.com/dnephin/dobi/",
+				"/work/docs/build/html/"),
+			archivePath: "html/",
+			expected:    "/go/src/github.com/dnephin/dobi/docs/build/html/",
+		},
+		{
+			artifactPath: newArtifactPath(
+				"/work/",
+				"/go/src/github.com/dnephin/dobi/",
+				"/work/docs/build/html/"),
+			archivePath: "html/foo/file",
+			expected:    "/go/src/github.com/dnephin/dobi/docs/build/html/foo/file",
+		},
+	}
+
+	for _, testcase := range testcases {
+		actual := testcase.artifactPath.pathFromArchive(testcase.archivePath)
+		assert.Equal(t, testcase.expected, actual)
+	}
 }
 
 func TestFileMatchesGlob(t *testing.T) {
