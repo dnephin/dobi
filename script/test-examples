@@ -4,4 +4,9 @@ set -eu -o pipefail
 dobi="/go/bin/dobi-linux"
 ln -sf "$dobi" /usr/local/bin/dobi
 
+# workaround for engine API TLS certs on circleci
+if [[ -e ./circleci-certs ]]; then
+   mv ./circleci-certs "$DOCKER_CERT_PATH"
+fi
+
 ./dist/bin/rtf run -c ./examples ${DOBI_EXAMPLE-}
