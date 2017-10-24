@@ -64,7 +64,8 @@ type JobConfig struct {
 	Env []string
 	// ProvideDocker Exposes the docker engine to the container by either
 	// mounting the unix socket or setting the **DOCKER_HOST** environment
-	// variable.
+	// variable. All environment variables with a  **DOCKER_** prefix in the
+	// environment are set on the container.
 	ProvideDocker bool
 	// NetMode The network mode to use. This field supports :doc:`variables`.
 	NetMode string

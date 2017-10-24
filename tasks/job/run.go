@@ -327,13 +327,14 @@ func asPortBindings(ports []string) (map[docker.Port][]docker.PortBinding, map[d
 }
 
 func provideDocker(opts docker.CreateContainerOptions) docker.CreateContainerOptions {
-	dockerHostEnv := os.Getenv("DOCKER_HOST")
-	switch {
-	case dockerHostEnv != "":
-		opts.Config.Env = append(opts.Config.Env, "DOCKER_HOST="+dockerHostEnv)
-	default:
+	if os.Getenv("DOCKER_HOST") == "" {
 		path := DefaultUnixSocket
 		opts.HostConfig.Binds = append(opts.HostConfig.Binds, path+":"+path)
+	}
+	for _, envVar := range os.Environ() {
+		if strings.HasPrefix(envVar, "DOCKER_") {
+			opts.Config.Env = append(opts.Config.Env, envVar)
+		}
 	}
 	return opts
 }
