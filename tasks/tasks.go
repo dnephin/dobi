@@ -175,10 +175,11 @@ func hasModifiedDeps(ctx *context.ExecuteContext, deps []string) bool {
 
 // RunOptions are the options supported by Run
 type RunOptions struct {
-	Client client.DockerClient
-	Config *config.Config
-	Tasks  []string
-	Quiet  bool
+	Client    client.DockerClient
+	Config    *config.Config
+	Tasks     []string
+	Quiet     bool
+	BindMount bool
 }
 
 func getNames(options RunOptions) []string {
@@ -218,6 +219,6 @@ func Run(options RunOptions) error {
 		options.Config,
 		options.Client,
 		execEnv,
-		options.Quiet)
+		context.NewSettings(options.Quiet, options.BindMount))
 	return executeTasks(ctx, tasks)
 }

@@ -21,6 +21,7 @@ type DockerClient interface {
 	RemoveContainer(docker.RemoveContainerOptions) error
 	StartContainer(string, *docker.HostConfig) error
 	WaitContainer(string) (int, error)
+	DownloadFromContainer(id string, opts docker.DownloadFromContainerOptions) error
 
 	CreateVolume(opts docker.CreateVolumeOptions) (*docker.Volume, error)
 	RemoveVolume(name string) error

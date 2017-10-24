@@ -118,7 +118,7 @@ job=release-version:
 
 job=docs-build:
     use: docs-img
-    artifact: ./docs/build/html
+    artifact: ./docs/build/html.tar.gz
     mounts: [source]
     command: docs/script/build
 
@@ -167,7 +167,9 @@ job=test-examples:
     env:
       - 'DOCKER_API_VERSION={env.DOCKER_API_VERSION:}'
       - 'COMPOSE_API_VERSION={env.DOCKER_API_VERSION:}'
+      - 'DOBI_NO_BIND_MOUNT={env.DOBI_NO_BIND_MOUNT:}'
       - 'DOBI_EXAMPLE={env.DOBI_EXAMPLE:}'
+    artifact: _results/
 
 job=examples-shell:
     use: example-tester

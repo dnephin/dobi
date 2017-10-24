@@ -85,7 +85,7 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 			ContextDir:     t.config.Context,
 			OutputStream:   out,
 			RawJSONStream:  true,
-			SuppressOutput: ctx.Quiet,
+			SuppressOutput: ctx.Settings.Quiet,
 			AuthConfigs:    ctx.GetAuthConfigs(),
 		})
 	}); err != nil {

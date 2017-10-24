@@ -1,5 +1,5 @@
-hash: 3ea50baaca1fcd7eafbce6769e082a5c9ede441e0ff9659c497ed639161e663c
-updated: 2017-10-19T16:47:00.048293267Z
+hash: d278812d200359071d4ed8687b727eba8d8c66a171669ab34cad1fb0a52272d7
+updated: 2017-10-20T20:54:03.439105933Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: 19f72df4d05d31cbe1c56bfc8045c96babff6c7e
@@ -15,6 +15,7 @@ imports:
 - name: github.com/docker/cli
   version: 03a46a66bd0629b5097289c6180e7a72a0efd823
   subpackages:
+  - cli/command/image/build
   - opts
 - name: github.com/docker/docker
   version: f7ce35f47b1b8e029d7e572ef333cabba1b08e5b
@@ -30,6 +31,8 @@ imports:
   - api/types/swarm
   - api/types/swarm/runtime
   - api/types/versions
+  - builder/dockerignore
+  - builder/remotecontext/git
   - opts
   - pkg/archive
   - pkg/fileutils
@@ -41,11 +44,16 @@ imports:
   - pkg/longpath
   - pkg/mount
   - pkg/pools
+  - pkg/progress
   - pkg/promise
   - pkg/stdcopy
+  - pkg/streamformatter
+  - pkg/stringid
+  - pkg/symlink
   - pkg/system
   - pkg/term
   - pkg/term/windows
+  - pkg/urlutil
 - name: github.com/docker/go-connections
   version: 3ede32e2033de7505e6500d6c868c2b9ed9f169d
   subpackages:
@@ -66,6 +74,8 @@ imports:
   - gomock
 - name: github.com/gotestyourself/gotestyourself
   version: 5aac0d55ecf82c21113b05a175041f7a24a56ce7
+  subpackages:
+  - fs
 - name: github.com/hashicorp/go-cleanhttp
   version: 3573b8b52aa7b37b9358d966a898feb387f62437
 - name: github.com/inconshreveable/mousetrap
@@ -93,10 +103,10 @@ imports:
   - libcontainer/system
   - libcontainer/user
 - name: github.com/pkg/errors
-  version: c605e284fe17294bda444b34710735b29d1a9d90
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/renstrom/dedent
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
-- name: github.com/sirupsen/logrus
+- name: github.com/Sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
 - name: github.com/sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
@@ -127,6 +137,10 @@ imports:
   subpackages:
   - unix
   - windows
+- name: golang.org/x/time
+  version: 6dc17368e09b0e8634d71cac8168d853e869a0c7
+  subpackages:
+  - rate
 - name: gopkg.in/yaml.v2
   version: 3b4ad1db5b2a649883ff3782f5f9f6fb52be71af
 testImports:

@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/config"
-	"github.com/dnephin/dobi/execenv"
 )
 
 // FakeResource is a fake used for testing
@@ -18,7 +17,7 @@ func (r *FakeResource) Validate(path path.Path, config *config.Config) *path.Err
 }
 
 // Resolve is a no-op
-func (r *FakeResource) Resolve(env *execenv.ExecEnv) (config.Resource, error) {
+func (r *FakeResource) Resolve(env config.Resolver) (config.Resource, error) {
 	return r, nil
 }
 

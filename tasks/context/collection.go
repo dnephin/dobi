@@ -5,6 +5,8 @@ import (
 )
 
 // ResourceCollection holds resource configs that are used by other resources
+// TODO: this type can be removed if config.Config is changed to store resources
+// grouped by type, instead of as a single map
 type ResourceCollection struct {
 	mounts map[string]*config.MountConfig
 	images map[string]*config.ImageConfig

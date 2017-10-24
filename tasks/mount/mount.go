@@ -56,10 +56,10 @@ func (t *createAction) run(ctx *context.ExecuteContext) (bool, error) {
 
 	var err error
 	switch {
-	case t.task.config.Name != "":
-		err = t.createNamed(ctx)
-	default:
+	case t.task.config.IsBind():
 		err = t.createBind(ctx)
+	default:
+		err = t.createNamed(ctx)
 	}
 	if err != nil {
 		return false, err

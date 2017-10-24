@@ -59,10 +59,15 @@ func (p *PathGlobs) all() ([]string, error) {
 func (p *PathGlobs) Paths() []string {
 	all, err := p.all()
 	if err != nil {
-		// Error hould have already been returned during Validate()
+		// Error should have already been returned during Validate()
 		panic(err)
 	}
 	return all
+}
+
+// Globs returns the raw list of path globs
+func (p *PathGlobs) Globs() []string {
+	return p.globs
 }
 
 // Empty returns true if there are no globs

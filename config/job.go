@@ -6,7 +6,6 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
-	"github.com/dnephin/dobi/execenv"
 	shlex "github.com/kballard/go-shellquote"
 )
 
@@ -164,22 +163,22 @@ func (c *JobConfig) String() string {
 }
 
 // Resolve resolves variables in the resource
-func (c *JobConfig) Resolve(env *execenv.ExecEnv) (Resource, error) {
+func (c *JobConfig) Resolve(resolver Resolver) (Resource, error) {
 	conf := *c
 	var err error
-	conf.Env, err = env.ResolveSlice(c.Env)
+	conf.Env, err = resolver.ResolveSlice(c.Env)
 	if err != nil {
 		return &conf, err
 	}
-	conf.WorkingDir, err = env.Resolve(c.WorkingDir)
+	conf.WorkingDir, err = resolver.Resolve(c.WorkingDir)
 	if err != nil {
 		return &conf, err
 	}
-	conf.User, err = env.Resolve(c.User)
+	conf.User, err = resolver.Resolve(c.User)
 	if err != nil {
 		return &conf, err
 	}
-	conf.NetMode, err = env.Resolve(c.NetMode)
+	conf.NetMode, err = resolver.Resolve(c.NetMode)
 	return &conf, err
 }
 
