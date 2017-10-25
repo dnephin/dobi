@@ -1,0 +1,17 @@
+
+meta:
+  project: inline-dockerfile
+
+
+image=dev:
+  image: example/inline
+  context: .
+  steps: |
+    FROM  alpine:3.6
+    RUN   apk add -U tree
+    WORKDIR /work
+    RUN   mkdir a b && touch a/a b/b c d
+    CMD   tree
+
+job=tree:
+  use: dev

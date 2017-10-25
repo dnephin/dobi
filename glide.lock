@@ -1,5 +1,5 @@
-hash: d278812d200359071d4ed8687b727eba8d8c66a171669ab34cad1fb0a52272d7
-updated: 2017-10-20T20:54:03.439105933Z
+hash: 0eafa9f289ed4d51aefb8c620e8f838fae1a63458086aa535a8743203c08794e
+updated: 2017-10-24T20:30:28.702164662Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: 19f72df4d05d31cbe1c56bfc8045c96babff6c7e
@@ -106,9 +106,9 @@ imports:
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/renstrom/dedent
   version: 020d11c3b9c0c7a3c2efcc8e5cf5b9ef7bcea21f
-- name: github.com/Sirupsen/logrus
-  version: 51dc0fc64317a2861273909081f9c315786533eb
 - name: github.com/sirupsen/logrus
+  version: 51dc0fc64317a2861273909081f9c315786533eb
+- name: github.com/Sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
 - name: github.com/spf13/cobra
   version: 5d13e8c9d917d962ffc593fb2529d281ae04a7fd

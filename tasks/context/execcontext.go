@@ -16,6 +16,7 @@ type ExecuteContext struct {
 	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
 	WorkingDir  string
+	ConfigFile  string
 	Env         *execenv.ExecEnv
 	Settings    Settings
 }
@@ -77,6 +78,7 @@ func NewExecuteContext(
 		WorkingDir:  config.WorkingDir,
 		Client:      client,
 		authConfigs: authConfigs,
+		ConfigFile:  config.FilePath,
 		Env:         execEnv,
 		Settings:    settings,
 	}

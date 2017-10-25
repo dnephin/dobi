@@ -40,21 +40,10 @@ func (s *ImageConfigSuite) TestValidateMissingDependencies() {
 	s.Contains(err.Error(), "missing dependencies: one, two")
 }
 
-func (s *ImageConfigSuite) TestValidateMissingOneOfRequired() {
-	s.image.Dockerfile = ""
-	s.image.Context = ""
-
-	conf := NewConfig()
-	err := s.image.Validate(pth.NewPath(""), conf)
-	s.Error(err)
-	s.Contains(err.Error(), "one of dockerfile, context, or pull is required")
-
-}
-
 func (s *ImageConfigSuite) TestValidateTagsWithValidFirstTag() {
 	s.image.Tags = []string{"good"}
 	err := s.image.ValidateTags()
-	s.Nil(err)
+	s.NoError(err)
 }
 
 func (s *ImageConfigSuite) TestValidateTagsWithBadFirstTag() {
@@ -63,6 +52,87 @@ func (s *ImageConfigSuite) TestValidateTagsWithBadFirstTag() {
 	if s.Error(err) {
 		s.Contains(err.Error(), "the first tag \"tag\" may not include an image name")
 	}
+}
+
+func TestImageConfigValidate(t *testing.T) {
+	var testcases = []struct {
+		doc                string
+		image              *ImageConfig
+		expectedErr        string
+		expectedDockerfile string
+	}{
+		{
+			doc: "dockerfile and steps both set",
+			image: &ImageConfig{
+				Steps:      "FROM alpine:3.6",
+				Dockerfile: "Dockerfile",
+				Context:    ".",
+			},
+			expectedErr: "dockerfile can not be used with steps",
+		},
+		{
+			doc:         "missing required field",
+			image:       &ImageConfig{Steps: "FROM alpine:3.6"},
+			expectedErr: "one of context, or pull is required",
+		},
+		{
+			doc:                "just context",
+			image:              &ImageConfig{Context: "."},
+			expectedDockerfile: "Dockerfile",
+		},
+		{
+			doc:   "just pull",
+			image: &ImageConfig{Pull: pull{action: pullAlways}},
+		},
+		{
+			doc:                "just dockerfile",
+			image:              &ImageConfig{Dockerfile: "Dockerfile"},
+			expectedDockerfile: "Dockerfile",
+		},
+	}
+
+	for _, testcase := range testcases {
+		err := testcase.image.Validate(pth.NewPath("."), NewConfig())
+		if testcase.expectedErr != "" {
+			if assert.NotNil(t, err, testcase.doc) {
+				assert.Contains(t, err.Error(), testcase.expectedErr, testcase.doc)
+			}
+		} else {
+			assert.Nil(t, err, testcase.doc)
+			assert.Equal(t,
+				testcase.expectedDockerfile, testcase.image.Dockerfile, testcase.doc)
+		}
+	}
+}
+
+func TestImageConfigResolve(t *testing.T) {
+	resolver := newFakeResolver(map[string]string{
+		"{one}":   "thetag",
+		"{two}":   "theother",
+		"{three}": "last",
+	})
+
+	image := &ImageConfig{
+		Tags:  []string{"foo", "{one}"},
+		Image: "{three}",
+		Steps: "{two}",
+		Args: map[string]string{
+			"key1": "{one}",
+			"key2": "ok",
+		},
+	}
+	resolved, err := image.Resolve(resolver)
+	require.NoError(t, err)
+	expected := &ImageConfig{
+		Tags:  []string{"foo", "thetag"},
+		Image: "last",
+		Steps: "theother",
+		Args: map[string]string{
+			"key1": "thetag",
+			"key2": "ok",
+		},
+	}
+	assert.Equal(t, expected, resolved)
 }
 
 func TestPullWithDuration(t *testing.T) {

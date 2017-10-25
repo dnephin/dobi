@@ -16,6 +16,7 @@ import (
 
 // Config is a data object for a full config file
 type Config struct {
+	FilePath   string
 	Meta       *MetaConfig
 	Resources  map[string]Resource
 	WorkingDir string
@@ -68,6 +69,7 @@ func Load(filename string) (*Config, error) {
 		return nil, fmtError(err)
 	}
 	config.WorkingDir = filepath.Dir(absPath)
+	config.FilePath = absPath
 
 	if err = validate(config); err != nil {
 		return nil, fmtError(err)

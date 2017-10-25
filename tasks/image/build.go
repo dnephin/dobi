@@ -2,11 +2,17 @@ package image
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 
+	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
+	"github.com/docker/cli/cli/command/image/build"
+	"github.com/docker/docker/pkg/archive"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pkg/errors"
 )
 
 // RunBuild builds an image if it is out of date
@@ -22,6 +28,11 @@ func RunBuild(ctx *context.ExecuteContext, t *Task, hasModifiedDeps bool) (bool,
 		}
 	}
 	t.logger().Debug("is stale")
+
+	if !t.config.IsBuildable() {
+		return false, errors.Errorf(
+			"%s is not buildable, missing required fields", t.name.Resource())
+	}
 
 	if err := buildImage(ctx, t); err != nil {
 		return false, err
@@ -40,6 +51,8 @@ func RunBuild(ctx *context.ExecuteContext, t *Task, hasModifiedDeps bool) (bool,
 	return true, nil
 }
 
+// TODO: this cyclo problem should be fixed
+// nolint: gocyclo
 func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	image, err := GetImage(ctx, t.config)
 	switch err {
@@ -51,7 +64,12 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 		return true, err
 	}
 
-	mtime, err := fs.LastModified(t.config.Context)
+	paths := []string{t.config.Context}
+	// TODO: polymorphic config for different types of images
+	if t.config.Steps != "" && ctx.ConfigFile != "" {
+		paths = append(paths, ctx.ConfigFile)
+	}
+	mtime, err := fs.LastModified(paths...)
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
@@ -75,23 +93,15 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 }
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
-	if err := Stream(os.Stdout, func(out io.Writer) error {
-		return ctx.Client.BuildImage(docker.BuildImageOptions{
-			Name:           GetImageName(ctx, t.config),
-			Dockerfile:     t.config.Dockerfile,
-			BuildArgs:      buildArgs(t.config.Args),
-			Pull:           t.config.PullBaseImageOnBuild,
-			RmTmpContainer: true,
-			ContextDir:     t.config.Context,
-			OutputStream:   out,
-			RawJSONStream:  true,
-			SuppressOutput: ctx.Settings.Quiet,
-			AuthConfigs:    ctx.GetAuthConfigs(),
-		})
-	}); err != nil {
+	var err error
+	if t.config.Steps != "" {
+		err = t.buildImageFromSteps(ctx)
+	} else {
+		err = t.buildImageFromDockerfile(ctx)
+	}
+	if err != nil {
 		return err
 	}
-
 	image, err := GetImage(ctx, t.config)
 	if err != nil {
 		return err
@@ -100,10 +110,68 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 	return updateImageRecord(recordPath(ctx, t.config), record)
 }
 
+func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
+	return Stream(os.Stdout, func(out io.Writer) error {
+		opts := t.commonBuildImageOptions(ctx, out)
+		opts.Dockerfile = t.config.Dockerfile
+		opts.ContextDir = t.config.Context
+		return ctx.Client.BuildImage(opts)
+	})
+}
+
+func (t *Task) commonBuildImageOptions(
+	ctx *context.ExecuteContext,
+	out io.Writer,
+) docker.BuildImageOptions {
+	return docker.BuildImageOptions{
+		Name:           GetImageName(ctx, t.config),
+		BuildArgs:      buildArgs(t.config.Args),
+		Pull:           t.config.PullBaseImageOnBuild,
+		RmTmpContainer: true,
+		OutputStream:   out,
+		RawJSONStream:  true,
+		SuppressOutput: ctx.Settings.Quiet,
+		AuthConfigs:    ctx.GetAuthConfigs(),
+	}
+}
+
 func buildArgs(args map[string]string) []docker.BuildArg {
 	out := []docker.BuildArg{}
 	for key, value := range args {
 		out = append(out, docker.BuildArg{Name: key, Value: value})
 	}
 	return out
+}
+
+func (t *Task) buildImageFromSteps(ctx *context.ExecuteContext) error {
+	buildContext, dockerfile, err := getBuildContext(t.config)
+	if err != nil {
+		return err
+	}
+	return Stream(os.Stdout, func(out io.Writer) error {
+		opts := t.commonBuildImageOptions(ctx, out)
+		opts.InputStream = buildContext
+		opts.Dockerfile = dockerfile
+		return ctx.Client.BuildImage(opts)
+	})
+}
+
+func getBuildContext(config *config.ImageConfig) (io.Reader, string, error) {
+	contextDir := config.Context
+	excludes, err := build.ReadDockerignore(contextDir)
+	if err != nil {
+		return nil, "", err
+	}
+	if err = build.ValidateContextDirectory(contextDir, excludes); err != nil {
+		return nil, "", err
+
+	}
+	buildCtx, err := archive.TarWithOptions(contextDir, &archive.TarOptions{
+		ExcludePatterns: excludes,
+	})
+	if err != nil {
+		return nil, "", err
+	}
+	dockerfileCtx := ioutil.NopCloser(strings.NewReader(config.Steps))
+	return build.AddDockerfileToBuildContext(dockerfileCtx, buildCtx)
 }
