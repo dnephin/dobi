@@ -54,24 +54,48 @@
 <div class="code sh highlight-default"><div class="highlight"><pre><span></span>git clone git@github.com:dnephin/dobi &amp;&amp; cd dobi
 docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    dnephin/dobi:0.8 deps binary
+    dnephin/dobi:0.10 deps binary
 </pre></div>
 </div>
 <p>The binaries will be in <code class="docutils literal"><span class="pre">./dist/bin</span></code></p>
 </div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>To run a task use the name of the resource from the <code class="docutils literal"><span class="pre">dobi.yml</span></code> config. For
 example to run a <code class="docutils literal"><span class="pre">job=test</span></code> resource:</p>
 <div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">dobi</span> <span class="n">test</span>
 </pre></div>
 </div>
-<p>Many resources also have other actions such as <cite>:rm</cite>:</p>
+<p>Each resources has a default action which creates the resource, and multiple
+actions to manage and remove the resource. To remove a resource use the <code class="docutils literal"><span class="pre">:rm</span></code>
+action:</p>
 <div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">dobi</span> <span class="n">test</span><span class="p">:</span><span class="n">rm</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="tasks.html"><span class="doc">Tasks</span></a> for a full of actions.</p>
-<p>See <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">--help</span></code> for full usage.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ dobi --help
+A build automation tool for Docker applications
+
+Usage:
+  dobi [flags] RESOURCE[:ACTION] [RESOURCE[:ACTION]...]
+  dobi [command]
+
+Available Commands:
+  autoclean   Run the remove action for all resources
+  list        List resources
+
+Flags:
+  -f, --filename string   Path to config file (default &quot;dobi.yaml&quot;)
+      --no-bind-mount     Provide mounts as a layer in an image instead of a bind mount
+  -q, --quiet             Quiet
+  -v, --verbose           Verbose
+      --version           Print version and exit
+
+Use &quot;dobi [command] --help&quot; for more information about a command.
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -104,6 +128,7 @@ example to run a <code class="docutils literal"><span class="pre">job=test</span
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Install</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#download-the-binary">Download the binary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>

@@ -200,7 +200,9 @@ reverse order.</p>
 <div class="section" id="up-default">
 <h3><code class="docutils literal"><span class="pre">:up</span></code> <em>(default)</em><a class="headerlink" href="#up-default" title="Permalink to this headline">¶</a></h3>
 <p>Up runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> with the files and project name from
-the resource to create a new isolated environment.</p>
+the resource to create a new isolated environment. When the <code class="docutils literal"><span class="pre">dobi</span></code> task
+execution is complete the project is stopped with <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">stop</span></code>.
+To keep the project running use <code class="docutils literal"><span class="pre">:attach</span></code> or <code class="docutils literal"><span class="pre">:detach</span></code>.</p>
 </div>
 <div class="section" id="down">
 <h3><code class="docutils literal"><span class="pre">:down</span></code><a class="headerlink" href="#down" title="Permalink to this headline">¶</a></h3>
@@ -218,6 +220,11 @@ by Compose.</p>
 <div class="section" id="attach">
 <h3><code class="docutils literal"><span class="pre">:attach</span></code><a class="headerlink" href="#attach" title="Permalink to this headline">¶</a></h3>
 <p>Attach runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span></code> and attaches to the logs.</p>
+</div>
+<div class="section" id="detach">
+<h3><code class="docutils literal"><span class="pre">:detach</span></code><a class="headerlink" href="#detach" title="Permalink to this headline">¶</a></h3>
+<p>Detach runs <code class="docutils literal"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> and the project continues to run when <code class="docutils literal"><span class="pre">dobi</span></code>
+exits.</p>
 </div>
 </div>
 </div>

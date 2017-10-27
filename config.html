@@ -91,7 +91,19 @@ image.</p>
 </tr>
 </tbody>
 </table>
-<p>The path to the <code class="docutils literal"><span class="pre">Dockerfile</span></code> used to build the image. This    path is relative to the <strong>context</strong>.</p>
+<p>The path to the <code class="docutils literal"><span class="pre">Dockerfile</span></code> used to build the image. This    path is relative to <code class="docutils literal"><span class="pre">context</span></code>. Can not be used with <code class="docutils literal"><span class="pre">steps</span></code></p>
+</div></blockquote>
+<p><strong>steps</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>An inline Dockerfile used to build  the image. <code class="docutils literal"><span class="pre">steps</span></code> can not    be used with the <code class="docutils literal"><span class="pre">dockerfile</span></code> field.</p>
 </div></blockquote>
 <p><strong>context</strong></p>
 <blockquote>
@@ -181,19 +193,37 @@ image.</p>
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>
 <div class="section" id="job">
 <h2>job<a class="headerlink" href="#job" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>job</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a job in a conatiner.
-A <strong>job</strong> resource that doesn&#8217;t have an <strong>artifact</strong> is never considered
-up-to-date and will always run.  If a job resource has an <strong>artifact</strong>
-the last modified time of that file will be used as the modified time for the
-<strong>job</strong>.</p>
-<p>The <a class="reference internal" href="#image">image</a> specified in <strong>use</strong> and any <a class="reference internal" href="#mount">mount</a> resources listed in
-<strong>mounts</strong> are automatically added as dependencies and will always be
+<p>A <strong>job</strong> resource uses an <a class="reference internal" href="#image">image</a> to run a job in a container.</p>
+<p>A <strong>job</strong> resource that doesn&#8217;t have an <code class="docutils literal"><span class="pre">artifact</span></code> is never considered
+up-to-date and will always run.  If a job resource has an <code class="docutils literal"><span class="pre">artifact</span></code>
+the job will be skipped if the artifact is newer than the source.
+The last modified time of the <code class="docutils literal"><span class="pre">artifact</span></code> files is compared against the
+last modified time of the files in <code class="docutils literal"><span class="pre">sources</span></code>, or if <code class="docutils literal"><span class="pre">sources</span></code> is left
+unset, the last modified time of the <code class="docutils literal"><span class="pre">use</span></code> image and all the files in
+the <code class="docutils literal"><span class="pre">mounts</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">mounts</span></code> are provided to the container as bind mounts. If the <code class="docutils literal"><span class="pre">DOBI_NO_BIND_MOUNT</span></code>
+environment variable, or <cite>&#8211;no-build-mount</cite> flag is set, then <code class="docutils literal"><span class="pre">mounts</span></code>
+will be copied into the container, and all artifacts will be copied out of the
+container to the host after the job is complete.</p>
+<p>The <a class="reference internal" href="#image">image</a> specified in <code class="docutils literal"><span class="pre">use</span></code> and any <a class="reference internal" href="#mount">mount</a> resources listed in
+<code class="docutils literal"><span class="pre">mounts</span></code> are automatically added as dependencies and will always be
 created first.</p>
 <div class="section" id="id1">
 <h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
@@ -227,7 +257,7 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>File paths or globs identifying the files created by the <strong>job</strong>.    Paths are relative to the current working directory.</p>
+<p>File paths or globs identifying the files created by the <strong>job</strong>.    Paths to directories must end with a path separator (<code class="docutils literal"><span class="pre">/</span></code>).    Paths are relative to the <code class="docutils literal"><span class="pre">dobi.yaml</span></code></p>
 </div></blockquote>
 <p><strong>command</strong></p>
 <blockquote>
@@ -324,7 +354,7 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>Exposes the docker engine to the container by either    mounting the unix socket or setting the <strong>DOCKER_HOST</strong> environment    variable.</p>
+<p>Exposes the docker engine to the container by either    mounting the unix socket or setting the <code class="docutils literal"><span class="pre">DOCKER_HOST</span></code> environment    variable. All environment variables with a  <code class="docutils literal"><span class="pre">DOCKER_</span></code> prefix in the    environment are set on the container.</p>
 </div></blockquote>
 <p><strong>net-mode</strong></p>
 <blockquote>
@@ -421,13 +451,25 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>
 <div class="section" id="mount">
 <h2>mount<a class="headerlink" href="#mount" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>mount</strong> resource creates a host bind mount.</p>
+<p>A <strong>mount</strong> resource creates a host bind mount or named volume
+mount.</p>
 <div class="section" id="id2">
 <h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>A mount named <code class="docutils literal"><span class="pre">source</span></code> that mounts the current host directory as
@@ -435,9 +477,13 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">mount=source</span><span class="p p-Indicator">:</span>
     <span class="l l-Scalar l-Scalar-Plain">bind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
     <span class="l l-Scalar l-Scalar-Plain">path</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/app/code</span>
+
+<span class="l l-Scalar l-Scalar-Plain">mount=named</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">app-data</span>
+    <span class="l l-Scalar l-Scalar-Plain">path</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/data</span>
 </pre></div>
 </div>
-<p><strong>bind</strong>  (required)</p>
+<p><strong>bind</strong></p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -460,6 +506,18 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tbody>
 </table>
 <p>The container path of the mount</p>
+</div></blockquote>
+<p><strong>name</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<p>The name of a named volume</p>
 </div></blockquote>
 <p><strong>read-only</strong></p>
 <blockquote>
@@ -509,7 +567,18 @@ code to <code class="docutils literal"><span class="pre">./dist/app-binary</span
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>
@@ -546,7 +615,18 @@ in the order they are listed.</p>
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>
@@ -630,7 +710,18 @@ and using two Compose files.</p>
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>
@@ -680,7 +771,18 @@ and using two Compose files.</p>
 </tr>
 </tbody>
 </table>
-<p>Description of the resource. Adding a description to a    resource makes it visible from <code class="docutils literal"><span class="pre">dobi</span> <span class="pre">list</span></code>.</p>
+<p>of a resource    Deprecated use Annotations.Description</p>
+</div></blockquote>
+<p><strong>annotations</strong></p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">type:</th><td class="field-body">AnnotationFields</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 </div>

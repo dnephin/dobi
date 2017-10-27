@@ -18,12 +18,12 @@ Install from source
     git clone git@github.com:dnephin/dobi && cd dobi
     docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        dnephin/dobi:0.8 deps binary
+        dnephin/dobi:0.10 deps binary
 
 The binaries will be in ``./dist/bin``
 
-Usage
------
+Overview
+--------
 
 To run a task use the name of the resource from the ``dobi.yml`` config. For
 example to run a ``job=test`` resource:
@@ -32,13 +32,16 @@ example to run a ``job=test`` resource:
 
     dobi test
 
-Many resources also have other actions such as `:rm`:
+Each resources has a default action which creates the resource, and multiple
+actions to manage and remove the resource. To remove a resource use the ``:rm``
+action:
 
 .. code:: sh
 
     dobi test:rm
 
 
-See :doc:`tasks` for a full of actions.
+Usage
+-----
 
-See ``dobi --help`` for full usage.
+.. literalinclude:: ../gen/usage.txt
