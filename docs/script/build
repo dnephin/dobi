@@ -3,6 +3,15 @@
 set -eu
 
 mkdir -p docs/gen/config
+
+# generate config reference
 go run docs/script/configtypes.go
+
+# generate usage text
+(
+echo "$ dobi --help"
+dist/bin/dobi --help
+) > docs/gen/usage.txt
+
 sphinx-build -b html -d docs/doctrees docs/source docs/build/html
 tar -czf docs/build/html.tar.gz -C docs/build/html .

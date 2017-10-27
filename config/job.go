@@ -10,14 +10,24 @@ import (
 )
 
 // JobConfig A **job** resource uses an `image`_ to run a job in a container.
-// A **job** resource that doesn't have an **artifact** is never considered
-// up-to-date and will always run.  If a job resource has an **artifact**
-// the last modified time of that file will be used as the modified time for the
-// **job**.
 //
-// The `image`_ specified in **use** and any `mount`_ resources listed in
-// **mounts** are automatically added as dependencies and will always be
+// A **job** resource that doesn't have an ``artifact`` is never considered
+// up-to-date and will always run.  If a job resource has an ``artifact``
+// the job will be skipped if the artifact is newer than the source.
+// The last modified time of the ``artifact`` files is compared against the
+// last modified time of the files in ``sources``, or if ``sources`` is left
+// unset, the last modified time of the ``use`` image and all the files in
+// the ``mounts``.
+//
+// ``mounts`` are provided to the container as bind mounts. If the ``DOBI_NO_BIND_MOUNT``
+// environment variable, or `--no-build-mount` flag is set, then ``mounts``
+// will be copied into the container, and all artifacts will be copied out of the
+// container to the host after the job is complete.
+//
+// The `image`_ specified in ``use`` and any `mount`_ resources listed in
+// ``mounts`` are automatically added as dependencies and will always be
 // created first.
+//
 // name: job
 // example: Run a container using the ``builder`` image to compile some source
 // code to ``./dist/app-binary``.
@@ -34,7 +44,8 @@ type JobConfig struct {
 	// to created the container for the **job**.
 	Use string `config:"required"`
 	// Artifact File paths or globs identifying the files created by the **job**.
-	// Paths are relative to the current working directory.
+	// Paths to directories must end with a path separator (``/``).
+	// Paths are relative to the ``dobi.yaml``
 	// type: list of file paths or glob patterns
 	Artifact PathGlobs
 	// Command The command to run in the container.
@@ -63,8 +74,8 @@ type JobConfig struct {
 	// type: list of ``key=value`` strings
 	Env []string
 	// ProvideDocker Exposes the docker engine to the container by either
-	// mounting the unix socket or setting the **DOCKER_HOST** environment
-	// variable. All environment variables with a  **DOCKER_** prefix in the
+	// mounting the unix socket or setting the ``DOCKER_HOST`` environment
+	// variable. All environment variables with a  ``DOCKER_`` prefix in the
 	// environment are set on the container.
 	ProvideDocker bool
 	// NetMode The network mode to use. This field supports :doc:`variables`.
