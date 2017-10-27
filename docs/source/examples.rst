@@ -47,3 +47,9 @@ Use Cases
   <https://github.com/dnephin/dobi/blob/master/examples/init-db-with-rails/>`_
   - load database tables and fixtures from rails models and create a database
   image and development environment.
+* `examples/init-named-volume
+  <https://github.com/dnephin/dobi/blob/master/examples/init-named-volume/>`_
+  - create or update the files in a named docker volume.
+* `examples/inline-dockerfile
+  <https://github.com/dnephin/dobi/blob/master/examples/inline-dockerfile/>`_
+  - inline Dockerfiles in the ``dobi.yaml`` to reduce the number of build files.
