@@ -126,6 +126,7 @@ job=docs-build:
     artifact: ./docs/build/html.tar.gz
     mounts: [source]
     command: docs/script/build
+    depends: [binary-linux]
 
 job=docs-shell:
     use: docs-img

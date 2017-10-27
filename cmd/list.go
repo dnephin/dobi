@@ -31,7 +31,7 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 	var listOpts listOptions
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List available tasks",
+		Short: "List resources",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runList(opts, listOpts)
 		},
