@@ -7,52 +7,39 @@ import (
 	pth "github.com/dnephin/configtf/path"
 	"github.com/gotestyourself/gotestyourself/assert"
 	is "github.com/gotestyourself/gotestyourself/assert/cmp"
-	"github.com/stretchr/testify/suite"
 )
 
-type JobConfigSuite struct {
-	suite.Suite
-	job  *JobConfig
-	conf *Config
+func TestJobConfigString(t *testing.T) {
+	job := &JobConfig{
+		Use:      "builder",
+		Command:  ShlexSlice{original: "run"},
+		Artifact: PathGlobs{globs: []string{"foo"}},
+	}
+	assert.Equal(t, job.String(), "Run 'run' using the 'builder' image to create 'foo'")
 }
 
-func TestJobConfigSuite(t *testing.T) {
-	suite.Run(t, new(JobConfigSuite))
+func TestJobConfigValidateMissingUse(t *testing.T) {
+	conf := NewConfig()
+	conf.Resources["example"] = &AliasConfig{}
+	job := &JobConfig{Use: "example"}
+	err := job.Validate(pth.NewPath(""), conf)
+	assert.Assert(t, is.ErrorContains(err, "example is not an image resource"))
 }
 
-func (s *JobConfigSuite) SetupTest() {
-	s.job = &JobConfig{}
-	s.conf = NewConfig()
+func TestJobConfigValidateMissingMount(t *testing.T) {
+	conf := NewConfig()
+	conf.Resources["one"] = NewImageConfig()
+	conf.Resources["two"] = NewImageConfig()
+	conf.Resources["example"] = NewImageConfig()
+	job := &JobConfig{}
+	job.Use = "example"
+	job.Mounts = []string{"one", "two"}
+
+	err := job.Validate(pth.NewPath(""), conf)
+	assert.Assert(t, is.ErrorContains(err, "one is not a mount resource"))
 }
 
-func (s *JobConfigSuite) TestString() {
-	s.job.Use = "builder"
-	s.job.Command = ShlexSlice{original: "run"}
-	s.job.Artifact = PathGlobs{globs: []string{"foo"}}
-	s.Equal(s.job.String(), "Run 'run' using the 'builder' image to create 'foo'")
-}
-
-func (s *JobConfigSuite) TestValidateMissingUse() {
-	s.conf.Resources["example"] = &AliasConfig{}
-	s.job.Use = "example"
-	err := s.job.Validate(pth.NewPath(""), s.conf)
-	s.Error(err)
-	s.Contains(err.Error(), "example is not an image resource")
-}
-
-func (s *JobConfigSuite) TestValidateMissingMount() {
-	s.conf.Resources["one"] = NewImageConfig()
-	s.conf.Resources["two"] = NewImageConfig()
-	s.conf.Resources["example"] = NewImageConfig()
-	s.job.Use = "example"
-	s.job.Mounts = []string{"one", "two"}
-
-	err := s.job.Validate(pth.NewPath(""), s.conf)
-	s.Error(err)
-	s.Contains(err.Error(), "one is not a mount resource")
-}
-
-func (s *JobConfigSuite) TestRunFromConfig() {
+func TestJobConfigRunFromConfig(t *testing.T) {
 	values := map[string]interface{}{
 		"use":        "image-res",
 		"command":    "echo foo",
@@ -60,12 +47,12 @@ func (s *JobConfigSuite) TestRunFromConfig() {
 	}
 	res, err := jobFromConfig("foo", values)
 	job, ok := res.(*JobConfig)
-
-	s.Equal(ok, true)
-	s.Nil(err)
-	s.Equal(job.Use, "image-res")
-	s.Equal(job.Command.Value(), []string{"echo", "foo"})
-	s.Equal(job.Entrypoint.Value(), []string{"bash", "-c"})
+	assert.Assert(t, ok)
+	assert.Assert(t, is.Nil(err))
+	// TODO: compare against the entire struct
+	assert.Equal(t, job.Use, "image-res")
+	assert.Assert(t, is.Compare(job.Command.Value(), []string{"echo", "foo"}))
+	assert.Assert(t, is.Compare(job.Entrypoint.Value(), []string{"bash", "-c"}))
 }
 
 func TestShlexSliceTransformConfig(t *testing.T) {

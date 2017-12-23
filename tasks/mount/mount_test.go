@@ -1,74 +1,56 @@
 package mount
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
-	"github.com/stretchr/testify/suite"
+	"github.com/gotestyourself/gotestyourself/assert"
+	"github.com/gotestyourself/gotestyourself/fs"
 )
 
-type CreateTaskSuite struct {
-	suite.Suite
-	task   *Task
-	action *createAction
-	path   string
-	ctx    *context.ExecuteContext
+func defaultExecContext(path string) *context.ExecuteContext {
+	return context.NewExecuteContext(
+		&config.Config{WorkingDir: path},
+		nil,
+		nil,
+		context.Settings{})
 }
 
-func TestCreateTaskSuite(t *testing.T) {
-	suite.Run(t, new(CreateTaskSuite))
-}
+func TestTaskRun(t *testing.T) {
+	dir := fs.NewDir(t, "test-mount-task")
+	defer dir.Remove()
 
-func (s *CreateTaskSuite) SetupTest() {
-	var err error
-	s.path, err = ioutil.TempDir("", "mount-task-test")
-	s.Require().Nil(err)
-
-	s.task = &Task{
+	ctx := defaultExecContext(dir.Path())
+	task := &Task{
 		name: task.NewName("resource", "action"),
 		config: &config.MountConfig{
-			Bind:     filepath.Join("a", "b", "c"),
-			Path:     "/target",
-			ReadOnly: false,
+			Bind: "a/b/c",
+			Path: "/target",
 		},
 		run: runCreate,
 	}
-	s.action = &createAction{task: s.task}
 
-	s.ctx = context.NewExecuteContext(
-		&config.Config{WorkingDir: s.path}, nil, nil, context.Settings{})
+	modified, err := task.Run(ctx, false)
+	assert.NilError(t, err)
+	assert.Assert(t, modified)
+
+	action := &createAction{task: task}
+	assert.Assert(t, action.exists(ctx))
+
+	// Next run is a no-op
+	modified, err = task.Run(ctx, false)
+	assert.NilError(t, err)
+	assert.Assert(t, !modified)
 }
 
-func (s *CreateTaskSuite) TearDownTest() {
-	s.Nil(os.RemoveAll(s.path))
-}
-
-func (s *CreateTaskSuite) TestRunPathExists() {
-	s.False(s.action.exists(s.ctx))
-	s.Require().Nil(os.MkdirAll(AbsBindPath(s.task.config, s.path), 0777))
-	s.True(s.action.exists(s.ctx))
-
-	modified, err := s.task.Run(s.ctx, false)
-	s.Nil(err)
-	s.False(modified)
-}
-
-func (s *CreateTaskSuite) TestRunPathIsNew() {
-	modified, err := s.task.Run(s.ctx, false)
-	s.Nil(err)
-	s.True(modified)
-	s.True(s.action.exists(s.ctx))
-}
-
-func (s *CreateTaskSuite) TestAsBind() {
-	s.Equal(
-		fmt.Sprintf("%s:/target:rw", AbsBindPath(s.task.config, s.path)),
-		AsBind(s.task.config, s.path),
-	)
+func TestAsBind(t *testing.T) {
+	workDir := "/working"
+	mountConf := &config.MountConfig{
+		Path: "/target",
+		Bind: "./a/b/c",
+	}
+	expected := "/working/a/b/c:/target:rw"
+	assert.Equal(t, AsBind(mountConf, workDir), expected)
 }

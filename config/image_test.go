@@ -8,50 +8,43 @@ import (
 	pth "github.com/dnephin/configtf/path"
 	"github.com/gotestyourself/gotestyourself/assert"
 	is "github.com/gotestyourself/gotestyourself/assert/cmp"
-	"github.com/stretchr/testify/suite"
 )
 
-type ImageConfigSuite struct {
-	suite.Suite
-	image *ImageConfig
-}
-
-func TestImageConfigSuite(t *testing.T) {
-	suite.Run(t, new(ImageConfigSuite))
-}
-
-func (s *ImageConfigSuite) SetupTest() {
-	s.image = NewImageConfig()
-	s.image.Dockerfile = "Dockerfile"
-	s.image.Context = "."
-	s.image.Image = "example"
-}
-
-func (s *ImageConfigSuite) TestString() {
-	s.image.Context = "./files"
-	s.Equal("Build image 'example' from 'files/Dockerfile'", s.image.String())
-}
-
-func (s *ImageConfigSuite) TestValidateMissingDependencies() {
-	s.image.Depends = []string{"one", "two"}
-	conf := NewConfig()
-	err := validateResourcesExist(pth.NewPath(""), conf, s.image.Dependencies())
-	s.Error(err)
-	s.Contains(err.Error(), "missing dependencies: one, two")
-}
-
-func (s *ImageConfigSuite) TestValidateTagsWithValidFirstTag() {
-	s.image.Tags = []string{"good"}
-	err := s.image.ValidateTags()
-	s.NoError(err)
-}
-
-func (s *ImageConfigSuite) TestValidateTagsWithBadFirstTag() {
-	s.image.Tags = []string{"bad:tag"}
-	err := s.image.ValidateTags()
-	if s.Error(err) {
-		s.Contains(err.Error(), "the first tag \"tag\" may not include an image name")
+func sampleImageConfig() *ImageConfig {
+	return &ImageConfig{
+		Dockerfile: "Dockerfile",
+		Context:    ".",
+		Image:      "example",
 	}
+}
+
+func TestImageConfigString(t *testing.T) {
+	image := sampleImageConfig()
+	image.Context = "./files"
+	assert.Equal(t, "Build image 'example' from 'files/Dockerfile'", image.String())
+}
+
+func TestImageConfigValidateMissingDependencies(t *testing.T) {
+	image := sampleImageConfig()
+	image.Depends = []string{"one", "two"}
+	conf := NewConfig()
+	err := validateResourcesExist(pth.NewPath(""), conf, image.Dependencies())
+	assert.Assert(t, is.ErrorContains(err, "missing dependencies: one, two"))
+}
+
+func TestImageConfigValidateTagsWithValidFirstTag(t *testing.T) {
+	image := sampleImageConfig()
+	image.Tags = []string{"good"}
+	err := image.ValidateTags()
+	assert.NilError(t, err)
+}
+
+func TestImageConfigValidateTagsWithBadFirstTag(t *testing.T) {
+	image := sampleImageConfig()
+	image.Tags = []string{"bad:tag"}
+	err := image.ValidateTags()
+	expected := "the first tag \"tag\" may not include an image name"
+	assert.Assert(t, is.ErrorContains(err, expected))
 }
 
 func TestImageConfigValidate(t *testing.T) {
