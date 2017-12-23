@@ -4,7 +4,6 @@ import:
 - package: github.com/fsouza/go-dockerclient
 - package: github.com/spf13/pflag
 - package: github.com/sirupsen/logrus
-- package: github.com/stretchr/testify
 - package: github.com/renstrom/dedent
 - package: github.com/kballard/go-shellquote
 - package: github.com/spf13/cobra
@@ -19,10 +18,13 @@ import:
 - package: github.com/dnephin/configtf
 - package: github.com/dnephin/go-os-user
 - package: github.com/docker/cli
-- package: github.com/gotestyourself/gotestyourself
-  version: ^1.2.0
-- package: github.com/docker/cli
   subpackages:
   - cli/command/image/build
+- package: github.com/gotestyourself/gotestyourself
+  version: 65e16288a04542d002258beb84d390eff8b82c17
 - package: github.com/pkg/errors
   version: ^0.8.0
+- package: github.com/google/go-cmp
+  version: ^0.1.0
+  subpackages:
+  - cmp
