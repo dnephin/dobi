@@ -92,15 +92,17 @@ func TestImageConfigValidate(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		err := testcase.image.Validate(pth.NewPath("."), NewConfig())
-		if testcase.expectedErr != "" {
-			if assert.Check(t, err != nil, testcase.doc) {
-				assert.Check(t, is.Contains(err.Error(), testcase.expectedErr), testcase.doc)
+		t.Run(testcase.doc, func(t *testing.T) {
+			err := testcase.image.Validate(pth.NewPath("."), NewConfig())
+			if testcase.expectedErr != "" {
+				assert.Assert(t, is.ErrorContains(err, testcase.expectedErr))
+				return
 			}
-		} else {
-			assert.Check(t, is.Nil(err), testcase.doc)
-			assert.Check(t, is.Equal(testcase.expectedDockerfile, testcase.image.Dockerfile), testcase.doc)
-		}
+
+			assert.NilError(t, err)
+			assert.Assert(t,
+				is.Compare(testcase.expectedDockerfile, testcase.image.Dockerfile))
+		})
 	}
 }
 
@@ -131,7 +133,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key2": "ok",
 		},
 	}
-	assert.Check(t, is.Compare(expected, resolved))
+	assert.Check(t, is.Compare(expected, resolved, cmpConfigOpt))
 }
 
 func TestPullWithDuration(t *testing.T) {

@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/gotestyourself/gotestyourself/assert"
 	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/renstrom/dedent"
@@ -25,7 +26,7 @@ func TestLoadFromBytes(t *testing.T) {
 		  path: /target
 
 		job=cmd-def:
-		  use: image-dev
+		  use: image-def
 		  mounts: [vol-def]
 
 		alias=alias-def:
@@ -36,31 +37,43 @@ func TestLoadFromBytes(t *testing.T) {
 	`)
 
 	config, err := LoadFromBytes([]byte(conf))
-	assert.Check(t, is.Nil(err))
-	assert.Check(t, is.Equal(5, len(config.Resources)))
-	assert.IsType(t, &ImageConfig{}, config.Resources["image-def"])
-	assert.IsType(t, &MountConfig{}, config.Resources["vol-def"])
-	assert.IsType(t, &JobConfig{}, config.Resources["cmd-def"])
-	assert.IsType(t, &AliasConfig{}, config.Resources["alias-def"])
+	assert.Check(t, is.NilError(err))
 
-	// Test default value and override
-	imageConf := config.Resources["image-def"].(*ImageConfig)
-	assert.Check(t, is.Equal("what", imageConf.Dockerfile))
-	assert.Check(t, is.Compare(map[string]string{
-		"VERSION": "3.3.3",
-		"DEBUG":   "true",
-	}, imageConf.Args))
-
-	mountConf := config.Resources["vol-def"].(*MountConfig)
-	assert.Check(t, is.Equal("dist/", mountConf.Bind))
-	assert.Check(t, is.Equal("/target", mountConf.Path))
-	assert.Check(t, is.Equal(false, mountConf.ReadOnly))
-
-	aliasConf := config.Resources["alias-def"].(*AliasConfig)
-	assert.Check(t, is.Compare([]string{"vol-def", "cmd-def"}, aliasConf.Tasks))
-
-	assert.Check(t, is.Compare(&MetaConfig{Default: "alias-def"}, config.Meta))
+	expected := &Config{
+		Meta: &MetaConfig{
+			Default: "alias-def",
+		},
+		Resources: map[string]Resource{
+			"image-def": &ImageConfig{
+				Dockerfile: "what",
+				Args: map[string]string{
+					"VERSION": "3.3.3",
+					"DEBUG":   "true",
+				},
+				Image: "imagename",
+			},
+			"vol-def": &MountConfig{
+				Bind: "dist/",
+				Path: "/target",
+			},
+			"cmd-def": &JobConfig{
+				Use:    "image-def",
+				Mounts: []string{"vol-def"},
+			},
+			"alias-def": &AliasConfig{
+				Tasks: []string{"vol-def", "cmd-def"},
+			},
+			"compose-def": &ComposeConfig{
+				Files:     []string{"foo.yml"},
+				StopGrace: 5,
+				Project:   "{unique}",
+			},
+		},
+	}
+	assert.Assert(t, is.Compare(config, expected, cmpConfigOpt))
 }
+
+var cmpConfigOpt = cmp.AllowUnexported(PathGlobs{}, pull{}, ShlexSlice{})
 
 func TestLoadFromBytesWithReservedName(t *testing.T) {
 	conf := dedent.Dedent(`
@@ -74,8 +87,7 @@ func TestLoadFromBytesWithReservedName(t *testing.T) {
 	`)
 
 	_, err := LoadFromBytes([]byte(conf))
-	assert.Check(t, is.ErrorContains(err, ""))
-	assert.Check(t, is.Contains(err.Error(), "\"autoclean\" is reserved"))
+	assert.Check(t, is.ErrorContains(err, `"autoclean" is reserved`))
 }
 
 func TestLoadFromBytesWithInvalidName(t *testing.T) {
@@ -86,6 +98,5 @@ func TestLoadFromBytesWithInvalidName(t *testing.T) {
 	`)
 
 	_, err := LoadFromBytes([]byte(conf))
-	assert.Check(t, is.ErrorContains(err, ""))
-	assert.Check(t, is.Contains(err.Error(), "invalid character \":\""))
+	assert.Check(t, is.ErrorContains(err, `invalid character ":"`))
 }

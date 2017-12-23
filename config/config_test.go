@@ -112,5 +112,5 @@ alias=aliasresource:
 		WorkingDir: dir.Path(),
 		FilePath:   yamlPath,
 	}
-	assert.Check(t, is.Compare(expected, config))
+	assert.Check(t, is.Compare(expected, config, cmpConfigOpt))
 }

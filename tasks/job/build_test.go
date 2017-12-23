@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
+	"github.com/google/go-cmp/cmp"
 	"github.com/gotestyourself/gotestyourself/assert"
 	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
@@ -63,12 +64,15 @@ func TestGetArtifactPath(t *testing.T) {
 		},
 	}
 	for _, testcase := range testcases {
-		actual, err := getArtifactPath(workingDir, testcase.glob, mounts)
-		if assert.Check(t, is.NilError(err), testcase.doc) {
-			assert.Check(t, is.Compare(testcase.expected, actual), testcase.doc)
-		}
+		t.Run(testcase.doc, func(t *testing.T) {
+			actual, err := getArtifactPath(workingDir, testcase.glob, mounts)
+			assert.NilError(t, err)
+			assert.Assert(t, is.Compare(testcase.expected, actual, cmpArtifactPathOpt))
+		})
 	}
 }
+
+var cmpArtifactPathOpt = cmp.AllowUnexported(artifactPath{})
 
 func TestHasPathPrefix(t *testing.T) {
 	var testcases = []struct {

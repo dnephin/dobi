@@ -73,6 +73,5 @@ func TestShlexSliceTransformConfig(t *testing.T) {
 	zero := reflect.Value{}
 	err := s.TransformConfig(zero)
 
-	assert.Check(t, err != nil)
-	assert.Check(t, is.Contains(err.Error(), "must be a string"))
+	assert.Check(t, is.ErrorContains(err, "must be a string"))
 }

@@ -13,6 +13,6 @@ func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
 
 	value := []interface{}{"one", "two", "three"}
 	err := globs.TransformConfig(reflect.ValueOf(value))
-	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.NilError(err))
 	assert.Check(t, is.Compare([]string{"one", "two", "three"}, globs.globs))
 }
