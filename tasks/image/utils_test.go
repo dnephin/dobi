@@ -3,29 +3,30 @@ package image
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestParseAuthRepoWithUserRepo(t *testing.T) {
 	repo, err := parseAuthRepo("dnephin/foo")
-	assert.Nil(t, err)
-	assert.Equal(t, repo, defaultRepo)
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Equal(repo, defaultRepo))
 }
 
 func TestParseAuthRepoPrivateRepoAndPort(t *testing.T) {
 	repo, err := parseAuthRepo("myrepo.net:3434/dnephin/foo")
-	assert.Nil(t, err)
-	assert.Equal(t, repo, "myrepo.net:3434")
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Equal(repo, "myrepo.net:3434"))
 }
 
 func TestParseAuthRepoPrivateRepo(t *testing.T) {
 	repo, err := parseAuthRepo("myrepo.net/dnephin/foo:tag")
-	assert.Nil(t, err)
-	assert.Equal(t, repo, "myrepo.net")
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Equal(repo, "myrepo.net"))
 }
 
 func TestParseAuthRepoPrivateRepoNoUsername(t *testing.T) {
 	repo, err := parseAuthRepo("myrepo.net/foo")
-	assert.Nil(t, err)
-	assert.Equal(t, repo, "myrepo.net")
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Equal(repo, "myrepo.net"))
 }

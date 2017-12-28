@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func aliasWithDeps(deps []string) config.Resource {
@@ -25,10 +26,9 @@ func TestCollectTasksErrorsOnCyclicDependencies(t *testing.T) {
 		Tasks: []string{"one"},
 	}
 	tasks, err := collectTasks(runOptions)
-	assert.Nil(t, tasks)
-	assert.Error(t, err)
-	assert.Contains(t,
-		err.Error(), "Invalid dependency cycle: one:run, two:run, three:run")
+	assert.Check(t, is.Nil(tasks))
+	assert.Check(t, is.ErrorContains(err, ""))
+	assert.Check(t, is.Contains(err.Error(), "Invalid dependency cycle: one:run, two:run, three:run"))
 }
 
 func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
@@ -42,6 +42,6 @@ func TestCollectTasksDoesNotErrorOnDuplicateTask(t *testing.T) {
 		Tasks: []string{"one", "two"},
 	}
 	tasks, err := collectTasks(runOptions)
-	assert.Nil(t, err)
-	assert.Equal(t, 3, len(tasks.All()))
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Equal(3, len(tasks.All())))
 }

@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestBuildDockerfileWithCopy(t *testing.T) {
@@ -24,7 +25,7 @@ func TestBuildDockerfileWithCopy(t *testing.T) {
 COPY ./dist /go/bin
 COPY . /opt/var/foo
 `
-	assert.Equal(t, expected, buf.String())
+	assert.Check(t, is.Equal(expected, buf.String()))
 }
 
 func TestGetArtifactPath(t *testing.T) {
@@ -63,8 +64,8 @@ func TestGetArtifactPath(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		actual, err := getArtifactPath(workingDir, testcase.glob, mounts)
-		if assert.NoError(t, err, testcase.doc) {
-			assert.Equal(t, testcase.expected, actual, testcase.doc)
+		if assert.Check(t, is.NilError(err), testcase.doc) {
+			assert.Check(t, is.Compare(testcase.expected, actual), testcase.doc)
 		}
 	}
 }
@@ -113,30 +114,30 @@ func TestHasPathPrefix(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		actual := hasPathPrefix(testcase.path, testcase.prefix)
-		assert.Equal(t, testcase.expected, actual, testcase.doc)
+		assert.Check(t, is.Equal(testcase.expected, actual), testcase.doc)
 	}
 }
 
 func TestArtifactPathContainerDir(t *testing.T) {
 	path := newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/binary*")
-	assert.Equal(t, "/go/bin/", path.containerDir())
+	assert.Check(t, is.Equal("/go/bin/", path.containerDir()))
 
 	path = newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/")
-	assert.Equal(t, "/go/bin/", path.containerDir())
+	assert.Check(t, is.Equal("/go/bin/", path.containerDir()))
 }
 
 func TestArtifactPathContainerGlob(t *testing.T) {
 	path := newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/binary*")
-	assert.Equal(t, "/go/bin/binary*", path.containerGlob())
+	assert.Check(t, is.Equal("/go/bin/binary*", path.containerGlob()))
 
 	path = newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/")
-	assert.Equal(t, "/go/bin/", path.containerGlob())
+	assert.Check(t, is.Equal("/go/bin/", path.containerGlob()))
 }
 
 func TestArtifactPathHostPath(t *testing.T) {
 	path := newArtifactPath("/work/dist/bin/", "/go/bin/", "/work/dist/bin/")
 	containerPath := "/go/bin/dobi-darwin"
-	assert.Equal(t, "/work/dist/bin/dobi-darwin", path.hostPath(containerPath))
+	assert.Check(t, is.Equal("/work/dist/bin/dobi-darwin", path.hostPath(containerPath)))
 }
 
 func TestArtifactPathFromArchive(t *testing.T) {
@@ -173,7 +174,7 @@ func TestArtifactPathFromArchive(t *testing.T) {
 
 	for _, testcase := range testcases {
 		actual := testcase.artifactPath.pathFromArchive(testcase.archivePath)
-		assert.Equal(t, testcase.expected, actual)
+		assert.Check(t, is.Equal(testcase.expected, actual))
 	}
 }
 
@@ -206,8 +207,8 @@ func TestFileMatchesGlob(t *testing.T) {
 	for _, testcase := range testcases {
 		doc := fmt.Sprintf("path: %s glob: %s", testcase.path, testcase.glob)
 		match, err := fileMatchesGlob(testcase.path, testcase.glob)
-		if assert.NoError(t, err, doc) {
-			assert.Equal(t, testcase.expected, match, doc)
+		if assert.Check(t, is.NilError(err), doc) {
+			assert.Check(t, is.Equal(testcase.expected, match), doc)
 		}
 	}
 }

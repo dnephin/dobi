@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestForEachTag(t *testing.T) {
@@ -24,6 +25,6 @@ func TestForEachTag(t *testing.T) {
 	}
 
 	err := task.ForEachTag(nil, eachFunc)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, tags)
+	assert.Check(t, is.NilError(err))
+	assert.Check(t, is.Compare(expected, tags))
 }

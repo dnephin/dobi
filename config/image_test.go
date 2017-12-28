@@ -6,8 +6,8 @@ import (
 	"time"
 
 	pth "github.com/dnephin/configtf/path"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -94,13 +94,12 @@ func TestImageConfigValidate(t *testing.T) {
 	for _, testcase := range testcases {
 		err := testcase.image.Validate(pth.NewPath("."), NewConfig())
 		if testcase.expectedErr != "" {
-			if assert.NotNil(t, err, testcase.doc) {
-				assert.Contains(t, err.Error(), testcase.expectedErr, testcase.doc)
+			if assert.Check(t, err != nil, testcase.doc) {
+				assert.Check(t, is.Contains(err.Error(), testcase.expectedErr), testcase.doc)
 			}
 		} else {
-			assert.Nil(t, err, testcase.doc)
-			assert.Equal(t,
-				testcase.expectedDockerfile, testcase.image.Dockerfile, testcase.doc)
+			assert.Check(t, is.Nil(err), testcase.doc)
+			assert.Check(t, is.Equal(testcase.expectedDockerfile, testcase.image.Dockerfile), testcase.doc)
 		}
 	}
 }
@@ -122,7 +121,7 @@ func TestImageConfigResolve(t *testing.T) {
 		},
 	}
 	resolved, err := image.Resolve(resolver)
-	require.NoError(t, err)
+	assert.NilError(t, err)
 	expected := &ImageConfig{
 		Tags:  []string{"foo", "thetag"},
 		Image: "last",
@@ -132,7 +131,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key2": "ok",
 		},
 	}
-	assert.Equal(t, expected, resolved)
+	assert.Check(t, is.Compare(expected, resolved))
 }
 
 func TestPullWithDuration(t *testing.T) {
@@ -140,11 +139,11 @@ func TestPullWithDuration(t *testing.T) {
 	now := time.Now()
 	old := now.Add(-time.Duration(32 * 60 * 10e9))
 	err := p.TransformConfig(reflect.ValueOf("30m"))
-	require.NoError(t, err)
+	assert.NilError(t, err)
 
-	assert.Equal(t, p.Required(&now), false)
-	assert.Equal(t, p.Required(&old), true)
-	assert.Equal(t, p.Required(nil), true)
+	assert.Check(t, is.Equal(p.Required(&now), false))
+	assert.Check(t, is.Equal(p.Required(&old), true))
+	assert.Check(t, is.Equal(p.Required(nil), true))
 }
 
 func TestPullTransformConfig(t *testing.T) {
@@ -152,6 +151,6 @@ func TestPullTransformConfig(t *testing.T) {
 	zero := reflect.Value{}
 	err := p.TransformConfig(zero)
 
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "must be a string")
+	assert.Check(t, err != nil)
+	assert.Check(t, is.Contains(err.Error(), "must be a string"))
 }

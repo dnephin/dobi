@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	pth "github.com/dnephin/configtf/path"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -72,6 +73,6 @@ func TestShlexSliceTransformConfig(t *testing.T) {
 	zero := reflect.Value{}
 	err := s.TransformConfig(zero)
 
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "must be a string")
+	assert.Check(t, err != nil)
+	assert.Check(t, is.Contains(err.Error(), "must be a string"))
 }

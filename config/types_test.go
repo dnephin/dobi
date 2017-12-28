@@ -4,7 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
@@ -12,6 +13,6 @@ func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
 
 	value := []interface{}{"one", "two", "three"}
 	err := globs.TransformConfig(reflect.ValueOf(value))
-	assert.Nil(t, err)
-	assert.Equal(t, []string{"one", "two", "three"}, globs.globs)
+	assert.Check(t, is.Nil(err))
+	assert.Check(t, is.Compare([]string{"one", "two", "three"}, globs.globs))
 }

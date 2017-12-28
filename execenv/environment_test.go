@@ -8,7 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -195,13 +196,13 @@ func (s *ExecEnvSuite) TestResolveUserHome() {
 func TestSplitPrefixNoPrefix(t *testing.T) {
 	for _, tag := range []string{".foo", "foo.", "foo"} {
 		prefix, suffix := splitPrefix(tag)
-		assert.Equal(t, prefix, "")
-		assert.Equal(t, suffix, tag)
+		assert.Check(t, is.Equal(prefix, ""))
+		assert.Check(t, is.Equal(suffix, tag))
 	}
 }
 
 func TestSplitPrefix(t *testing.T) {
 	prefix, suffix := splitPrefix("fo.o")
-	assert.Equal(t, prefix, "fo")
-	assert.Equal(t, suffix, "o")
+	assert.Check(t, is.Equal(prefix, "fo"))
+	assert.Check(t, is.Equal(suffix, "o"))
 }
