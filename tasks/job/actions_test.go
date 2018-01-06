@@ -15,5 +15,5 @@ func TestParseCapture(t *testing.T) {
 
 func TestParseCaptureInvalid(t *testing.T) {
 	_, err := parseCapture("capture")
-	assert.Check(t, is.ErrorContains(err, ""))
+	assert.Check(t, is.ErrorContains(err, "invalid capture format"))
 }

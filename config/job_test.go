@@ -48,7 +48,7 @@ func TestJobConfigRunFromConfig(t *testing.T) {
 	res, err := jobFromConfig("foo", values)
 	job, ok := res.(*JobConfig)
 	assert.Assert(t, ok)
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err)
 	// TODO: compare against the entire struct
 	assert.Equal(t, job.Use, "image-res")
 	assert.Assert(t, is.Compare(job.Command.Value(), []string{"echo", "foo"}))

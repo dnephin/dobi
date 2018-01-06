@@ -93,8 +93,7 @@ func TestImageConfigValidate(t *testing.T) {
 			}
 
 			assert.NilError(t, err)
-			assert.Assert(t,
-				is.Compare(testcase.expectedDockerfile, testcase.image.Dockerfile))
+			assert.Assert(t, is.Equal(testcase.expectedDockerfile, testcase.image.Dockerfile))
 		})
 	}
 }
@@ -136,9 +135,9 @@ func TestPullWithDuration(t *testing.T) {
 	err := p.TransformConfig(reflect.ValueOf("30m"))
 	assert.NilError(t, err)
 
-	assert.Check(t, is.Equal(p.Required(&now), false))
-	assert.Check(t, is.Equal(p.Required(&old), true))
-	assert.Check(t, is.Equal(p.Required(nil), true))
+	assert.Check(t, !p.Required(&now))
+	assert.Check(t, p.Required(&old))
+	assert.Check(t, p.Required(nil))
 }
 
 func TestPullTransformConfig(t *testing.T) {
@@ -146,6 +145,5 @@ func TestPullTransformConfig(t *testing.T) {
 	zero := reflect.Value{}
 	err := p.TransformConfig(zero)
 
-	assert.Check(t, err != nil)
-	assert.Check(t, is.Contains(err.Error(), "must be a string"))
+	assert.Check(t, is.ErrorContains(err, "must be a string"))
 }
