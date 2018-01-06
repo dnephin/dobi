@@ -1,55 +1,29 @@
 package fs
 
 import (
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/gotestyourself/gotestyourself/assert"
+	"github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/gotestyourself/gotestyourself/fs"
 )
 
-type DirectorySuite struct {
-	suite.Suite
-	path string
-}
+func TestLastModified(t *testing.T) {
+	tmpdir := fs.NewDir(t, "test-directory-last-modified",
+		fs.WithDir("a"),
+		fs.WithDir("b",
+			fs.WithDir("c")))
+	defer tmpdir.Remove()
 
-func TestDirectorySuite(t *testing.T) {
-	suite.Run(t, new(DirectorySuite))
-}
+	for index, dir := range []string{"a", "b", "b/c"} {
+		mtime := time.Now().AddDate(0, 0, index+10)
+		assert.Assert(t, cmp.Nil(touch(tmpdir.Join(dir, "file"), mtime)))
 
-func (s *DirectorySuite) SetupTest() {
-	var err error
-	s.path, err = ioutil.TempDir("", "directory-test")
-	s.Require().Nil(err)
-}
-
-func (s *DirectorySuite) TearDownTest() {
-	s.Nil(os.RemoveAll(s.path))
-}
-
-func (s *DirectorySuite) TestLastModified() {
-	dirs := []string{
-		filepath.Join(s.path, "a"),
-		filepath.Join(s.path, "b"),
-		filepath.Join(s.path, "b", "c"),
-	}
-	for _, dir := range dirs {
-		s.Require().Nil(os.MkdirAll(dir, 0777))
-	}
-
-	assertModTime := func(days int, dir string) {
-		mtime := time.Now().AddDate(0, 0, days)
-		file := filepath.Join(dir, "file")
-		s.Require().Nil(touch(file, mtime))
-		actual, err := LastModified(dirs...)
-		s.Equal(actual, mtime)
-		s.Nil(err)
-	}
-
-	for index, dir := range dirs {
-		assertModTime(10+index, dir)
+		actual, err := LastModified(tmpdir.Path())
+		assert.NilError(t, err)
+		assert.Equal(t, actual, mtime)
 	}
 }
 

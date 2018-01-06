@@ -5,7 +5,8 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	testconfig "github.com/dnephin/dobi/internal/test/config"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestInclude(t *testing.T) {
@@ -53,6 +54,6 @@ func TestInclude(t *testing.T) {
 
 	for _, testcase := range testcases {
 		actual := include(testcase.resource, testcase.opts)
-		assert.Equal(t, testcase.expected, actual)
+		assert.Check(t, is.Equal(testcase.expected, actual))
 	}
 }

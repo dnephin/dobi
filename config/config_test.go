@@ -3,9 +3,9 @@ package config
 import (
 	"testing"
 
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/gotestyourself/gotestyourself/fs"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSorted(t *testing.T) {
@@ -16,7 +16,7 @@ func TestSorted(t *testing.T) {
 		"cabo":  &ImageConfig{},
 	}
 	sorted := config.Sorted()
-	assert.Equal(t, []string{"alpha", "beta", "cabo"}, sorted)
+	assert.Check(t, is.Compare([]string{"alpha", "beta", "cabo"}, sorted))
 }
 
 func TestResourceResolveDoesNotMutate(t *testing.T) {
@@ -25,10 +25,10 @@ func TestResourceResolveDoesNotMutate(t *testing.T) {
 	for name, fromConfigFunc := range resourceTypeRegistry {
 		value := make(map[string]interface{})
 		resource, err := fromConfigFunc("resourcename", value)
-		assert.NoError(t, err)
+		assert.Check(t, is.NilError(err))
 		resolved, err := resource.Resolve(resolver)
-		assert.NoError(t, err)
-		assert.True(t, resource != resolved,
+		assert.Check(t, is.NilError(err))
+		assert.Check(t, resource != resolved,
 			"Expected different pointers for %q: %p, %p",
 			name, resource, resolved)
 	}
@@ -88,7 +88,7 @@ alias=aliasresource:
 
 	yamlPath := dir.Join("dobi.yaml")
 	config, err := Load(yamlPath)
-	require.NoError(t, err)
+	assert.NilError(t, err)
 	expected := &Config{
 		Meta: &MetaConfig{
 			Project: "fulltest",
@@ -112,5 +112,5 @@ alias=aliasresource:
 		WorkingDir: dir.Path(),
 		FilePath:   yamlPath,
 	}
-	assert.Equal(t, expected, config)
+	assert.Check(t, is.Compare(expected, config, cmpConfigOpt))
 }

@@ -8,69 +8,75 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/suite"
+	"github.com/gotestyourself/gotestyourself/assert"
 )
 
-type TagImageSuite struct {
-	suite.Suite
-	mock       *gomock.Controller
-	mockClient *client.MockDockerClient
-	ctx        *context.ExecuteContext
-	config     *config.ImageConfig
+func setupMockClient(t *testing.T) (*client.MockDockerClient, func()) {
+	mock := gomock.NewController(t)
+	mockClient := client.NewMockDockerClient(mock)
+	return mockClient, func() { mock.Finish() }
 }
 
-func TestTagImageSuite(t *testing.T) {
-	suite.Run(t, new(TagImageSuite))
-}
-
-func (s *TagImageSuite) SetupTest() {
-	s.mock = gomock.NewController(s.T())
-	s.mockClient = client.NewMockDockerClient(s.mock)
-	s.ctx = &context.ExecuteContext{
-		Client:     s.mockClient,
+func setupCtxAndConfig(
+	mockClient *client.MockDockerClient,
+) (*context.ExecuteContext, *config.ImageConfig) {
+	ctx := &context.ExecuteContext{
+		Client:     mockClient,
 		WorkingDir: "/dir",
 	}
-	s.config = &config.ImageConfig{
+	config := &config.ImageConfig{
 		Image: "imagename",
 		Tags:  []string{"tag"},
 	}
+	return ctx, config
 }
 
-func (s *TagImageSuite) TearDownTest() {
-	s.mock.Finish()
+func TestTagImageNothingToTag(t *testing.T) {
+	ctx := &context.ExecuteContext{}
+	config := &config.ImageConfig{
+		Image: "imagename",
+		Tags:  []string{"tag"},
+	}
+	err := tagImage(ctx, config, "imagename:tag")
+	assert.NilError(t, err)
 }
 
-func (s *TagImageSuite) TestTagImageNothingToTag() {
-	err := tagImage(s.ctx, s.config, "imagename:tag")
-	s.Nil(err)
-}
-
-func (s *TagImageSuite) TestTagImageWithTag() {
-	s.mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
+func TestTagImageWithTag(t *testing.T) {
+	mockClient, teardown := setupMockClient(t)
+	defer teardown()
+	mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
 		Repo:  "imagename",
 		Tag:   "foo",
 		Force: true,
 	})
-	err := tagImage(s.ctx, s.config, "imagename:foo")
-	s.Nil(err)
+
+	ctx, config := setupCtxAndConfig(mockClient)
+	err := tagImage(ctx, config, "imagename:foo")
+	assert.NilError(t, err)
 }
 
-func (s *TagImageSuite) TestTagImageWithFullImageName() {
-	s.mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
+func TestTagImageWithFullImageName(t *testing.T) {
+	mockClient, teardown := setupMockClient(t)
+	defer teardown()
+	mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
 		Repo:  "othername",
 		Tag:   "bar",
 		Force: true,
 	})
-	err := tagImage(s.ctx, s.config, "othername:bar")
-	s.Nil(err)
+	ctx, config := setupCtxAndConfig(mockClient)
+	err := tagImage(ctx, config, "othername:bar")
+	assert.NilError(t, err)
 }
 
-func (s *TagImageSuite) TestTagImageWithFullImageNameAndHost() {
-	s.mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
+func TestTagImageWithFullImageNameAndHost(t *testing.T) {
+	mockClient, teardown := setupMockClient(t)
+	defer teardown()
+	mockClient.EXPECT().TagImage("imagename:tag", docker.TagImageOptions{
 		Repo:  "localhost:3030/othername",
 		Tag:   "bar",
 		Force: true,
 	})
-	err := tagImage(s.ctx, s.config, "localhost:3030/othername:bar")
-	s.Nil(err)
+	ctx, config := setupCtxAndConfig(mockClient)
+	err := tagImage(ctx, config, "localhost:3030/othername:bar")
+	assert.NilError(t, err)
 }

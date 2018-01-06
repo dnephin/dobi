@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/stretchr/testify/assert"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestGetAuthConfigNoAuthConfig(t *testing.T) {
 	context := ExecuteContext{}
 	auth := context.GetAuthConfig("https://bogus")
-	assert.Equal(t, auth, docker.AuthConfiguration{})
+	assert.Check(t, is.Compare(auth, docker.AuthConfiguration{}))
 }

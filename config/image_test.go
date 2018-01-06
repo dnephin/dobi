@@ -6,52 +6,45 @@ import (
 	"time"
 
 	pth "github.com/dnephin/configtf/path"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
-type ImageConfigSuite struct {
-	suite.Suite
-	image *ImageConfig
-}
-
-func TestImageConfigSuite(t *testing.T) {
-	suite.Run(t, new(ImageConfigSuite))
-}
-
-func (s *ImageConfigSuite) SetupTest() {
-	s.image = NewImageConfig()
-	s.image.Dockerfile = "Dockerfile"
-	s.image.Context = "."
-	s.image.Image = "example"
-}
-
-func (s *ImageConfigSuite) TestString() {
-	s.image.Context = "./files"
-	s.Equal("Build image 'example' from 'files/Dockerfile'", s.image.String())
-}
-
-func (s *ImageConfigSuite) TestValidateMissingDependencies() {
-	s.image.Depends = []string{"one", "two"}
-	conf := NewConfig()
-	err := validateResourcesExist(pth.NewPath(""), conf, s.image.Dependencies())
-	s.Error(err)
-	s.Contains(err.Error(), "missing dependencies: one, two")
-}
-
-func (s *ImageConfigSuite) TestValidateTagsWithValidFirstTag() {
-	s.image.Tags = []string{"good"}
-	err := s.image.ValidateTags()
-	s.NoError(err)
-}
-
-func (s *ImageConfigSuite) TestValidateTagsWithBadFirstTag() {
-	s.image.Tags = []string{"bad:tag"}
-	err := s.image.ValidateTags()
-	if s.Error(err) {
-		s.Contains(err.Error(), "the first tag \"tag\" may not include an image name")
+func sampleImageConfig() *ImageConfig {
+	return &ImageConfig{
+		Dockerfile: "Dockerfile",
+		Context:    ".",
+		Image:      "example",
 	}
+}
+
+func TestImageConfigString(t *testing.T) {
+	image := sampleImageConfig()
+	image.Context = "./files"
+	assert.Equal(t, "Build image 'example' from 'files/Dockerfile'", image.String())
+}
+
+func TestImageConfigValidateMissingDependencies(t *testing.T) {
+	image := sampleImageConfig()
+	image.Depends = []string{"one", "two"}
+	conf := NewConfig()
+	err := validateResourcesExist(pth.NewPath(""), conf, image.Dependencies())
+	assert.Assert(t, is.ErrorContains(err, "missing dependencies: one, two"))
+}
+
+func TestImageConfigValidateTagsWithValidFirstTag(t *testing.T) {
+	image := sampleImageConfig()
+	image.Tags = []string{"good"}
+	err := image.ValidateTags()
+	assert.NilError(t, err)
+}
+
+func TestImageConfigValidateTagsWithBadFirstTag(t *testing.T) {
+	image := sampleImageConfig()
+	image.Tags = []string{"bad:tag"}
+	err := image.ValidateTags()
+	expected := "the first tag \"tag\" may not include an image name"
+	assert.Assert(t, is.ErrorContains(err, expected))
 }
 
 func TestImageConfigValidate(t *testing.T) {
@@ -92,16 +85,16 @@ func TestImageConfigValidate(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		err := testcase.image.Validate(pth.NewPath("."), NewConfig())
-		if testcase.expectedErr != "" {
-			if assert.NotNil(t, err, testcase.doc) {
-				assert.Contains(t, err.Error(), testcase.expectedErr, testcase.doc)
+		t.Run(testcase.doc, func(t *testing.T) {
+			err := testcase.image.Validate(pth.NewPath("."), NewConfig())
+			if testcase.expectedErr != "" {
+				assert.Assert(t, is.ErrorContains(err, testcase.expectedErr))
+				return
 			}
-		} else {
-			assert.Nil(t, err, testcase.doc)
-			assert.Equal(t,
-				testcase.expectedDockerfile, testcase.image.Dockerfile, testcase.doc)
-		}
+
+			assert.NilError(t, err)
+			assert.Assert(t, is.Equal(testcase.expectedDockerfile, testcase.image.Dockerfile))
+		})
 	}
 }
 
@@ -122,7 +115,7 @@ func TestImageConfigResolve(t *testing.T) {
 		},
 	}
 	resolved, err := image.Resolve(resolver)
-	require.NoError(t, err)
+	assert.NilError(t, err)
 	expected := &ImageConfig{
 		Tags:  []string{"foo", "thetag"},
 		Image: "last",
@@ -132,7 +125,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key2": "ok",
 		},
 	}
-	assert.Equal(t, expected, resolved)
+	assert.Check(t, is.Compare(expected, resolved, cmpConfigOpt))
 }
 
 func TestPullWithDuration(t *testing.T) {
@@ -140,11 +133,11 @@ func TestPullWithDuration(t *testing.T) {
 	now := time.Now()
 	old := now.Add(-time.Duration(32 * 60 * 10e9))
 	err := p.TransformConfig(reflect.ValueOf("30m"))
-	require.NoError(t, err)
+	assert.NilError(t, err)
 
-	assert.Equal(t, p.Required(&now), false)
-	assert.Equal(t, p.Required(&old), true)
-	assert.Equal(t, p.Required(nil), true)
+	assert.Check(t, !p.Required(&now))
+	assert.Check(t, p.Required(&old))
+	assert.Check(t, p.Required(nil))
 }
 
 func TestPullTransformConfig(t *testing.T) {
@@ -152,6 +145,5 @@ func TestPullTransformConfig(t *testing.T) {
 	zero := reflect.Value{}
 	err := p.TransformConfig(zero)
 
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "must be a string")
+	assert.Check(t, is.ErrorContains(err, "must be a string"))
 }

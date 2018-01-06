@@ -1,5 +1,5 @@
-hash: 0eafa9f289ed4d51aefb8c620e8f838fae1a63458086aa535a8743203c08794e
-updated: 2017-10-24T20:30:28.702164662Z
+hash: 562287fd0440268fe01d5df7e813a021e1f279146247cc258e8729ea40cd2b0a
+updated: 2017-12-23T00:54:41.462455163Z
 imports:
 - name: github.com/Azure/go-ansiterm
   version: 19f72df4d05d31cbe1c56bfc8045c96babff6c7e
@@ -72,10 +72,21 @@ imports:
   version: 13f360950a79f5864a972c786a10a50e44b69541
   subpackages:
   - gomock
-- name: github.com/gotestyourself/gotestyourself
-  version: 5aac0d55ecf82c21113b05a175041f7a24a56ce7
+- name: github.com/google/go-cmp
+  version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
   subpackages:
+  - cmp
+  - cmp/internal/diff
+  - cmp/internal/function
+  - cmp/internal/value
+- name: github.com/gotestyourself/gotestyourself
+  version: 65e16288a04542d002258beb84d390eff8b82c17
+  subpackages:
+  - assert
+  - assert/cmp
   - fs
+  - internal/format
+  - internal/source
 - name: github.com/hashicorp/go-cleanhttp
   version: 3573b8b52aa7b37b9358d966a898feb387f62437
 - name: github.com/inconshreveable/mousetrap
@@ -115,12 +126,6 @@ imports:
   repo: https://github.com/dnephin/cobra
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
-- name: github.com/stretchr/testify
-  version: 05e8a0eda380579888eb53c394909df027f06991
-  subpackages:
-  - assert
-  - require
-  - suite
 - name: github.com/Unknwon/com
   version: 0db4a625e949e956314d7d1adea9bf82384cc10c
 - name: github.com/valyala/bytebufferpool

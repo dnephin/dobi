@@ -2,119 +2,101 @@ package execenv
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/gotestyourself/gotestyourself/assert"
+	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/gotestyourself/gotestyourself/fs"
 )
 
-type ExecEnvSuite struct {
-	suite.Suite
-	tmpDir string
-}
-
-func TestExecEnvSuite(t *testing.T) {
-	suite.Run(t, new(ExecEnvSuite))
-}
-
-func (s *ExecEnvSuite) SetupTest() {
-	var err error
-	s.tmpDir, err = ioutil.TempDir("", "environment-test")
-	s.Require().Nil(err)
-}
-
-func (s *ExecEnvSuite) TearDownTest() {
-	s.Nil(os.RemoveAll(s.tmpDir))
-}
-
-func (s *ExecEnvSuite) TestNewExecEnvFromConfigDefault() {
-	execEnv, err := NewExecEnvFromConfig("", "", s.tmpDir)
-	s.Nil(err)
-	expected := fmt.Sprintf("%s-root", filepath.Base(s.tmpDir))
-	s.Equal(expected, execEnv.Unique())
+func TestNewExecEnvFromConfigDefault(t *testing.T) {
+	tmpDir := fs.NewDir(t, "test-environment")
+	defer tmpDir.Remove()
+	execEnv, err := NewExecEnvFromConfig("", "", tmpDir.Path())
+	assert.NilError(t, err)
+	expected := fmt.Sprintf("%s-root", filepath.Base(tmpDir.Path()))
+	assert.Equal(t, expected, execEnv.Unique())
 }
 
 // nolint: errcheck
-func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithTemplate() {
+func TestNewExecEnvFromConfigWithTemplate(t *testing.T) {
+	tmpDir := fs.NewDir(t, "test-environment")
+	defer tmpDir.Remove()
 	os.Setenv("EXEC_ID", "Use-This")
 	defer os.Unsetenv("EXEC_ID")
 
-	execEnv, err := NewExecEnvFromConfig("{env.EXEC_ID}", "", s.tmpDir)
-	s.Nil(err)
-	s.Equal("Use-This", execEnv.ExecID)
+	execEnv, err := NewExecEnvFromConfig("{env.EXEC_ID}", "", tmpDir.Path())
+	assert.NilError(t, err)
+	assert.Equal(t, "Use-This", execEnv.ExecID)
 }
 
-func (s *ExecEnvSuite) TestNewExecEnvFromConfigWithInvalidTemplate() {
-	_, err := NewExecEnvFromConfig("{env.bogus} ", "", s.tmpDir)
-	s.Error(err)
-	s.Contains(err.Error(), "a value is required for variable \"env.bogus\"")
+func TestNewExecEnvFromConfigWithInvalidTemplate(t *testing.T) {
+	tmpDir := fs.NewDir(t, "test-environment")
+	defer tmpDir.Remove()
+	_, err := NewExecEnvFromConfig("{env.bogus} ", "", tmpDir.Path())
+	expected := `a value is required for variable "env.bogus"`
+	assert.Assert(t, is.ErrorContains(err, expected))
 }
 
-func (s *ExecEnvSuite) TestValidateExecIDEmpty() {
+func TestValidateExecIDEmpty(t *testing.T) {
 	output, err := validateExecID("")
-	s.Equal("", output)
-	s.Error(err)
-	s.Contains(err.Error(), "exec-id template was empty after rendering")
+	assert.Equal(t, "", output)
+	expected := "exec-id template was empty after rendering"
+	assert.Assert(t, is.ErrorContains(err, expected))
 }
 
-func (s *ExecEnvSuite) TestValidateExecIDTooManyLines() {
+func TestValidateExecIDTooManyLines(t *testing.T) {
 	output, err := validateExecID("one\ntwo")
-	s.Equal("", output)
-	s.Error(err)
-	s.Contains(err.Error(), "rendered to 2 lines")
+	assert.Equal(t, "", output)
+	assert.Assert(t, is.ErrorContains(err, "rendered to 2 lines"))
 }
 
-func (s *ExecEnvSuite) TestValidateExecIDValid() {
+func TestValidateExecIDValid(t *testing.T) {
 	output, err := validateExecID("one\n")
-	s.Nil(err)
-	s.Equal("one", output)
+	assert.NilError(t, err)
+	assert.Equal(t, "one", output)
 
 	output, err = validateExecID("one")
-	s.Nil(err)
-	s.Equal("one", output)
+	assert.NilError(t, err)
+	assert.Equal(t, "one", output)
 }
 
-func (s *ExecEnvSuite) TestResolveUnique() {
+func TestResolveUnique(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	tmpl := "ok-{unique}"
 	expected := "ok-" + execEnv.Unique()
 	value, err := execEnv.Resolve(tmpl)
 
-	s.Nil(err)
-	s.Equal(value, expected)
-	s.Equal(execEnv.tmplCache[tmpl], expected)
+	assert.NilError(t, err)
+	assert.Equal(t, value, expected)
+	assert.Equal(t, execEnv.tmplCache[tmpl], expected)
 }
 
-func (s *ExecEnvSuite) TestResolveUnknown() {
+func TestResolveUnknown(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("{bogus}")
-
-	s.Error(err)
-	s.Contains(err.Error(), "unknown variable \"bogus\"")
+	assert.Assert(t, is.ErrorContains(err, `unknown variable "bogus"`))
 }
 
-func (s *ExecEnvSuite) TestResolveBadTemplate() {
+func TestResolveBadTemplate(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("{bogus{")
 
-	s.Error(err)
-	s.Contains(err.Error(), "Cannot find end tag")
+	assert.Assert(t, is.ErrorContains(err, "Cannot find end tag"))
 }
 
-func (s *ExecEnvSuite) TestResolveEnvironmentNoDefault() {
+func TestResolveEnvironmentNoDefault(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	_, err := execEnv.Resolve("thing-{env.foo}")
 
-	s.Error(err)
-	s.Contains(err.Error(), "required for variable \"env.foo\"")
+	assert.Assert(t, is.ErrorContains(err, `required for variable "env.foo"`))
 }
 
 // nolint: errcheck
-func (s *ExecEnvSuite) TestResolveEnvironment() {
+func TestResolveEnvironment(t *testing.T) {
 	defer os.Unsetenv("FOO")
 	os.Setenv("FOO", "stars")
 	tmpl := "thing-{env.FOO}"
@@ -123,12 +105,12 @@ func (s *ExecEnvSuite) TestResolveEnvironment() {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve(tmpl)
 
-	s.Nil(err)
-	s.Equal(value, expected)
-	s.Equal(execEnv.tmplCache[tmpl], expected)
+	assert.NilError(t, err)
+	assert.Equal(t, value, expected)
+	assert.Equal(t, execEnv.tmplCache[tmpl], expected)
 }
 
-func (s *ExecEnvSuite) TestResolveTime() {
+func TestResolveTime(t *testing.T) {
 	tmpl := "build-{time.YYYY-MM-DD}"
 	expected := "build-2016-04-05"
 
@@ -136,72 +118,72 @@ func (s *ExecEnvSuite) TestResolveTime() {
 	execEnv.startTime = time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC)
 	value, err := execEnv.Resolve(tmpl)
 
-	s.Nil(err)
-	s.Equal(value, expected)
-	s.Equal(execEnv.tmplCache[tmpl], expected)
+	assert.NilError(t, err)
+	assert.Equal(t, value, expected)
+	assert.Equal(t, execEnv.tmplCache[tmpl], expected)
 }
 
-func (s *ExecEnvSuite) TestSplitDefault() {
+func TestSplitDefault(t *testing.T) {
 	tag := "time.19:01:01:default"
 	value, defVal, hasDefault := splitDefault(tag)
-	s.Equal(value, "time.19:01:01")
-	s.Equal(defVal, "default")
-	s.Equal(hasDefault, true)
+	assert.Equal(t, value, "time.19:01:01")
+	assert.Equal(t, defVal, "default")
+	assert.Equal(t, hasDefault, true)
 }
 
-func (s *ExecEnvSuite) TestSplitDefaultNoDefault() {
+func TestSplitDefaultNoDefault(t *testing.T) {
 	tag := "env.FOO"
 	value, defVal, hasDefault := splitDefault(tag)
-	s.Equal(value, "env.FOO")
-	s.Equal(defVal, "")
-	s.Equal(hasDefault, false)
+	assert.Equal(t, value, "env.FOO")
+	assert.Equal(t, defVal, "")
+	assert.Equal(t, hasDefault, false)
 }
 
-func (s *ExecEnvSuite) TestResolveUserName() {
+func TestResolveUserName(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve("{user.name}")
-	s.Nil(err)
-	s.Equal(value, "root")
+	assert.NilError(t, err)
+	assert.Equal(t, value, "root")
 }
 
-func (s *ExecEnvSuite) TestResolveUserUID() {
+func TestResolveUserUID(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve("{user.uid}")
-	s.Nil(err)
-	s.Equal(value, "0")
+	assert.NilError(t, err)
+	assert.Equal(t, value, "0")
 }
 
-func (s *ExecEnvSuite) TestResolveUserGroup() {
+func TestResolveUserGroup(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve("{user.group}")
-	s.Nil(err)
-	s.Equal(value, "root")
+	assert.NilError(t, err)
+	assert.Equal(t, value, "root")
 }
 
-func (s *ExecEnvSuite) TestResolveUserGID() {
+func TestResolveUserGID(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve("{user.gid}")
-	s.Nil(err)
-	s.Equal(value, "0")
+	assert.NilError(t, err)
+	assert.Equal(t, value, "0")
 }
 
-func (s *ExecEnvSuite) TestResolveUserHome() {
+func TestResolveUserHome(t *testing.T) {
 	execEnv := NewExecEnv("exec", "project", "cwd")
 	value, err := execEnv.Resolve("{user.home}")
-	s.Nil(err)
-	s.Equal(value, "/root")
+	assert.NilError(t, err)
+	assert.Equal(t, value, "/root")
 }
 
 func TestSplitPrefixNoPrefix(t *testing.T) {
 	for _, tag := range []string{".foo", "foo.", "foo"} {
 		prefix, suffix := splitPrefix(tag)
-		assert.Equal(t, prefix, "")
-		assert.Equal(t, suffix, tag)
+		assert.Check(t, is.Equal(prefix, ""))
+		assert.Check(t, is.Equal(suffix, tag))
 	}
 }
 
 func TestSplitPrefix(t *testing.T) {
 	prefix, suffix := splitPrefix("fo.o")
-	assert.Equal(t, prefix, "fo")
-	assert.Equal(t, suffix, "o")
+	assert.Check(t, is.Equal(prefix, "fo"))
+	assert.Check(t, is.Equal(suffix, "o"))
 }
