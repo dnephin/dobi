@@ -37,7 +37,7 @@ func TestLoadFromBytes(t *testing.T) {
 	`)
 
 	config, err := LoadFromBytes([]byte(conf))
-	assert.Check(t, is.NilError(err))
+	assert.NilError(t, err)
 
 	expected := &Config{
 		Meta: &MetaConfig{
@@ -70,7 +70,7 @@ func TestLoadFromBytes(t *testing.T) {
 			},
 		},
 	}
-	assert.Assert(t, is.Compare(config, expected, cmpConfigOpt))
+	assert.DeepEqual(t, config, expected, cmpConfigOpt)
 }
 
 var cmpConfigOpt = cmp.AllowUnexported(PathGlobs{}, pull{}, ShlexSlice{})

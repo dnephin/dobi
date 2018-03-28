@@ -21,7 +21,6 @@ func TestNewExecEnvFromConfigDefault(t *testing.T) {
 	assert.Equal(t, expected, execEnv.Unique())
 }
 
-// nolint: errcheck
 func TestNewExecEnvFromConfigWithTemplate(t *testing.T) {
 	tmpDir := fs.NewDir(t, "test-environment")
 	defer tmpDir.Remove()
@@ -95,7 +94,6 @@ func TestResolveEnvironmentNoDefault(t *testing.T) {
 	assert.Assert(t, is.ErrorContains(err, `required for variable "env.foo"`))
 }
 
-// nolint: errcheck
 func TestResolveEnvironment(t *testing.T) {
 	defer os.Unsetenv("FOO")
 	os.Setenv("FOO", "stars")

@@ -5,7 +5,6 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestForEachTag(t *testing.T) {
@@ -25,6 +24,6 @@ func TestForEachTag(t *testing.T) {
 	}
 
 	err := task.ForEachTag(nil, eachFunc)
-	assert.Check(t, is.NilError(err))
-	assert.Check(t, is.Compare(expected, tags))
+	assert.NilError(t, err)
+	assert.DeepEqual(t, expected, tags)
 }

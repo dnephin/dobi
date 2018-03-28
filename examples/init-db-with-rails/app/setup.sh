@@ -66,5 +66,5 @@ development:
   user: postgres
 EOF
 
-echo "gem 'pg'" >> ./Gemfile
+echo "gem 'pg', '~> 0.18.0'" >> ./Gemfile
 bundle install

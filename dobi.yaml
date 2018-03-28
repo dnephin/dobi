@@ -22,6 +22,10 @@ mount=projectdir:
     bind: .
     path: '{fs.projectdir}'
 
+mount=depsources:
+    bind: ./.depsources
+    path: /go/pkg/dep/sources
+
 #
 # Images
 #
@@ -39,7 +43,8 @@ image=dist-img:
     image: dnephin/dobi
     tags: ["{env.DOBI_VERSION}"]
     dockerfile: dockerfiles/Dockerfile.dist
-    description: "Build the distribution image"
+    annotations:
+      description: "Build the distribution image"
 
 image=releaser:
     image: dobi-release
@@ -73,7 +78,9 @@ job=binary:
     command: script/build
     env:
       - "DOBI_BUILD_OS={env.DOBI_BUILD_OS:}"
-    description: "Build the static binary"
+    annotations:
+      description: "Build the static binary"
+      tags: [binary]
 
 job=watch:
     use: builder
@@ -81,27 +88,33 @@ job=watch:
     command: script/watch
     interactive: true
     depends: [mocks]
-    description: "Watch for code changes and run the unit tests"
+    annotations:
+      description: "Watch for code changes and run the unit tests"
+      tags: [test]
 
 job=shell:
     use: builder
-    mounts: [source, dist]
+    mounts: [source, dist, depsources]
     interactive: true
     provide-docker: true
     command: bash
-    description: "Start an interactive development environment"
+    annotations:
+      description: "Start an interactive development environment"
 
 job=test-unit:
     use: builder
     mounts: [source]
-    command: "bash -c 'go test -v $(glide novendor)'"
+    command: "go test ./..."
     depends: [mocks]
+    annotations:
+      tags: [test]
 
 job=lint:
     use: linter
     mounts: [source]
-    description: "Run style checks"
     depends: [mocks]
+    annotations:
+      description: "Run static checks"
 
 job=lint-shell:
     use: linter
@@ -127,18 +140,24 @@ job=docs-build:
     mounts: [source]
     command: docs/script/build
     depends: [binary-linux]
+    annotations:
+      tags: [docs]
 
 job=docs-shell:
     use: docs-img
     mounts: [source]
     interactive: true
     command: bash
+    annotations:
+      tags: [docs]
 
 job=docs-watch:
     use: docs-img
     mounts: [source]
     interactive: true
     command: docs/script/watch
+    annotations:
+      tags: [docs]
 
 job=docs:
     use: docs-img
@@ -147,20 +166,25 @@ job=docs:
     ports: ["8080:8080"]
     command: docs/script/serve
     depends: ['docs-build']
-    description: "Build docs and start an http server to preview the docs"
+    annotations:
+      description: "Build docs and start an http server to preview the docs"
+      tags: [docs]
 
 job=mocks:
     use: builder
     mounts: [source]
-    command: "bash -c 'go generate $(glide nv)'"
+    command: "go generate ./..."
+    annotations:
+      tags: [test]
 
 job=deps:
     use: builder
-    mounts: [source]
-    command: "glide install"
-    sources: ['glide.yaml', 'glide.lock']
+    mounts: [source, depsources]
+    command: "dep ensure"
+    sources: ['Gopkg.toml', 'Gopkg.lock']
     artifact: vendor/
-    description: "Install go dependencies"
+    annotations:
+      description: "Install go dependencies"
 
 job=test-examples:
     use: example-tester
@@ -191,6 +215,8 @@ job=build-rtf:
     sources: [script/build-rtf]
     command: script/build-rtf
     artifact: dist/bin/rtf
+    annotations:
+      tags: [test]
 
 image=refactorer:
     image: dnephin/go-refactor
@@ -204,7 +230,8 @@ job=refactor-shell:
     working-dir: /go/src/github.com/dnephin/dobi
     env: [GOPATH=/go]
     command: sh
-    description: "Start an interactive shell for running go refactor tools"
+    annotations:
+      description: "Start an interactive shell for running go refactor tools"
 
 
 env=linux-only:
@@ -216,14 +243,18 @@ env=linux-only:
 
 alias=test:
     tasks: [test-unit, test-examples]
-    description: "Run all tests"
+    annotations:
+      description: "Run all tests"
 
 alias=all:
     tasks: [lint, test, docs-build, binary]
-    description: "Run all lint and build tasks"
+    annotations:
+      description: "Run all lint and build tasks"
 
 alias=binary-linux:
     tasks: [linux-only, binary]
+    annotations:
+      tags: [binary]
 
 alias=release:
     tasks:
@@ -232,3 +263,5 @@ alias=release:
       - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
       - 'dist-img:push'
+    annotations:
+      tags: [release]

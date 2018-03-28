@@ -16,7 +16,7 @@ func TestSorted(t *testing.T) {
 		"cabo":  &ImageConfig{},
 	}
 	sorted := config.Sorted()
-	assert.Check(t, is.Compare([]string{"alpha", "beta", "cabo"}, sorted))
+	assert.Check(t, is.DeepEqual([]string{"alpha", "beta", "cabo"}, sorted))
 }
 
 func TestResourceResolveDoesNotMutate(t *testing.T) {
@@ -25,9 +25,9 @@ func TestResourceResolveDoesNotMutate(t *testing.T) {
 	for name, fromConfigFunc := range resourceTypeRegistry {
 		value := make(map[string]interface{})
 		resource, err := fromConfigFunc("resourcename", value)
-		assert.Check(t, is.NilError(err))
+		assert.NilError(t, err)
 		resolved, err := resource.Resolve(resolver)
-		assert.Check(t, is.NilError(err))
+		assert.NilError(t, err)
 		assert.Check(t, resource != resolved,
 			"Expected different pointers for %q: %p, %p",
 			name, resource, resolved)
@@ -112,5 +112,5 @@ alias=aliasresource:
 		WorkingDir: dir.Path(),
 		FilePath:   yamlPath,
 	}
-	assert.Check(t, is.Compare(expected, config, cmpConfigOpt))
+	assert.Check(t, is.DeepEqual(expected, config, cmpConfigOpt))
 }

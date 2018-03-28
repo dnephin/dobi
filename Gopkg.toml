@@ -1,0 +1,53 @@
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dnephin/configtf"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dnephin/go-os-user"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/docker/docker"
+
+[[constraint]]
+  name = "github.com/docker/go-connections"
+  version = "0.3.0"
+
+[[constraint]]
+  name = "github.com/golang/mock"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/google/go-cmp"
+  version = "0.2.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/kballard/go-shellquote"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.0.5"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  source = "https://github.com/dnephin/cobra"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/valyala/fasttemplate"
+
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true
+
+[[override]]
+  name = "golang.org/x/sys"
+  revision = "13d03a9a82fba647c21a0ef8fba44a795d0f0835"

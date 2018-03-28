@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 )
 
 func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
@@ -13,6 +12,6 @@ func TestPathGlobsTransformConfigFromSlice(t *testing.T) {
 
 	value := []interface{}{"one", "two", "three"}
 	err := globs.TransformConfig(reflect.ValueOf(value))
-	assert.Check(t, is.NilError(err))
-	assert.Check(t, is.Compare([]string{"one", "two", "three"}, globs.globs))
+	assert.NilError(t, err)
+	assert.DeepEqual(t, []string{"one", "two", "three"}, globs.globs)
 }

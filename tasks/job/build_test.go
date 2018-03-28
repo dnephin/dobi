@@ -67,7 +67,7 @@ func TestGetArtifactPath(t *testing.T) {
 		t.Run(testcase.doc, func(t *testing.T) {
 			actual, err := getArtifactPath(workingDir, testcase.glob, mounts)
 			assert.NilError(t, err)
-			assert.Assert(t, is.Compare(testcase.expected, actual, cmpArtifactPathOpt))
+			assert.Assert(t, is.DeepEqual(testcase.expected, actual, cmpArtifactPathOpt))
 		})
 	}
 }
@@ -211,7 +211,7 @@ func TestFileMatchesGlob(t *testing.T) {
 	for _, testcase := range testcases {
 		doc := fmt.Sprintf("path: %s glob: %s", testcase.path, testcase.glob)
 		match, err := fileMatchesGlob(testcase.path, testcase.glob)
-		if assert.Check(t, is.NilError(err), doc) {
+		if assert.Check(t, err, doc) {
 			assert.Check(t, is.Equal(testcase.expected, match), doc)
 		}
 	}

@@ -51,8 +51,8 @@ func TestJobConfigRunFromConfig(t *testing.T) {
 	assert.NilError(t, err)
 	// TODO: compare against the entire struct
 	assert.Equal(t, job.Use, "image-res")
-	assert.Assert(t, is.Compare(job.Command.Value(), []string{"echo", "foo"}))
-	assert.Assert(t, is.Compare(job.Entrypoint.Value(), []string{"bash", "-c"}))
+	assert.Assert(t, is.DeepEqual(job.Command.Value(), []string{"echo", "foo"}))
+	assert.Assert(t, is.DeepEqual(job.Entrypoint.Value(), []string{"bash", "-c"}))
 }
 
 func TestShlexSliceTransformConfig(t *testing.T) {
