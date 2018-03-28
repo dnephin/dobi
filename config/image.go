@@ -45,6 +45,9 @@ type ImageConfig struct {
 	// :doc:`variables`.
 	// type: mapping ``key: value``
 	Args map[string]string
+	// Target The target stage to build in a multi-stage Dockerfile. Defaults to
+	// the last stage.
+	Target string
 	// PullBaseImageOnBuild If **true** the base image used in the
 	// ``Dockerfile`` will be pulled before building the image.
 	PullBaseImageOnBuild bool
@@ -63,6 +66,10 @@ type ImageConfig struct {
 	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string `config:"validate"`
+	// NetworkMode The network mode to use for each step in the Dockerfile.
+	NetworkMode string
+	// CacheFrom A list of images to use as the cache for a build.
+	CacheFrom []string
 	Dependent
 	Annotations
 }

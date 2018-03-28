@@ -126,7 +126,10 @@ func (t *Task) commonBuildImageOptions(
 	return docker.BuildImageOptions{
 		Name:           GetImageName(ctx, t.config),
 		BuildArgs:      buildArgs(t.config.Args),
+		Target:         t.config.Target,
 		Pull:           t.config.PullBaseImageOnBuild,
+		NetworkMode:    t.config.NetworkMode,
+		CacheFrom:      t.config.CacheFrom,
 		RmTmpContainer: true,
 		OutputStream:   out,
 		RawJSONStream:  true,
