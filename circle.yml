@@ -21,25 +21,25 @@ jobs:
       - run: docker version
       - restore_cache:
           keys:
-           - 'dot-glide-{{ checksum "glide.lock" }}'
-           - 'dot-glide-'
+           - 'dep-sources-{{ checksum "Gopkg.lock" }}'
+           - 'dep-sources-'
       - run:
           name: "Build dobi binary"
           command: |
             apk add --no-cache bash
             bash -c 'cat dockerfiles/Dockerfile.build <(echo COPY . .) | \
                 docker build -t dobi-dev -f - .'
-            docker run --name build dobi-dev bash -ec 'glide install; go install .'
+            docker run --name build dobi-dev bash -ec 'dep ensure; go install .'
             mkdir /work
             docker cp build:/go/bin/dobi /work/dobi
-            docker cp build:/go/src/github.com/dnephin/dobi/.glide ./.glide
+            docker cp build:/go/pkg/dep/sources ./.depsources
             docker cp build:/go/src/github.com/dnephin/dobi/vendor /work/
       - persist_to_workspace:
           root: /work
           paths: [dobi, vendor]
       - save_cache:
-          key: 'dot-glide-{{ checksum "glide.lock" }}'
-          paths: [.glide]
+          key: 'dep-sources-{{ checksum "Gopkg.lock" }}'
+          paths: [.depsources]
 
   lint:
     docker: *default_docker

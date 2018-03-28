@@ -1,9 +1,8 @@
-.dobi
-.glide
-vendor
-dist
+.dobi/
+vendor/
+dist/
 docs/gen
 docs/build
 docs/doctrees
-.glide
 _results/
+.depsources/

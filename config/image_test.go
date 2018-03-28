@@ -92,7 +92,7 @@ func TestImageConfigValidate(t *testing.T) {
 				return
 			}
 
-			assert.NilError(t, err)
+			assert.Assert(t, err == nil)
 			assert.Assert(t, is.Equal(testcase.expectedDockerfile, testcase.image.Dockerfile))
 		})
 	}
@@ -125,7 +125,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key2": "ok",
 		},
 	}
-	assert.Check(t, is.Compare(expected, resolved, cmpConfigOpt))
+	assert.Check(t, is.DeepEqual(expected, resolved, cmpConfigOpt))
 }
 
 func TestPullWithDuration(t *testing.T) {

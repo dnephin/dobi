@@ -11,5 +11,5 @@ import (
 func TestGetAuthConfigNoAuthConfig(t *testing.T) {
 	context := ExecuteContext{}
 	auth := context.GetAuthConfig("https://bogus")
-	assert.Check(t, is.Compare(auth, docker.AuthConfiguration{}))
+	assert.Check(t, is.DeepEqual(auth, docker.AuthConfiguration{}))
 }

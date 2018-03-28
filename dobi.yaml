@@ -22,6 +22,10 @@ mount=projectdir:
     bind: .
     path: '{fs.projectdir}'
 
+mount=depsources:
+    bind: ./.depsources
+    path: /go/pkg/dep/sources
+
 #
 # Images
 #
@@ -90,7 +94,7 @@ job=watch:
 
 job=shell:
     use: builder
-    mounts: [source, dist]
+    mounts: [source, dist, depsources]
     interactive: true
     provide-docker: true
     command: bash
@@ -100,7 +104,7 @@ job=shell:
 job=test-unit:
     use: builder
     mounts: [source]
-    command: "bash -c 'go test -v $(glide novendor)'"
+    command: "go test ./..."
     depends: [mocks]
     annotations:
       tags: [test]
@@ -169,15 +173,15 @@ job=docs:
 job=mocks:
     use: builder
     mounts: [source]
-    command: "bash -c 'go generate $(glide nv)'"
+    command: "go generate ./..."
     annotations:
       tags: [test]
 
 job=deps:
     use: builder
-    mounts: [source]
-    command: "glide install"
-    sources: ['glide.yaml', 'glide.lock']
+    mounts: [source, depsources]
+    command: "dep ensure"
+    sources: ['Gopkg.toml', 'Gopkg.lock']
     artifact: vendor/
     annotations:
       description: "Install go dependencies"

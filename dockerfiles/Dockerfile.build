@@ -1,12 +1,10 @@
 FROM    golang:1.10-alpine
 RUN     apk add -U git bash curl tree
 
-RUN     export GLIDE=v0.12.3; \
-        export SRC=https://github.com/Masterminds/glide/releases/download/; \
-        curl -sL ${SRC}/${GLIDE}/glide-${GLIDE}-linux-amd64.tar.gz | \
-        tar -xz linux-amd64/glide && \
-        mv linux-amd64/glide /usr/bin/glide && \
-        chmod +x /usr/bin/glide
+ARG     DEP=v0.4.1
+ARG     DEPURL=https://github.com/golang/dep/releases/download
+RUN     curl -sL -o /usr/bin/dep "${DEPURL}/${DEP}/dep-linux-amd64" && \
+        chmod +x /usr/bin/dep
 
 ARG     FILEWATCHER=v0.2.1
 RUN     go get -d github.com/dnephin/filewatcher && \

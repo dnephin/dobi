@@ -3,7 +3,7 @@
   "Deadline": "2m",
   "Sort": ["linter", "severity", "path", "line"],
   "Exclude": ["tasks/client/mock_iface.go"],
-  "Skip": [".glide"],
+  "Skip": [".depsources"],
   "EnableGC": true,
   "WarnUnmatchedDirective": true,
 
