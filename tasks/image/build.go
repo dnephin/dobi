@@ -126,6 +126,7 @@ func (t *Task) commonBuildImageOptions(
 	return docker.BuildImageOptions{
 		Name:           GetImageName(ctx, t.config),
 		BuildArgs:      buildArgs(t.config.Args),
+		Target:         t.config.Target,
 		Pull:           t.config.PullBaseImageOnBuild,
 		RmTmpContainer: true,
 		OutputStream:   out,

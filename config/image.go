@@ -45,6 +45,9 @@ type ImageConfig struct {
 	// :doc:`variables`.
 	// type: mapping ``key: value``
 	Args map[string]string
+	// Target The target stage to build in a multi-stage Dockerfile. Defaults to
+	// the last stage.
+	Target string
 	// PullBaseImageOnBuild If **true** the base image used in the
 	// ``Dockerfile`` will be pulled before building the image.
 	PullBaseImageOnBuild bool

@@ -13,8 +13,8 @@
 [[projects]]
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
-  revision = "c4dc1301f1dc0307acd38e611aa375a64dfe0642"
-  version = "v0.4.3"
+  revision = "7da180ee92d8bd8bb8c37fc560e673e6557c392f"
+  version = "v0.4.7"
 
 [[projects]]
   branch = "master"
@@ -111,7 +111,8 @@
 [[projects]]
   name = "github.com/fsouza/go-dockerclient"
   packages = ["."]
-  revision = "4df4873b288c855e4186534280c3a3a1af403e67"
+  revision = "86b97729ddcf52ec460e96360874b63e816cb4df"
+  source = "https://github.com/dnephin/go-dockerclient"
 
 [[projects]]
   name = "github.com/gogits/git-module"
@@ -151,11 +152,6 @@
   ]
   revision = "03704babdbbc36b67d9a4cd94c9e00adf82f339f"
   version = "v1.3.0"
-
-[[projects]]
-  name = "github.com/hashicorp/go-cleanhttp"
-  packages = ["."]
-  revision = "3573b8b52aa7b37b9358d966a898feb387f62437"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -257,10 +253,7 @@
 
 [[projects]]
   name = "golang.org/x/net"
-  packages = [
-    "context",
-    "context/ctxhttp"
-  ]
+  packages = ["context"]
   revision = "b3756b4b77d7b13260a0a2ec658753cf48922eac"
 
 [[projects]]
@@ -284,6 +277,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "05abff4dda4e2371327ccba2a597a8c295734408f056d040e04177fcc0503c6c"
+  inputs-digest = "4f510a99d15191314a9ca0e9391ed209e13367ec3bcebcf96af0840660c5e942"
   solver-name = "gps-cdcl"
   solver-version = 1
