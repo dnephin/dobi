@@ -66,6 +66,10 @@ type ImageConfig struct {
 	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string `config:"validate"`
+	// NetworkMode The network mode to use for each step in the Dockerfile.
+	NetworkMode string
+	// CacheFrom A list of images to use as the cache for a build.
+	CacheFrom []string
 	Dependent
 	Annotations
 }
