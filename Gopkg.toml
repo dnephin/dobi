@@ -45,8 +45,8 @@
 
 [[constraint]]
   name = "github.com/fsouza/go-dockerclient"
-  source = "https://github.com/dnephin/go-dockerclient"
-  revision = "86b97729ddcf52ec460e96360874b63e816cb4df"
+  # BuildImageOptions.Target not in a release yet
+  revision = "eb4b27262d9a41d4004d101c32e0598782a39415"
 
 [prune]
   non-go = true
