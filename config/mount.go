@@ -107,7 +107,11 @@ func (c *MountConfig) Resolve(resolver Resolver) (Resource, error) {
 	if err != nil {
 		return &conf, err
 	}
-	conf.Bind, err = fs.ExpandUser(c.Bind)
+	bind, err := resolver.Resolve(c.Bind)
+	if err != nil {
+		return &conf, err
+	}
+	conf.Bind, err = fs.ExpandUser(bind)
 	return &conf, err
 }
 
