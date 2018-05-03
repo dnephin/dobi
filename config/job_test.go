@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	pth "github.com/dnephin/configtf/path"
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"gotest.tools/assert"
+	is "gotest.tools/assert/cmp"
 )
 
 func TestJobConfigString(t *testing.T) {

@@ -48,6 +48,10 @@
   # BuildImageOptions.Target not in a release yet
   revision = "eb4b27262d9a41d4004d101c32e0598782a39415"
 
+[[constraint]]
+  name = "gotest.tools"
+  version = "2.0.0"
+
 [prune]
   non-go = true
   go-tests = true

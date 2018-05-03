@@ -8,7 +8,7 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/mock/gomock"
-	"github.com/gotestyourself/gotestyourself/assert"
+	"gotest.tools/assert"
 )
 
 func setupMockClient(t *testing.T) (*client.MockDockerClient, func()) {

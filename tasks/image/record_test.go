@@ -3,7 +3,7 @@ package image
 import (
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
+	"gotest.tools/assert"
 )
 
 func TestRecordPath(t *testing.T) {

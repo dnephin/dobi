@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/dnephin/dobi/config"
-	"github.com/gotestyourself/gotestyourself/assert"
+	"gotest.tools/assert"
 )
 
 func TestForEachTag(t *testing.T) {

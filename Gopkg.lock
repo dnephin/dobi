@@ -141,18 +141,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  name = "github.com/gotestyourself/gotestyourself"
-  packages = [
-    "assert",
-    "assert/cmp",
-    "fs",
-    "internal/format",
-    "internal/source"
-  ]
-  revision = "03704babdbbc36b67d9a4cd94c9e00adf82f339f"
-  version = "v1.3.0"
-
-[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -201,12 +189,6 @@
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
-
-[[projects]]
-  name = "github.com/pmezard/go-difflib"
-  packages = ["difflib"]
-  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/renstrom/dedent"
@@ -273,9 +255,23 @@
   packages = ["."]
   revision = "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af"
 
+[[projects]]
+  name = "gotest.tools"
+  packages = [
+    "assert",
+    "assert/cmp",
+    "fs",
+    "internal/difflib",
+    "internal/format",
+    "internal/source",
+    "x/subtest"
+  ]
+  revision = "14eefd8766a1439cddfc295ecf6327cb422b4bb2"
+  version = "v2.0.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fb725da35e4b6681954c8c6b29a45025d7e682c368b01e132ef08756e017c7c8"
+  inputs-digest = "b5882d2c571bd608b9d349e8ff6151fa1015da36b268e4868e5a27c140bf3516"
   solver-name = "gps-cdcl"
   solver-version = 1

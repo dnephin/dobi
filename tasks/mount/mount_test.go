@@ -6,8 +6,8 @@ import (
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
-	"github.com/gotestyourself/gotestyourself/assert"
-	"github.com/gotestyourself/gotestyourself/fs"
+	"gotest.tools/assert"
+	"gotest.tools/fs"
 )
 
 func defaultExecContext(path string) *context.ExecuteContext {

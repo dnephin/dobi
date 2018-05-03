@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
 	"github.com/renstrom/dedent"
+	"gotest.tools/assert"
+	is "gotest.tools/assert/cmp"
 )
 
 func TestLoadFromBytes(t *testing.T) {
