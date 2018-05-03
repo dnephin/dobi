@@ -5,8 +5,8 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	testconfig "github.com/dnephin/dobi/internal/test/config"
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"gotest.tools/assert"
+	is "gotest.tools/assert/cmp"
 )
 
 func TestInclude(t *testing.T) {

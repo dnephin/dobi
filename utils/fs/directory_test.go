@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	"github.com/gotestyourself/gotestyourself/assert/cmp"
-	"github.com/gotestyourself/gotestyourself/fs"
+	"gotest.tools/assert"
+	"gotest.tools/assert/cmp"
+	"gotest.tools/fs"
 )
 
 func TestLastModified(t *testing.T) {
