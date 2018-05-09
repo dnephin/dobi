@@ -60,3 +60,8 @@
 [[override]]
   name = "golang.org/x/sys"
   revision = "13d03a9a82fba647c21a0ef8fba44a795d0f0835"
+
+[[override]]
+  name = "github.com/Nvveen/Gotty"
+  source = "github.com/ijc/Gotty"
+  revision = "a8b993ba6abdb0e0c12b0125c603323a71c7790c"
