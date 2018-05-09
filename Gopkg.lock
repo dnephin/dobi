@@ -17,10 +17,10 @@
   version = "v0.4.7"
 
 [[projects]]
-  branch = "master"
   name = "github.com/Nvveen/Gotty"
   packages = ["."]
-  revision = "cd527374f1e5bff4938207604a14f2e38a9cf512"
+  revision = "a8b993ba6abdb0e0c12b0125c603323a71c7790c"
+  source = "github.com/ijc/Gotty"
 
 [[projects]]
   name = "github.com/Unknwon/com"
@@ -272,6 +272,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b5882d2c571bd608b9d349e8ff6151fa1015da36b268e4868e5a27c140bf3516"
+  inputs-digest = "9cab21cb853ea8d780dd545f3ef1d9c5e9261c279a901f40ea952183907e50f7"
   solver-name = "gps-cdcl"
   solver-version = 1
