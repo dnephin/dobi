@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	version   = "0.11"
+	version   = "0.11.1"
 	gitsha    = "unknown"
 	buildDate = ""
 )

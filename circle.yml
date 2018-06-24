@@ -111,6 +111,7 @@ jobs:
       - run: |
           apk add --no-cache bash
           docker login -u $DOCKER_USER -p $DOCKER_PASS
+          export DOBI_VERSION="$CIRCLE_TAG"
           script/ci/step dobi release
 
 workflows:

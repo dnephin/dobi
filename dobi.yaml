@@ -127,7 +127,7 @@ job=github-release:
     mounts: [dist]
     env:
      - "GITHUB_TOKEN={env.GITHUB_TOKEN}"
-     - "DOBI_VERSION={env.CIRCLE_TAG}"
+     - "DOBI_VERSION={env.DOBI_VERSION}"
 
 job=release-version:
     use: builder
@@ -260,8 +260,8 @@ alias=release:
     tasks:
       - 'deps'
       - 'binary'
-      - 'github-release'
       - 'release-version:capture(DOBI_VERSION)'
+      - 'github-release'
       - 'dist-img:push'
     annotations:
       tags: [release]
