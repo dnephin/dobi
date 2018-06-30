@@ -1,6 +1,7 @@
 package execenv
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -184,4 +185,18 @@ func TestSplitPrefix(t *testing.T) {
 	prefix, suffix := splitPrefix("fo.o")
 	assert.Check(t, is.Equal(prefix, "fo"))
 	assert.Check(t, is.Equal(suffix, "o"))
+}
+
+func TestValueFromGit_DetachedHead(t *testing.T) {
+	tmpDir := fs.NewDir(t, t.Name())
+
+	testcases := []string{"branch", "sha", "short-sha"}
+	for _, tc := range testcases {
+		t.Run(tc, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			_, err := valueFromGit(buf, tmpDir.Path(), tc, "")
+			expected := "failed resolving variable {git." + tc
+			assert.ErrorContains(t, err, expected, "value: %v", buf.String())
+		})
+	}
 }
