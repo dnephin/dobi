@@ -12,6 +12,7 @@ import (
 	"github.com/dnephin/dobi/logging"
 	git "github.com/gogits/git-module"
 	"github.com/metakeule/fmtdate"
+	"github.com/pkg/errors"
 	fasttmpl "github.com/valyala/fasttemplate"
 )
 
@@ -89,7 +90,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	case "env":
 		return write(os.Getenv(suffix), nil)
 	case "git":
-		return valueFromGit(out, suffix, defValue)
+		return valueFromGit(out, e.workingDir, suffix, defValue)
 	case "time":
 		return write(fmtdate.Format(suffix, e.startTime), nil)
 	case "fs":
@@ -108,7 +109,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	case "exec-id":
 		return write(e.ExecID, nil)
 	default:
-		return 0, fmt.Errorf("unknown variable %q", tag)
+		return 0, errors.Errorf("unknown variable %q", tag)
 	}
 }
 
@@ -119,11 +120,12 @@ func valueFromFilesystem(name string, workingdir string) (string, error) {
 	case "projectdir":
 		return workingdir, nil
 	default:
-		return "", fmt.Errorf("unknown variable \"fs.%s\"", name)
+		return "", errors.Errorf("unknown variable \"fs.%s\"", name)
 	}
 }
 
-func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
+// nolint: gocyclo
+func valueFromGit(out io.Writer, cwd string, tag, defValue string) (int, error) {
 	writeValue := func(value string) (int, error) {
 		return out.Write(bytes.NewBufferString(value).Bytes())
 	}
@@ -137,14 +139,7 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 		return writeValue(defValue)
 	}
 
-	write := func(value string, err error) (int, error) {
-		if err != nil {
-			return writeError(err)
-		}
-		return writeValue(value)
-	}
-
-	repo, err := git.OpenRepository(".")
+	repo, err := git.OpenRepository(cwd)
 	if err != nil {
 		return writeError(err)
 	}
@@ -152,15 +147,24 @@ func valueFromGit(out io.Writer, tag, defValue string) (int, error) {
 	switch tag {
 	case "branch":
 		branch, err := repo.GetHEADBranch()
-		return write(branch.Name, err)
+		if err != nil {
+			return writeError(err)
+		}
+		return writeValue(branch.Name)
 	case "sha":
 		commit, err := repo.GetCommit("HEAD")
-		return write(commit.ID.String(), err)
+		if err != nil {
+			return writeError(err)
+		}
+		return writeValue(commit.ID.String())
 	case "short-sha":
 		commit, err := repo.GetCommit("HEAD")
-		return write(commit.ID.String()[:10], err)
+		if err != nil {
+			return writeError(err)
+		}
+		return writeValue(commit.ID.String()[:10])
 	default:
-		return 0, fmt.Errorf("unknown variable \"git.%s\"", tag)
+		return 0, errors.Errorf("unknown variable \"git.%s\"", tag)
 	}
 }
 
