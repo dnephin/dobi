@@ -45,7 +45,7 @@ func getAction(name string, resname string, conf *config.ComposeConfig) (action,
 		return newAction(
 			task.NewDefaultName(resname, "up"), RunUp, StopUp, deps(conf))
 	case "remove", "rm", "down":
-		return newAction(task.NewName(resname, "down"), RunDown, nil, noDeps)
+		return newAction(task.NewName(resname, "down"), RunDown, nil, deps(conf))
 	case "attach":
 		return newAction(
 			task.NewName(resname, "attach"), RunUpAttached, nil, deps(conf))
