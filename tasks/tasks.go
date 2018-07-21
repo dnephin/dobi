@@ -111,7 +111,6 @@ func buildTaskConfig(name, action string, resource config.Resource) (types.TaskC
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
-
 }
 
 func reversed(tasks []types.Task) []types.Task {

@@ -11,7 +11,7 @@ import (
 
 // ExecuteContext contains all the context for task execution
 type ExecuteContext struct {
-	modified    map[task.Name]bool
+	modified    map[string]bool
 	Resources   *ResourceCollection
 	Client      client.DockerClient
 	authConfigs *docker.AuthConfigurations
@@ -25,7 +25,7 @@ type ExecuteContext struct {
 // during this execution
 func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 	for _, name := range names {
-		if modified := ctx.modified[name]; modified {
+		if modified := ctx.modified[name.MapKey()]; modified {
 			return true
 		}
 	}
@@ -34,7 +34,10 @@ func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 
 // SetModified sets the task name as modified
 func (ctx *ExecuteContext) SetModified(name task.Name) {
-	ctx.modified[name] = true
+	// Add both the key and the string name so that it matches against
+	// dependencies specified with or without an action
+	ctx.modified[name.MapKey()] = true
+	ctx.modified[name.Name()] = true
 }
 
 // GetAuthConfig returns the auth configuration for the repo
@@ -73,7 +76,7 @@ func NewExecuteContext(
 	}
 
 	return &ExecuteContext{
-		modified:    make(map[task.Name]bool),
+		modified:    make(map[string]bool),
 		Resources:   newResourceCollection(),
 		WorkingDir:  config.WorkingDir,
 		Client:      client,

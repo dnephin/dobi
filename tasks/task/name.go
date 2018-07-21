@@ -37,6 +37,16 @@ func (t Name) Equal(o Name) bool {
 		(t.defaultAction && o.defaultAction))
 }
 
+// MapKey returns a unique key for storing a task.Name in a map.
+// Using task.Name as a key will fail when comparing default actions. See
+// the comparison logic in Name.Equal().
+func (t Name) MapKey() string {
+	if t.defaultAction {
+		return t.resource + ":DEFAULT"
+	}
+	return t.Name()
+}
+
 // Format the name with the name of the task, used for logging
 func (t Name) Format(task string) string {
 	return fmt.Sprintf("[%s:%s %s]", task, t.Action(), t.Resource())
