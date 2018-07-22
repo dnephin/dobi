@@ -1,0 +1,6 @@
+
+
+image=dev:
+  image: example-external-dockerfile
+  context: .
+  dockerfile: dockerfiles/Dockerfile
