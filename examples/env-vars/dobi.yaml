@@ -1,0 +1,21 @@
+
+mount=source:
+  bind: .
+  path: /app
+
+image=bash:
+  image: bash
+  tags: ['4.4']
+  pull: once
+
+job=print-version:
+  use: bash
+  mounts: [source]
+  command: /app/print-version.sh
+
+image=dist:
+  image: repo/myapp
+  context: .
+  tags: ["{env.VERSION}"]
+  depends:
+    - "print-version:capture(VERSION)"
