@@ -46,14 +46,17 @@ func (t *captureTask) Repr() string {
 }
 
 // Run the job to capture the output in a variable
-func (t *captureTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
-	// Always pass depsModified as true so that the task runs and is never cached
-	modified, err := t.runTask.Run(ctx, true)
+func (t *captureTask) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error) {
+	modified, err := t.runTask.Run(ctx, depsModified)
 	if err != nil {
 		return modified, err
 	}
 
 	out := strings.TrimSpace(t.buffer.String())
+	if current, ok := os.LookupEnv(t.variable); ok && current == out {
+		return false, nil
+	}
+
 	logging.ForTask(t).Debug("Setting %q to: %s", t.variable, out)
 	return true, os.Setenv(t.variable, out)
 }
