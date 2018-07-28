@@ -53,3 +53,6 @@ Use Cases
 * `examples/inline-dockerfile
   <https://github.com/dnephin/dobi/blob/master/examples/inline-dockerfile/>`_
   - inline Dockerfiles in the ``dobi.yaml`` to reduce the number of build files.
+* `examples/env-vars
+  <https://github.com/dnephin/dobi/blob/master/examples/env-vars/>`_
+  - populate environment variables from job task output
