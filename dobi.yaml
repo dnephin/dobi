@@ -85,12 +85,14 @@ job=binary:
 job=watch:
     use: builder
     mounts: [source]
-    command: script/watch
     interactive: true
     depends: [mocks]
     annotations:
       description: "Watch for code changes and run the unit tests"
       tags: [test]
+    command: |
+      filewatcher -x vendor gotestsum -- -test.timeout 10s
+    env: ["GOTESTSUM_FORMAT=short-verbose"]
 
 job=shell:
     use: builder
@@ -104,10 +106,12 @@ job=shell:
 job=test-unit:
     use: builder
     mounts: [source]
-    command: "go test ./..."
     depends: [mocks]
+    interactive: true
     annotations:
       tags: [test]
+    command: gotestsum
+    env: ["GOTESTSUM_FORMAT={env.GOTESTSUM_FORMAT:short}"]
 
 job=lint:
     use: linter
