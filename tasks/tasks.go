@@ -75,8 +75,6 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 			return nil, err
 		}
 
-		// TODO: cache tasksConfigs until an env resource invalidates them
-
 		if state.taskStack.Contains(taskConfig.Name()) {
 			return nil, fmt.Errorf(
 				"Invalid dependency cycle: %s", strings.Join(state.taskStack.Names(), ", "))

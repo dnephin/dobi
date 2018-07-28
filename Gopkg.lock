@@ -260,6 +260,7 @@
   packages = [
     "assert",
     "assert/cmp",
+    "env",
     "fs",
     "internal/difflib",
     "internal/format",
@@ -272,6 +273,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9cab21cb853ea8d780dd545f3ef1d9c5e9261c279a901f40ea952183907e50f7"
+  inputs-digest = "7a5edc723a724c81b4879dbb691028f6f52b63347c6307f70d0f729bdcac4d35"
   solver-name = "gps-cdcl"
   solver-version = 1

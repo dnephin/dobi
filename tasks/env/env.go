@@ -49,34 +49,44 @@ func (t *Task) Repr() string {
 }
 
 // Run sets environment variables
-func (t *Task) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
+func (t *Task) Run(_ *context.ExecuteContext, _ bool) (bool, error) {
+	var modified int
 	for _, filename := range t.config.Files {
 		vars, err := opts.ParseEnvFile(filename)
 		if err != nil {
-			return true, err
+			return false, err
 		}
-		if err := setVariables(vars); err != nil {
-			return true, err
+		count, err := setVariables(vars)
+		if err != nil {
+			return false, err
 		}
+		modified += count
 	}
-	if err := setVariables(t.config.Variables); err != nil {
-		return true, err
+	count, err := setVariables(t.config.Variables)
+	if err != nil {
+		return false, err
 	}
+	modified += count
 	logging.ForTask(t).Info("Done")
-	return true, nil
+	return modified > 0, nil
 }
 
-func setVariables(vars []string) error {
+func setVariables(vars []string) (int, error) {
+	var count int
 	for _, variable := range vars {
 		key, value, err := splitVar(variable)
 		if err != nil {
-			return err
+			return 0, err
+		}
+		if current, ok := os.LookupEnv(key); ok && current == value {
+			continue
 		}
 		if err := os.Setenv(key, value); err != nil {
-			return err
+			return 0, err
 		}
+		count++
 	}
-	return nil
+	return count, nil
 }
 
 func splitVar(variable string) (string, string, error) {
