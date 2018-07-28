@@ -199,7 +199,7 @@ func (t *Task) runContainer(
 	chanSig := t.forwardSignals(ctx.Client, container.ID)
 	defer signal.Stop(chanSig)
 
-	_, err = ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+	closeWaiter, err := ctx.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    container.ID,
 		OutputStream: t.output(),
 		ErrorStream:  os.Stderr,
@@ -213,6 +213,7 @@ func (t *Task) runContainer(
 	if err != nil {
 		return fmt.Errorf("failed attaching to container %q: %s", name, err)
 	}
+	defer closeWaiter.Wait() // nolint: errcheck
 
 	if t.config.Interactive {
 		inFd, _ := term.GetFdInfo(os.Stdin)
