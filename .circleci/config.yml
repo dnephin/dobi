@@ -42,14 +42,18 @@ jobs:
           paths: [.depsources]
 
   lint:
-    docker: *default_docker
+    docker:
+      - image: "dnephin/gometalinter:v2.0.6"
+    working_directory: /go/src/github.com/dnephin/dobi
     steps:
       - checkout
-      - setup_remote_docker: *setup_docker
       - attach_workspace: {at: /work}
       - run:
           name: "Lint"
-          command: script/ci/step dobi lint
+          command: |
+            mv /work/vendor .
+            gometalinter --config gometalinter.json ./...
+          no_output_timeout: 20m
 
   cross:
     docker: *default_docker
