@@ -5,6 +5,7 @@
   "Exclude": ["tasks/client/mock_iface.go"],
   "Skip": [".depsources"],
   "EnableGC": true,
+  "Concurrency": 2,
   "WarnUnmatchedDirective": true,
 
   "Enable": [
@@ -26,7 +27,7 @@
     "unparam",
     "unused",
     "varcheck",
-    "vetshadow"
+    "vet"
   ],
 
   "Cyclo": 9,

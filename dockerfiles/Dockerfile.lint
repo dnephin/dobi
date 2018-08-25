@@ -3,7 +3,7 @@ FROM    golang:1.10-alpine
 RUN     apk add -U python py-pip python-dev musl-dev gcc git bash
 RUN     pip install pre-commit
 
-ARG     METALINTER=v2.0.5
+ARG     METALINTER=v2.0.6
 RUN     go get -d github.com/alecthomas/gometalinter && \
         cd /go/src/github.com/alecthomas/gometalinter && \
         git checkout -q "$METALINTER" && \
