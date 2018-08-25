@@ -53,7 +53,6 @@ jobs:
           command: |
             mv /work/vendor .
             gometalinter --config gometalinter.json ./...
-          no_output_timeout: 20m
 
   cross:
     docker: *default_docker

@@ -3,13 +3,14 @@ set -eu
 
 gitsha=$(git rev-parse --short HEAD)
 builddate="$(date)"
-oslist=${DOBI_BUILD_OS:="darwin linux windows"}
+
+osarchlist=${DOBI_BUILD_OSARCH:="linux/amd64 linux/arm linux/arm64 darwin/amd64 windows/amd64"}
+
 gox \
     -ldflags "-X github.com/dnephin/dobi/cmd.gitsha=$gitsha \
               -X \"github.com/dnephin/dobi/cmd.buildDate=$builddate\"" \
-    -output="/go/bin/dobi-{{.OS}}" \
-    -arch="amd64" -os="$oslist" \
-    .
+    -output='/go/bin/dobi-{{.OS}}{{if ne .Arch "amd64"}}-{{.Arch}}{{end}}' \
+    -osarch="$osarchlist" .
 
 if [[ -e /go/bin/dobi-linux ]]; then
     echo "linking dobi to dobi-linux"
