@@ -262,7 +262,6 @@ alias=binary-linux:
 
 alias=release:
     tasks:
-      - 'deps'
       - 'binary'
       - 'release-version:capture(DOBI_VERSION)'
       - 'github-release'
