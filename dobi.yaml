@@ -77,7 +77,7 @@ job=binary:
     mounts: [source, dist]
     command: script/build
     env:
-      - "DOBI_BUILD_OS={env.DOBI_BUILD_OS:}"
+      - "DOBI_BUILD_OSARCH={env.DOBI_BUILD_OSARCH:}"
     annotations:
       description: "Build the static binary"
       tags: [binary]
@@ -239,7 +239,7 @@ job=refactor-shell:
 
 
 env=linux-only:
-    variables: [DOBI_BUILD_OS=linux]
+    variables: [DOBI_BUILD_OSARCH=linux/amd64]
 
 #
 # Aliases
