@@ -231,6 +231,10 @@ func (t *Task) runContainer(
 		return fmt.Errorf("failed starting container %q: %s", name, err)
 	}
 
+	// Send a SIGWINCH signal to make sure terminals to have the correct
+	// window dimensions
+	chanSig <- syscall.SIGWINCH
+
 	return t.wait(ctx.Client, container.ID)
 }
 
@@ -350,6 +354,35 @@ func (t *Task) wait(client client.DockerClient, containerID string) error {
 	return nil
 }
 
+func (t *Task) winSizeChangeSignalHandler(client client.DockerClient,
+	containerID string, sig syscall.Signal) {
+
+	winsize, err := term.GetWinsize(os.Stdin.Fd())
+	if err != nil {
+		t.logger().WithFields(log.Fields{"signal": sig}).
+			Errorf("Failed to get host's TTY window size")
+		return
+	}
+
+	err = client.ResizeContainerTTY(containerID, int(winsize.Height), int(winsize.Width))
+	if err != nil {
+		t.logger().WithFields(log.Fields{"signal": sig}).
+			Errorf("Failed to set container's TTY window size")
+	}
+}
+
+func (t *Task) killSignalHandler(client client.DockerClient,
+	containerID string, sig syscall.Signal) {
+
+	if err := client.KillContainer(docker.KillContainerOptions{
+		ID:     containerID,
+		Signal: docker.Signal(sig),
+	}); err != nil {
+		t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
+			"Failed to send signal: %s", err)
+	}
+}
+
 func (t *Task) forwardSignals(
 	client client.DockerClient,
 	containerID string,
@@ -357,30 +390,26 @@ func (t *Task) forwardSignals(
 	chanSig := make(chan os.Signal, 128)
 
 	// TODO: not all of these exist on windows?
-	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM)
-
-	kill := func(sig os.Signal) {
-		t.logger().WithFields(log.Fields{"signal": sig}).Debug("received")
-
-		intSig, ok := sig.(syscall.Signal)
-		if !ok {
-			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
-				"Failed to convert signal from %T", sig)
-			return
-		}
-
-		if err := client.KillContainer(docker.KillContainerOptions{
-			ID:     containerID,
-			Signal: docker.Signal(intSig),
-		}); err != nil {
-			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
-				"Failed to send signal: %s", err)
-		}
-	}
+	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGWINCH)
 
 	go func() {
 		for sig := range chanSig {
-			kill(sig)
+			intSig, ok := sig.(syscall.Signal)
+			if !ok {
+				t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
+					"Failed to convert signal from %T", sig)
+				return
+			}
+
+			t.logger().WithFields(log.Fields{"signal": sig}).Debug("received")
+
+			if intSig == syscall.SIGWINCH {
+				t.winSizeChangeSignalHandler(client, containerID, intSig)
+			}
+
+			if intSig == syscall.SIGINT || intSig == syscall.SIGTERM {
+				t.killSignalHandler(client, containerID, intSig)
+			}
 		}
 	}()
 	return chanSig

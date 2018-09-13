@@ -25,4 +25,5 @@ type DockerClient interface {
 
 	CreateVolume(opts docker.CreateVolumeOptions) (*docker.Volume, error)
 	RemoveVolume(name string) error
+	ResizeContainerTTY(id string, height, width int) error
 }
