@@ -232,6 +232,7 @@ func (t *Task) runContainer(
 		return fmt.Errorf("failed starting container %q: %s", name, err)
 	}
 
+	initWindow(chanSig)
 	return t.wait(ctx.Client, container.ID)
 }
 
@@ -357,32 +358,60 @@ func (t *Task) forwardSignals(
 ) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
-	// TODO: not all of these exist on windows?
-	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM)
-
-	kill := func(sig os.Signal) {
-		t.logger().WithFields(log.Fields{"signal": sig}).Debug("received")
-
-		intSig, ok := sig.(syscall.Signal)
-		if !ok {
-			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
-				"Failed to convert signal from %T", sig)
-			return
-		}
-
-		if err := client.KillContainer(docker.KillContainerOptions{
-			ID:     containerID,
-			Signal: docker.Signal(intSig),
-		}); err != nil {
-			t.logger().WithFields(log.Fields{"signal": sig}).Warnf(
-				"Failed to send signal: %s", err)
-		}
-	}
+	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, SIGWINCH)
 
 	go func() {
 		for sig := range chanSig {
-			kill(sig)
+			logger := t.logger().WithField("signal", sig)
+			logger.Debug("received")
+
+			sysSignal, ok := sig.(syscall.Signal)
+			if !ok {
+				logger.Warnf("Failed to convert signal from %T", sig)
+				return
+			}
+
+			switch sysSignal {
+			case SIGWINCH:
+				handleWinSizeChangeSignal(logger, client, containerID)
+			default:
+				handleShutdownSignals(logger, client, containerID, sysSignal)
+			}
 		}
 	}()
 	return chanSig
+}
+
+func handleWinSizeChangeSignal(
+	logger log.FieldLogger,
+	client client.DockerClient,
+	containerID string,
+) {
+	winsize, err := term.GetWinsize(os.Stdin.Fd())
+	if err != nil {
+		logger.WithError(err).
+			Error("Failed to get host's TTY window size")
+		return
+	}
+
+	err = client.ResizeContainerTTY(containerID, int(winsize.Height), int(winsize.Width))
+	if err != nil {
+		logger.WithError(err).
+			Error("Failed to set container's TTY window size")
+	}
+}
+
+func handleShutdownSignals(
+	logger log.FieldLogger,
+	client client.DockerClient,
+	containerID string,
+	sig syscall.Signal,
+) {
+	if err := client.KillContainer(docker.KillContainerOptions{
+		ID:     containerID,
+		Signal: docker.Signal(sig),
+	}); err != nil {
+		logger.WithError(err).
+			Warn("Failed to forward signal")
+	}
 }

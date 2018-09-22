@@ -216,3 +216,15 @@ func (_m *MockDockerClient) RemoveVolume(name string) error {
 func (_mr *MockDockerClientMockRecorder) RemoveVolume(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RemoveVolume", reflect.TypeOf((*MockDockerClient)(nil).RemoveVolume), arg0)
 }
+
+// ResizeContainerTTY mocks base method
+func (_m *MockDockerClient) ResizeContainerTTY(id string, height int, width int) error {
+	ret := _m.ctrl.Call(_m, "ResizeContainerTTY", id, height, width)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ResizeContainerTTY indicates an expected call of ResizeContainerTTY
+func (_mr *MockDockerClientMockRecorder) ResizeContainerTTY(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ResizeContainerTTY", reflect.TypeOf((*MockDockerClient)(nil).ResizeContainerTTY), arg0, arg1, arg2)
+}
