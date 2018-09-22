@@ -231,10 +231,7 @@ func (t *Task) runContainer(
 		return fmt.Errorf("failed starting container %q: %s", name, err)
 	}
 
-	// Send a SIGWINCH signal to make sure terminals to have the correct
-	// window dimensions
-	chanSig <- syscall.SIGWINCH
-
+	initWindow(chanSig)
 	return t.wait(ctx.Client, container.ID)
 }
 
@@ -360,7 +357,7 @@ func (t *Task) forwardSignals(
 ) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
-	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGWINCH)
+	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, SIGWINCH)
 
 	go func() {
 		for sig := range chanSig {
@@ -374,7 +371,7 @@ func (t *Task) forwardSignals(
 			}
 
 			switch sysSignal {
-			case syscall.SIGWINCH:
+			case SIGWINCH:
 				handleWinSizeChangeSignal(logger, client, containerID)
 			default:
 				handleShutdownSignals(logger, client, containerID, sysSignal)
