@@ -57,6 +57,6 @@ func (t *captureTask) Run(ctx *context.ExecuteContext, depsModified bool) (bool,
 		return false, nil
 	}
 
-	logging.ForTask(t).Debug("Setting %q to: %s", t.variable, out)
+	logging.ForTask(t).Debugf("Setting %q to: %s", t.variable, out)
 	return true, os.Setenv(t.variable, out)
 }
