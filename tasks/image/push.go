@@ -21,7 +21,7 @@ func RunPush(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 }
 
 func pushImage(ctx *context.ExecuteContext, t *Task, tag string) error {
-	repo, err := parseAuthRepo(t.config.Image)
+	repo, err := parseAuthRepo(tag)
 	if err != nil {
 		return err
 	}
