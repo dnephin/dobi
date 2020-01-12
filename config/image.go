@@ -15,7 +15,7 @@ import (
 // ImageConfig An **image** resource provides actions for working with a Docker
 // image. If an image is buildable it is considered up-to-date if all files in
 // the build context have a modified time older than the created time of the
-// image. If using inline Dockerfile, the **dobi.yaml** file will be considered 
+// image. If using inline Dockerfile, the **dobi.yaml** file will be considered
 // as a part of the build context.
 // name: image
 // example: An image with build args:
@@ -147,6 +147,11 @@ func (c *ImageConfig) Resolve(resolver Resolver) (Resource, error) {
 	conf := *c
 	var err error
 	conf.Tags, err = resolver.ResolveSlice(c.Tags)
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.CacheFrom, err = resolver.ResolveSlice(c.CacheFrom)
 	if err != nil {
 		return &conf, err
 	}

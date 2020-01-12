@@ -113,6 +113,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key1": "{one}",
 			"key2": "ok",
 		},
+		CacheFrom: []string{"{one}", "two"},
 	}
 	resolved, err := image.Resolve(resolver)
 	assert.NilError(t, err)
@@ -124,6 +125,7 @@ func TestImageConfigResolve(t *testing.T) {
 			"key1": "thetag",
 			"key2": "ok",
 		},
+		CacheFrom: []string{"thetag", "two"},
 	}
 	assert.Check(t, is.DeepEqual(expected, resolved, cmpConfigOpt))
 }
