@@ -11,7 +11,7 @@ import (
 // RunPush pushes an image to the registry
 func RunPush(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	pushTag := func(tag string) error {
-		return pushImage(ctx, t, tag)
+		return pushImage(ctx, tag)
 	}
 	if err := t.ForEachTag(ctx, pushTag); err != nil {
 		return false, err
@@ -20,8 +20,8 @@ func RunPush(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	return true, nil
 }
 
-func pushImage(ctx *context.ExecuteContext, t *Task, tag string) error {
-	repo, err := parseAuthRepo(t.config.Image)
+func pushImage(ctx *context.ExecuteContext, tag string) error {
+	repo, err := parseAuthRepo(tag)
 	if err != nil {
 		return err
 	}
