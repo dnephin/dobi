@@ -328,7 +328,9 @@ func createFromTar(tarReader io.Reader, header *tar.Header, path artifactPath) e
 		return os.Symlink(header.Linkname, hostPath)
 
 	default:
-		logging.Log.Warnf("Unhandled file type from archive %s: %s", header.Typeflag, header.Name)
+		logging.Log.Warnf("Unhandled file type from archive %s: %s",
+			string(header.Typeflag),
+			header.Name)
 	}
 
 	return nil
