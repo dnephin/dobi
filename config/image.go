@@ -151,6 +151,11 @@ func (c *ImageConfig) Resolve(resolver Resolver) (Resource, error) {
 		return &conf, err
 	}
 
+	conf.CacheFrom, err = resolver.ResolveSlice(c.CacheFrom)
+	if err != nil {
+		return &conf, err
+	}
+
 	conf.Image, err = resolver.Resolve(c.Image)
 	if err != nil {
 		return &conf, err
