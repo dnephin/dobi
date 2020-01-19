@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SUMMARY: Test initialize a database
-# LABELS:
+# LABELS: never
 # REPEAT:
 # AUTHOR:
 set -eu -o pipefail
