@@ -13,8 +13,22 @@ import (
 func RunPull(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	record, err := getImageRecord(recordPath(ctx, t.config))
 	if err != nil {
-		t.logger().Warnf("Failed to get image record: %s", err)
+		if os.IsNotExist(err) {
+			t.logger().Info("Creating image record")
+			image, err := GetImage(ctx, t.config)
+			if err != nil {
+				return false, err
+			}
+			record := imageModifiedRecord{ImageID: image.ID}
+			updateImageRecord(recordPath(ctx, t.config), record)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			t.logger().Warnf("Failed to get image record: %s", err)
+		}
 	}
+
 	if !t.config.Pull.Required(record.LastPull) {
 		t.logger().Debugf("Pull not required")
 		return false, nil
