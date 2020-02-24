@@ -12,13 +12,12 @@ import (
 // RunPull builds or pulls an image if it is out of date
 func RunPull(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	record, err := getImageRecord(recordPath(ctx, t.config))
-	if err != nil {
-		t.logger().Warnf("Failed to get image record: %s", err)
-	}
-
-	if !t.config.Pull.Required(record.LastPull) {
+	switch {
+	case !t.config.Pull.Required(record.LastPull):
 		t.logger().Debugf("Pull not required")
 		return false, nil
+	case err != nil:
+		t.logger().Warnf("Failed to get image record: %s", err)
 	}
 
 	pullTag := func(tag string) error {
