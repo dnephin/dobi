@@ -55,6 +55,7 @@ type ImageConfig struct {
 	// Pull Pull an image instead of building it. The value may be one of:
 	// * ``once`` - only pull if the image:tag does not exist
 	// * ``always`` - always pull the image
+	// * ``never`` - don't pull or build the image. Use one that is already present locally
 	// * ``<duration>`` - pull if the image hasn't been pulled in at least
 	//   ``duration``. The format of duration is a number followed by a single
 	//   character time unit (ex: ``40s``, ``2h``, ``30min``)
@@ -196,6 +197,8 @@ func (p *pull) TransformConfig(raw reflect.Value) error {
 		switch value {
 		case "once":
 			p.action = pullOnce
+		case "never":
+			p.action = pullNever
 		case "always":
 			p.action = pullAlways
 		default:
@@ -224,6 +227,10 @@ func (p *pull) IsSet() bool {
 
 func pullAlways(_ *time.Time) bool {
 	return true
+}
+
+func pullNever(_ *time.Time) bool {
+	return false
 }
 
 func pullOnce(lastPull *time.Time) bool {
