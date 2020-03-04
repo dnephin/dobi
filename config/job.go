@@ -2,11 +2,13 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
 	shlex "github.com/kballard/go-shellquote"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // JobConfig A **job** resource uses an `image`_ to run a job in a container.
@@ -237,7 +239,13 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 }
 
 func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
+	isTerminal := terminal.IsTerminal(int(os.Stdin.Fd()))
 	cmd := &JobConfig{}
+	if isTerminal == true {
+		if _, ok := values["interactive"]; !ok {
+			values["interactive"] = true
+		}
+	}
 	return cmd, configtf.Transform(name, values, cmd)
 }
 
