@@ -241,7 +241,7 @@ func (s *ShlexSlice) TransformConfig(raw reflect.Value) error {
 func jobFromConfig(name string, values map[string]interface{}) (Resource, error) {
 	isTerminal := terminal.IsTerminal(int(os.Stdin.Fd()))
 	cmd := &JobConfig{}
-	if isTerminal == true {
+	if isTerminal {
 		if _, ok := values["interactive"]; !ok {
 			values["interactive"] = true
 		}
