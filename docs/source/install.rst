@@ -10,6 +10,16 @@ Download the binary
 Binaries are available for Linux, OSX, and Windows. Download a binary from
 `github.com/dnephin/dobi/releases <https://github.com/dnephin/dobi/releases>`_
 
+Chocolatey
+----------
+
+For Windows, you can install via the `Chocolatey package <https://chocolatey.org/packages/dobi>`_
+
+.. code:: sh
+
+    choco install dobi
+
+
 Install from source
 -------------------
 
