@@ -39,6 +39,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="config-reference">
@@ -46,8 +48,8 @@
 <p>Every section in a <code class="file docutils literal"><span class="pre">dobi.yaml</span></code> configuration file defines a resource (with the
 exception of <a class="reference internal" href="#meta">meta</a>, which is configuration for <strong>dobi</strong>).</p>
 <p>Each section in the file has the following form:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">type=name</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">field</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">value</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">type=name</span><span class="p">:</span>
+    <span class="nt">field</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value</span>
     <span class="l l-Scalar l-Scalar-Plain">...</span>
 </pre></div>
 </div>
@@ -57,16 +59,17 @@ exception of <a class="reference internal" href="#meta">meta</a>, which is confi
 <p>An <strong>image</strong> resource provides actions for working with a Docker
 image. If an image is buildable it is considered up-to-date if all files in
 the build context have a modified time older than the created time of the
-image.</p>
+image. If using inline Dockerfile, the <strong>dobi.yaml</strong> file will be considered
+as a part of the build context.</p>
 <div class="section" id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
 <p>An image with build args:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">image=project-dev</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">myproject-dev</span>
-    <span class="l l-Scalar l-Scalar-Plain">context</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
-    <span class="l l-Scalar l-Scalar-Plain">args</span><span class="p p-Indicator">:</span>
-      <span class="l l-Scalar l-Scalar-Plain">version</span><span class="p p-Indicator">:</span> <span class="s">&#39;3.1.4&#39;</span>
-      <span class="l l-Scalar l-Scalar-Plain">url</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">http://example.com/foo</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">image=project-dev</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">myproject-dev</span>
+    <span class="nt">context</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
+    <span class="nt">args</span><span class="p">:</span>
+      <span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.1.4&#39;</span>
+      <span class="nt">url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">http://example.com/foo</span>
 </pre></div>
 </div>
 <p><strong>image</strong>  (required)</p>
@@ -167,7 +170,7 @@ image.</p>
 </tr>
 </tbody>
 </table>
-<p>Pull an image instead of building it. The value may be one of:    * <code class="docutils literal"><span class="pre">once</span></code> - only pull if the image:tag does not exist    * <code class="docutils literal"><span class="pre">always</span></code> - always pull the image    * <code class="docutils literal"><span class="pre">&lt;duration&gt;</span></code> - pull if the image hasn&#8217;t been pulled in at least      <code class="docutils literal"><span class="pre">duration</span></code>. The format of duration is a number followed by a single      character time unit (ex: <code class="docutils literal"><span class="pre">40s</span></code>, <code class="docutils literal"><span class="pre">2h</span></code>, <code class="docutils literal"><span class="pre">30min</span></code>)</p>
+<p>Pull an image instead of building it. The value may be one of:    * <code class="docutils literal"><span class="pre">once</span></code> - only pull if the image:tag does not exist    * <code class="docutils literal"><span class="pre">always</span></code> - always pull the image    * <code class="docutils literal"><span class="pre">never</span></code> - don&#8217;t pull or build the image. Use one that is already present locally    * <code class="docutils literal"><span class="pre">&lt;duration&gt;</span></code> - pull if the image hasn&#8217;t been pulled in at least      <code class="docutils literal"><span class="pre">duration</span></code>. The format of duration is a number followed by a single      character time unit (ex: <code class="docutils literal"><span class="pre">40s</span></code>, <code class="docutils literal"><span class="pre">2h</span></code>, <code class="docutils literal"><span class="pre">30min</span></code>)</p>
 </div></blockquote>
 <p><strong>tags</strong></p>
 <blockquote>
@@ -265,10 +268,10 @@ created first.</p>
 <h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Run a container using the <code class="docutils literal"><span class="pre">builder</span></code> image to compile some source
 code to <code class="docutils literal"><span class="pre">./dist/app-binary</span></code>.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">job=compile</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">use</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">builder</span>
-    <span class="l l-Scalar l-Scalar-Plain">mounts</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span> <span class="nv">dist</span><span class="p p-Indicator">]</span>
-    <span class="l l-Scalar l-Scalar-Plain">artifact</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dist/app-binary</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">job=compile</span><span class="p">:</span>
+    <span class="nt">use</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">builder</span>
+    <span class="nt">mounts</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span> <span class="nv">dist</span><span class="p p-Indicator">]</span>
+    <span class="nt">artifact</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dist/app-binary</span>
 </pre></div>
 </div>
 <p><strong>use</strong>  (required)</p>
@@ -510,13 +513,13 @@ mount.</p>
 <h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>A mount named <code class="docutils literal"><span class="pre">source</span></code> that mounts the current host directory as
 <code class="docutils literal"><span class="pre">/app/code</span></code> in the container.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">mount=source</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">bind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
-    <span class="l l-Scalar l-Scalar-Plain">path</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/app/code</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">mount=source</span><span class="p">:</span>
+    <span class="nt">bind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">.</span>
+    <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/app/code</span>
 
-<span class="l l-Scalar l-Scalar-Plain">mount=named</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">app-data</span>
-    <span class="l l-Scalar l-Scalar-Plain">path</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/data</span>
+<span class="nt">mount=named</span><span class="p">:</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">app-data</span>
+    <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data</span>
 </pre></div>
 </div>
 <p><strong>bind</strong></p>
@@ -681,9 +684,9 @@ and available in <code class="docutils literal"><span class="pre">$PATH</span></
 <h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>Start a Compose environment setting the project name to <code class="docutils literal"><span class="pre">web-devenv</span></code>
 and using two Compose files.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">compose=devenv</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">files</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">docker-compose.yml</span><span class="p p-Indicator">,</span> <span class="nv">docker-compose-dev.yml</span><span class="p p-Indicator">]</span>
-    <span class="l l-Scalar l-Scalar-Plain">project</span><span class="p p-Indicator">:</span> <span class="s">&#39;web-devenv&#39;</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">compose=devenv</span><span class="p">:</span>
+    <span class="nt">files</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">docker-compose.yml</span><span class="p p-Indicator">,</span> <span class="nv">docker-compose-dev.yml</span><span class="p p-Indicator">]</span>
+    <span class="nt">project</span><span class="p">:</span> <span class="s">&#39;web-devenv&#39;</span>
 </pre></div>
 </div>
 <p><strong>files</strong></p>
@@ -768,9 +771,9 @@ and using two Compose files.</p>
 <div class="section" id="id5">
 <h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>Define some variables for a <code class="docutils literal"><span class="pre">job</span></code></p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">env=settings</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">files</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">local.env</span><span class="p p-Indicator">]</span>
-    <span class="l l-Scalar l-Scalar-Plain">variables</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">PORT=3838</span><span class="p p-Indicator">,</span> <span class="nv">HOST=stage</span><span class="p p-Indicator">]</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">env=settings</span><span class="p">:</span>
+    <span class="nt">files</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">local.env</span><span class="p p-Indicator">]</span>
+    <span class="nt">variables</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">PORT=3838</span><span class="p p-Indicator">,</span> <span class="nv">HOST=stage</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <p><strong>files</strong></p>
@@ -829,9 +832,9 @@ and using two Compose files.</p>
 <h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>Set the the project name to <code class="docutils literal"><span class="pre">mywebapp</span></code> and run the <code class="docutils literal"><span class="pre">all</span></code> task by
 default.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">meta</span><span class="p p-Indicator">:</span>
-    <span class="l l-Scalar l-Scalar-Plain">project</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">mywebapp</span>
-    <span class="l l-Scalar l-Scalar-Plain">default</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">meta</span><span class="p">:</span>
+    <span class="nt">project</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mywebapp</span>
+    <span class="nt">default</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
 </pre></div>
 </div>
 <p><strong>default</strong></p>
@@ -892,6 +895,7 @@ default.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -960,7 +964,7 @@ default.</p>
       
       
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/config.txt"

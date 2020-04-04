@@ -10,6 +10,16 @@ Download the binary
 Binaries are available for Linux, OSX, and Windows. Download a binary from
 `github.com/dnephin/dobi/releases <https://github.com/dnephin/dobi/releases>`_
 
+Chocolatey
+----------
+
+For Windows, you can install via the `Chocolatey package <https://chocolatey.org/packages/dobi>`_
+
+.. code:: sh
+
+    choco install dobi
+
+
 Install from source
 -------------------
 
@@ -18,7 +28,7 @@ Install from source
     git clone git@github.com:dnephin/dobi && cd dobi
     docker run -ti --rm -w $(pwd) -v $(pwd):$(pwd) -e DOCKER_HOST \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        dnephin/dobi:0.11 deps binary
+        dnephin/dobi:0.13.0 deps binary
 
 The binaries will be in ``./dist/bin``
 
