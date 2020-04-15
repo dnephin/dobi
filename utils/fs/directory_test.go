@@ -21,7 +21,7 @@ func TestLastModified(t *testing.T) {
 		mtime := time.Now().AddDate(0, 0, index+10)
 		assert.Assert(t, cmp.Nil(touch(tmpdir.Join(dir, "file"), mtime)))
 
-		actual, err := LastModified(tmpdir.Path())
+		actual, err := LastModified([]string{}, tmpdir.Path())
 		assert.NilError(t, err)
 		assert.Equal(t, actual, mtime)
 	}

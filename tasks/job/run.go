@@ -113,7 +113,7 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	}
 
 	if len(t.config.Sources.Paths()) != 0 {
-		sourcesLastModified, err := fs.LastModified(t.config.Sources.Paths()...)
+		sourcesLastModified, err := fs.LastModified([]string{}, t.config.Sources.Paths()...)
 		if err != nil {
 			return true, err
 		}
@@ -153,7 +153,7 @@ func (t *Task) artifactLastModified() (time.Time, error) {
 	if len(paths) == 0 {
 		return time.Time{}, nil
 	}
-	return fs.LastModified(paths...)
+	return fs.LastModified([]string{}, paths...)
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files
@@ -162,7 +162,7 @@ func (t *Task) mountsLastModified(ctx *context.ExecuteContext) (time.Time, error
 	ctx.Resources.EachMount(t.config.Mounts, func(name string, mount *config.MountConfig) {
 		mountPaths = append(mountPaths, mount.Bind)
 	})
-	return fs.LastModified(mountPaths...)
+	return fs.LastModified([]string{}, mountPaths...)
 }
 
 func (t *Task) runContainerWithBinds(ctx *context.ExecuteContext) error {
