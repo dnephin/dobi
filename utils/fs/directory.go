@@ -14,13 +14,22 @@ import (
 func LastModified(fileOrDir ...string) (time.Time, error) {
 	var latest time.Time
 
+	ignoredDirectories := []string{
+		".dobi",
+		".git",
+	}
+
 	// TODO: does this error contain enough context?
 	walker := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() && info.Name() == ".dobi" {
-			return filepath.SkipDir
+		if info.IsDir() {
+			for _, dir := range ignoredDirectories {
+				if dir == info.Name() {
+					return filepath.SkipDir
+				}
+			}
 		}
 		if info.ModTime().After(latest) {
 			latest = info.ModTime()
