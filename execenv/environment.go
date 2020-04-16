@@ -20,11 +20,13 @@ const (
 	startTag     = "{"
 	endTag       = "}"
 	execIDEnvVar = "DOBI_EXEC_ID"
+	hostedEnvVar = "DOBI_HOSTED"
 )
 
 // ExecEnv is a data object which contains variables for an ExecuteContext
 type ExecEnv struct {
 	ExecID     string
+	Hosted     bool
 	Project    string
 	tmplCache  map[string]string
 	workingDir string
@@ -189,18 +191,25 @@ func splitPrefix(tag string) (string, string) {
 }
 
 // NewExecEnvFromConfig returns a new ExecEnv from a Config
-func NewExecEnvFromConfig(execID, project, workingDir string) (*ExecEnv, error) {
-	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir), workingDir)
+func NewExecEnvFromConfig(execID, project, workingDir string, hosted bool) (*ExecEnv, error) {
+	env := NewExecEnv(defaultExecID(), getProjectName(project, workingDir), workingDir, false)
+	env.Hosted = getHosted(hosted, env)
+	if env.Hosted {
+		logging.Log.Debugf("hosted friendly operation enabled")
+		logging.Log.Debugf("=> using git to determine when files have changed")
+		logging.Log.Debugf("=> storing the lastmodified timestamp for image records within the records themselves") // nolint: lll
+	}
 	var err error
 	env.ExecID, err = getExecID(execID, env)
 	return env, err
 }
 
 // NewExecEnv returns a new ExecEnv from values
-func NewExecEnv(execID, project, workingDir string) *ExecEnv {
+func NewExecEnv(execID, project, workingDir string, hosted bool) *ExecEnv {
 	return &ExecEnv{
 		ExecID:     execID,
 		Project:    project,
+		Hosted:     hosted,
 		tmplCache:  make(map[string]string),
 		startTime:  time.Now(),
 		workingDir: workingDir,
@@ -254,4 +263,11 @@ func defaultExecID() string {
 		return username
 	}
 	return os.Getenv("USER")
+}
+
+func getHosted(hosted bool, env *ExecEnv) bool {
+	if _, exists := os.LookupEnv(hostedEnvVar); exists {
+		return true
+	}
+	return (env.Hosted || hosted)
 }

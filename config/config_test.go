@@ -62,6 +62,56 @@ func newFakeResolver(mapping map[string]string) *fakeResolver {
 	return &fakeResolver{mapping: mapping}
 }
 
+func TestLoadHostedFromYaml(t *testing.T) {
+	dir := fs.NewDir(t, "load-hosted-yaml",
+		fs.WithFile("dobi.yaml", `
+meta:
+    project: hostedtest
+    hosted: true
+
+alias=one:
+    tasks: []
+alias=two:
+    tasks: []
+alias=three:
+    tasks: []
+
+alias=aliasresource:
+    tasks: [one, two, three]
+    annotations:
+        description: This is an alias resource
+        tags: [lots, things]
+`))
+	defer dir.Remove()
+
+	yamlPath := dir.Join("dobi.yaml")
+	config, err := Load(yamlPath)
+	assert.NilError(t, err)
+	expected := &Config{
+		Meta: &MetaConfig{
+			Project: "hostedtest",
+			Hosted:  true,
+		},
+		Resources: map[string]Resource{
+			"aliasresource": &AliasConfig{
+				Tasks: []string{"one", "two", "three"},
+				Annotations: Annotations{
+					Annotations: AnnotationFields{
+						Description: "This is an alias resource",
+						Tags:        []string{"lots", "things"},
+					},
+				},
+			},
+			"one":   &AliasConfig{Tasks: []string{}},
+			"two":   &AliasConfig{Tasks: []string{}},
+			"three": &AliasConfig{Tasks: []string{}},
+		},
+		WorkingDir: dir.Path(),
+		FilePath:   yamlPath,
+	}
+	assert.Check(t, is.DeepEqual(expected, config, cmpConfigOpt))
+}
+
 // FIXME: not a full config
 func TestLoadFullFromYaml(t *testing.T) {
 	dir := fs.NewDir(t, "load-full-yaml",
@@ -94,6 +144,7 @@ alias=aliasresource:
 			Project: "fulltest",
 			Default: "one",
 			ExecID:  "exec_id",
+			Hosted:  false,
 		},
 		Resources: map[string]Resource{
 			"aliasresource": &AliasConfig{

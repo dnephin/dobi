@@ -28,7 +28,7 @@ type MetaConfig struct {
 	Project string
 
 	// Include A list of dobi configuration files to include. Paths are
-	// relative to the current working directory. Includs can be partial
+	// relative to the current working directory. Include can be partial
 	// configs that depend on resources in any of the other included files.
 	// type: list of file paths or glob patterns
 	Include PathGlobs
@@ -38,6 +38,12 @@ type MetaConfig struct {
 	// be overridden with the ``$DOBI_EXEC_ID`` environment variable.
 	// default: ``{user.name}``
 	ExecID string `config:"exec-id"`
+
+	// Hosted Whether or not to use behavior specific to a hosted model where file modification
+	// timestamps can not be trusted. This value can be enabled by setting the ``$DOBI_HOSTED``
+	// environment variable to any value.
+	// default: ``false``
+	Hosted bool
 }
 
 // Validate the MetaConfig

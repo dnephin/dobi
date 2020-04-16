@@ -22,8 +22,8 @@ func TestLastModified_AbsolutePathsForDirectories(t *testing.T) {
 		assert.NilError(t, touch(tmpdir.Join(dir, "file"), mtime))
 
 		actual, err := LastModified(&LastModifiedSearch{
-			Root:  tmpdir.Path(),
 			Paths: []string{tmpdir.Path()},
+			Root:  tmpdir.Path(),
 		})
 		assert.NilError(t, err)
 		assert.Equal(t, actual, mtime)
@@ -84,9 +84,9 @@ func TestLastModifiedExcludesFile(t *testing.T) {
 		assert.Assert(t, cmp.Nil(touch(excludedFile, excludedMtime)))
 
 		actual, err := LastModified(&LastModifiedSearch{
-			Root:     tmpdir.Path(),
 			Excludes: []string{"**/**/excluded-file"},
 			Paths:    []string{tmpdir.Path()},
+			Root:     tmpdir.Path(),
 		})
 		assert.NilError(t, err)
 		assert.Equal(t, actual, mtime)

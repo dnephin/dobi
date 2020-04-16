@@ -101,7 +101,7 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 		return true, nil
 	}
 
-	artifactLastModified, err := t.artifactLastModified(ctx.WorkingDir)
+	artifactLastModified, err := t.artifactLastModified(ctx)
 	if err != nil {
 		t.logger().Warnf("Failed to get artifact last modified: %s", err)
 		return true, err
@@ -114,8 +114,9 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 
 	if len(t.config.Sources.Paths()) != 0 {
 		sourcesLastModified, err := fs.LastModified(&fs.LastModifiedSearch{
-			Root:  ctx.WorkingDir,
-			Paths: t.config.Sources.Paths(),
+			Root:   ctx.WorkingDir,
+			Paths:  t.config.Sources.Paths(),
+			UseGit: ctx.Env.Hosted,
 		})
 		if err != nil {
 			return true, err
@@ -150,13 +151,17 @@ func (t *Task) isStale(ctx *context.ExecuteContext) (bool, error) {
 	return false, nil
 }
 
-func (t *Task) artifactLastModified(workDir string) (time.Time, error) {
+func (t *Task) artifactLastModified(ctx *context.ExecuteContext) (time.Time, error) {
 	paths := t.config.Artifact.Paths()
 	// File or directory doesn't exist
 	if len(paths) == 0 {
 		return time.Time{}, nil
 	}
-	return fs.LastModified(&fs.LastModifiedSearch{Root: workDir, Paths: paths})
+	return fs.LastModified(&fs.LastModifiedSearch{
+		Root:   ctx.WorkingDir,
+		Paths:  paths,
+		UseGit: ctx.Env.Hosted,
+	})
 }
 
 // TODO: support a .mountignore file used to ignore mtime of files
@@ -165,7 +170,11 @@ func (t *Task) mountsLastModified(ctx *context.ExecuteContext) (time.Time, error
 	ctx.Resources.EachMount(t.config.Mounts, func(name string, mount *config.MountConfig) {
 		mountPaths = append(mountPaths, mount.Bind)
 	})
-	return fs.LastModified(&fs.LastModifiedSearch{Root: ctx.WorkingDir, Paths: mountPaths})
+	return fs.LastModified(&fs.LastModifiedSearch{
+		Root:   ctx.WorkingDir,
+		Paths:  mountPaths,
+		UseGit: ctx.Env.Hosted,
+	})
 }
 
 func (t *Task) runContainerWithBinds(ctx *context.ExecuteContext) error {

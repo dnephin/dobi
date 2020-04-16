@@ -18,14 +18,26 @@ const (
 )
 
 type imageModifiedRecord struct {
-	ImageID  string
-	LastPull *time.Time  `yaml:",omitempty"`
-	Info     os.FileInfo `yaml:",omitempty"`
+	ImageID      string
+	LastPull     *time.Time  `yaml:",omitempty"`
+	Info         os.FileInfo `yaml:",omitempty"`
+	LastModified *time.Time  `yaml:",omitempty"`
 }
 
-func updateImageRecord(path string, record imageModifiedRecord) error {
+func (r *imageModifiedRecord) WasModifiedBefore(ctx *context.ExecuteContext, mtime time.Time) bool { // nolint: lll
+	if ctx.Env.Hosted && r.LastModified != nil {
+		return r.LastModified.Before(mtime)
+	}
+	return r.Info.ModTime().Before(mtime)
+}
+
+func updateImageRecord(ctx *context.ExecuteContext, path string, record imageModifiedRecord) error { // nolint: lll
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return err
+	}
+
+	if ctx.Env.Hosted {
+		record.LastModified = now()
 	}
 
 	bytes, err := yaml.Marshal(record)

@@ -16,7 +16,7 @@ import (
 func TestNewExecEnvFromConfigDefault(t *testing.T) {
 	tmpDir := fs.NewDir(t, "test-environment")
 	defer tmpDir.Remove()
-	execEnv, err := NewExecEnvFromConfig("", "", tmpDir.Path())
+	execEnv, err := NewExecEnvFromConfig("", "", tmpDir.Path(), false)
 	assert.NilError(t, err)
 	expected := fmt.Sprintf("%s-root", filepath.Base(tmpDir.Path()))
 	assert.Equal(t, expected, execEnv.Unique())
@@ -28,7 +28,7 @@ func TestNewExecEnvFromConfigWithTemplate(t *testing.T) {
 	os.Setenv("EXEC_ID", "Use-This")
 	defer os.Unsetenv("EXEC_ID")
 
-	execEnv, err := NewExecEnvFromConfig("{env.EXEC_ID}", "", tmpDir.Path())
+	execEnv, err := NewExecEnvFromConfig("{env.EXEC_ID}", "", tmpDir.Path(), false)
 	assert.NilError(t, err)
 	assert.Equal(t, "Use-This", execEnv.ExecID)
 }
@@ -36,7 +36,7 @@ func TestNewExecEnvFromConfigWithTemplate(t *testing.T) {
 func TestNewExecEnvFromConfigWithInvalidTemplate(t *testing.T) {
 	tmpDir := fs.NewDir(t, "test-environment")
 	defer tmpDir.Remove()
-	_, err := NewExecEnvFromConfig("{env.bogus} ", "", tmpDir.Path())
+	_, err := NewExecEnvFromConfig("{env.bogus} ", "", tmpDir.Path(), false)
 	expected := `a value is required for variable "env.bogus"`
 	assert.Assert(t, is.ErrorContains(err, expected))
 }
@@ -65,7 +65,7 @@ func TestValidateExecIDValid(t *testing.T) {
 }
 
 func TestResolveUnique(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	tmpl := "ok-{unique}"
 	expected := "ok-" + execEnv.Unique()
 	value, err := execEnv.Resolve(tmpl)
@@ -76,20 +76,20 @@ func TestResolveUnique(t *testing.T) {
 }
 
 func TestResolveUnknown(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	_, err := execEnv.Resolve("{bogus}")
 	assert.Assert(t, is.ErrorContains(err, `unknown variable "bogus"`))
 }
 
 func TestResolveBadTemplate(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	_, err := execEnv.Resolve("{bogus{")
 
 	assert.Assert(t, is.ErrorContains(err, "Cannot find end tag"))
 }
 
 func TestResolveEnvironmentNoDefault(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	_, err := execEnv.Resolve("thing-{env.foo}")
 
 	assert.Assert(t, is.ErrorContains(err, `required for variable "env.foo"`))
@@ -101,7 +101,7 @@ func TestResolveEnvironment(t *testing.T) {
 	tmpl := "thing-{env.FOO}"
 	expected := "thing-stars"
 
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve(tmpl)
 
 	assert.NilError(t, err)
@@ -113,7 +113,7 @@ func TestResolveTime(t *testing.T) {
 	tmpl := "build-{time.YYYY-MM-DD}"
 	expected := "build-2016-04-05"
 
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	execEnv.startTime = time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC)
 	value, err := execEnv.Resolve(tmpl)
 
@@ -139,35 +139,35 @@ func TestSplitDefaultNoDefault(t *testing.T) {
 }
 
 func TestResolveUserName(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve("{user.name}")
 	assert.NilError(t, err)
 	assert.Equal(t, value, "root")
 }
 
 func TestResolveUserUID(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve("{user.uid}")
 	assert.NilError(t, err)
 	assert.Equal(t, value, "0")
 }
 
 func TestResolveUserGroup(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve("{user.group}")
 	assert.NilError(t, err)
 	assert.Equal(t, value, "root")
 }
 
 func TestResolveUserGID(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve("{user.gid}")
 	assert.NilError(t, err)
 	assert.Equal(t, value, "0")
 }
 
 func TestResolveUserHome(t *testing.T) {
-	execEnv := NewExecEnv("exec", "project", "cwd")
+	execEnv := NewExecEnv("exec", "project", "cwd", false)
 	value, err := execEnv.Resolve("{user.home}")
 	assert.NilError(t, err)
 	assert.Equal(t, value, "/root")

@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/dnephin/dobi/logging"
 	"github.com/docker/docker/pkg/fileutils"
+	git "github.com/gogits/git-module"
 )
 
 // LastModifiedSearch provides the means by which to specify your search parameters when
@@ -16,6 +19,7 @@ type LastModifiedSearch struct {
 	// relative paths in Paths and Excludes will be considered relative to this
 	// root directory.
 	Root     string
+	UseGit   bool
 	Excludes []string
 	Paths    []string
 }
@@ -27,6 +31,7 @@ type LastModifiedSearch struct {
 // nolint: gocyclo
 func LastModified(search *LastModifiedSearch) (time.Time, error) {
 	var latest time.Time
+	var lastMod time.Time
 	var err error
 
 	pm, err := fileutils.NewPatternMatcher(search.Excludes)
@@ -65,8 +70,8 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 			return nil
 		}
 
-		if info.ModTime().After(latest) {
-			latest = info.ModTime()
+		if lastMod = fileLastModified(search.UseGit, filePath, info); lastMod.After(latest) { // nolint: lll
+			latest = lastMod
 		}
 		return nil
 	}
@@ -90,8 +95,8 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 				continue
 			}
 
-			if info.ModTime().After(latest) {
-				latest = info.ModTime()
+			if lastMod = fileLastModified(search.UseGit, path, info); lastMod.After(latest) {
+				latest = lastMod
 				continue
 			}
 		default:
@@ -101,4 +106,28 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 		}
 	}
 	return latest, nil
+}
+
+func fileLastModified(useGit bool, filePath string, info os.FileInfo) time.Time {
+	if useGit {
+		cmd := git.NewCommand("log", "--max-count=1", `--format=%ci`, "--", filePath)
+		cwd, err := os.Getwd()
+		if err != nil {
+			logging.Log.Warn("could not determine current working directory — falling back to file mtime") // nolint: lll
+			return info.ModTime()
+		}
+		stdout, err := cmd.RunInDir(cwd)
+		if err != nil {
+			logging.Log.Warnf("there was an error grabbing commit information for %s — falling back to file mtime", filePath) // nolint: lll
+			return info.ModTime()
+		}
+		latest, err := time.Parse("2006-01-02 15:04:05 -0700", strings.TrimSpace(stdout))
+		if err != nil {
+			logging.Log.Warnf("could not determine committer date for %s — falling back to file mtime", filePath) // nolint: lll
+			return info.ModTime()
+		}
+		return latest
+	}
+
+	return info.ModTime()
 }
