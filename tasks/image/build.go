@@ -70,11 +70,8 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 		paths = append(paths, ctx.ConfigFile)
 	}
 
-	excludes := []string{}
-	dockerignoreEntries, err := build.ReadDockerignore(t.config.Context)
-	if err == nil {
-		excludes = dockerignoreEntries
-	} else {
+	excludes, err := build.ReadDockerignore(t.config.Context)
+	if err != nil {
 		t.logger().Warnf("Failed to read .dockerignore file.")
 	}
 	excludes = append(excludes, ".dobi")
