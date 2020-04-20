@@ -69,7 +69,14 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	if t.config.Steps != "" && ctx.ConfigFile != "" {
 		paths = append(paths, ctx.ConfigFile)
 	}
-	mtime, err := fs.LastModified(paths...)
+
+	excludes, err := build.ReadDockerignore(t.config.Context)
+	if err != nil {
+		t.logger().Warnf("Failed to read .dockerignore file.")
+	}
+	excludes = append(excludes, ".dobi")
+
+	mtime, err := fs.LastModified(excludes, paths...)
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
