@@ -22,10 +22,6 @@ mount=projectdir:
     bind: .
     path: '{fs.projectdir}'
 
-mount=depsources:
-    bind: ./.depsources
-    path: /go/pkg/dep/sources
-
 #
 # Images
 #
@@ -96,7 +92,7 @@ job=watch:
 
 job=shell:
     use: builder
-    mounts: [source, dist, depsources]
+    mounts: [source, dist]
     interactive: true
     provide-docker: true
     command: bash
@@ -180,15 +176,6 @@ job=mocks:
     command: "go generate ./..."
     annotations:
       tags: [test]
-
-job=deps:
-    use: builder
-    mounts: [source, depsources]
-    command: "dep ensure"
-    sources: ['Gopkg.toml', 'Gopkg.lock']
-    artifact: vendor/
-    annotations:
-      description: "Install go dependencies"
 
 job=test-examples:
     use: example-tester
