@@ -177,6 +177,16 @@ job=mocks:
     annotations:
       tags: [test]
 
+job=deps:
+    use: builder
+    mounts: [source]
+    command: "go mod vendor"
+    sources: ['go.mod', 'go.sum']
+    artifact: vendor/
+    annotations:
+      description: "Install go modules"
+
+
 job=test-examples:
     use: example-tester
     provide-docker: true
