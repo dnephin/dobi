@@ -33,7 +33,7 @@ jobs:
 
   lint:
     docker:
-      - image: "dnephin/gometalinter:v2.0.6"
+      - image: "golangci/golangci-lint:v1.24.0"
     working_directory: /go/src/github.com/dnephin/dobi
     steps:
       - checkout
@@ -41,8 +41,7 @@ jobs:
       - run:
           name: "Lint"
           command: |
-            mv /work/vendor .
-            gometalinter --config gometalinter.json ./...
+            golangci-lint run -v
 
   cross:
     docker: *default_docker
