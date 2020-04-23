@@ -27,7 +27,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975
 	golang.org/x/time v0.0.0-20170927054726-6dc17368e09b // indirect
 	gopkg.in/yaml.v2 v2.2.2
-	gotest.tools v2.2.0+incompatible
+	gotest.tools/v3 v3.0.2
 )
 
 replace github.com/spf13/cobra => github.com/dnephin/cobra v1.5.2-0.20170125185912-5d13e8c9d917
