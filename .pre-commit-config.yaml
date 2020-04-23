@@ -18,4 +18,4 @@
   sha: v0.3.5
   hooks:
     - id: golangci-lint
-      args: ['./...']
+      args: ['-v', './...']
