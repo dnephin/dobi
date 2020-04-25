@@ -9,6 +9,7 @@ linters-settings:
     line-length: 95
 
 linters:
+  disable-all: true
   enable:
     - deadcode
     - goconst
