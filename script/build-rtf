@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-set -eo pipefail
-
-SHA=faedeef8333d8aa62fdb2bde7cc0ce03f3318eed
-go get -d github.com/linuxkit/rtf
-cd /go/src/github.com/linuxkit/rtf
-git checkout -q "$SHA"
-go build -o /go/bin/rtf .

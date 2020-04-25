@@ -42,11 +42,7 @@ func now() *time.Time {
 }
 
 func pullImage(ctx *context.ExecuteContext, t *Task, imageTag string) error {
-	registry, err := parseAuthRepo(t.config.Image)
-	if err != nil {
-		return err
-	}
-
+	registry := parseAuthRepo(t.config.Image)
 	repo, tag := docker.ParseRepositoryTag(imageTag)
 	return Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.PullImage(docker.PullImageOptions{

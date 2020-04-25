@@ -21,11 +21,7 @@ func RunPush(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 }
 
 func pushImage(ctx *context.ExecuteContext, tag string) error {
-	repo, err := parseAuthRepo(tag)
-	if err != nil {
-		return err
-	}
-
+	repo := parseAuthRepo(tag)
 	return Stream(os.Stdout, func(out io.Writer) error {
 		return ctx.Client.PushImage(docker.PushImageOptions{
 			Name:          tag,

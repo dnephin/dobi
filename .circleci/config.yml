@@ -19,32 +19,23 @@ jobs:
       - checkout
       - setup_remote_docker: *setup_docker
       - run: docker version
-      - restore_cache:
-          keys:
-           - 'dep-sources-{{ checksum "Gopkg.lock" }}'
-           - 'dep-sources-'
       - run:
           name: "Build dobi binary"
           command: |
             apk add --no-cache bash
             bash -c 'cat dockerfiles/Dockerfile.build <(echo COPY . .) | \
                 docker build -t dobi-dev -f - .'
-            docker run --name build dobi-dev bash -ec 'dep ensure; go install .'
+            docker run --name build dobi-dev bash -ec 'go mod vendor; go generate ./...; go install .'
             mkdir /work
             docker cp build:/go/bin/dobi /work/dobi
-            docker cp build:/go/pkg/dep/sources ./.depsources
             docker cp build:/go/src/github.com/dnephin/dobi/vendor /work/
       - persist_to_workspace:
           root: /work
           paths: [dobi, vendor]
-      - save_cache:
-          key: 'dep-sources-{{ checksum "Gopkg.lock" }}'
-          paths: [.depsources]
 
   lint:
     docker:
-      - image: "dnephin/gometalinter:v2.0.6"
-    working_directory: /go/src/github.com/dnephin/dobi
+      - image: "golangci/golangci-lint:v1.24.0"
     steps:
       - checkout
       - attach_workspace: {at: /work}
@@ -52,7 +43,7 @@ jobs:
           name: "Lint"
           command: |
             mv /work/vendor .
-            gometalinter --config gometalinter.json ./...
+            golangci-lint run -v ./...
 
   cross:
     docker: *default_docker

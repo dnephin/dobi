@@ -1,0 +1,38 @@
+run:
+  concurrency: 2
+  timeout: 2m
+
+linters-settings:
+  gocyclo:
+    min-complexity: 9
+  lll:
+    line-length: 95
+
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - goconst
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosimple
+    - ineffassign
+    - interfacer
+    - errcheck
+    - lll
+    - megacheck
+    - misspell
+    - structcheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - vet
+
+issues:
+  exclude-rules:
+    - path: tasks/image/tag_test\.go
+      linters:
+        - interfacer

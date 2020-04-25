@@ -5,8 +5,8 @@ import (
 
 	"github.com/dnephin/dobi/tasks/task"
 	docker "github.com/fsouza/go-dockerclient"
-	"gotest.tools/assert"
-	is "gotest.tools/assert/cmp"
+	"gotest.tools/v3/assert"
+	is "gotest.tools/v3/assert/cmp"
 )
 
 func TestExecuteContext_GetAuthConfig_NoAuthConfig(t *testing.T) {

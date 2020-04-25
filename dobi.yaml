@@ -22,10 +22,6 @@ mount=projectdir:
     bind: .
     path: '{fs.projectdir}'
 
-mount=depsources:
-    bind: ./.depsources
-    path: /go/pkg/dep/sources
-
 #
 # Images
 #
@@ -96,7 +92,7 @@ job=watch:
 
 job=shell:
     use: builder
-    mounts: [source, dist, depsources]
+    mounts: [source, dist]
     interactive: true
     provide-docker: true
     command: bash
@@ -183,12 +179,13 @@ job=mocks:
 
 job=deps:
     use: builder
-    mounts: [source, depsources]
-    command: "dep ensure"
-    sources: ['Gopkg.toml', 'Gopkg.lock']
+    mounts: [source]
+    command: "go mod vendor"
+    sources: ['go.mod', 'go.sum']
     artifact: vendor/
     annotations:
-      description: "Install go dependencies"
+      description: "Install go modules"
+
 
 job=test-examples:
     use: example-tester
@@ -216,8 +213,7 @@ job=examples-shell:
 job=build-rtf:
     use: builder
     mounts: [source, dist]
-    sources: [script/build-rtf]
-    command: script/build-rtf
+    command: go get github.com/linuxkit/rtf
     artifact: dist/bin/rtf
     annotations:
       tags: [test]

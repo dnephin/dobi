@@ -32,8 +32,8 @@ func GetCanonicalTag(ctx *context.ExecuteContext, conf *config.ImageConfig) stri
 	return ctx.Env.Unique()
 }
 
-func parseAuthRepo(image string) (string, error) {
-	return splitHostname(image), nil
+func parseAuthRepo(image string) string {
+	return splitHostname(image)
 }
 
 // Copied from github.com/docker/docker/reference/reference.go

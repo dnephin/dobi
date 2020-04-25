@@ -6,8 +6,8 @@ import (
 	"time"
 
 	pth "github.com/dnephin/configtf/path"
-	"gotest.tools/assert"
-	is "gotest.tools/assert/cmp"
+	"gotest.tools/v3/assert"
+	is "gotest.tools/v3/assert/cmp"
 )
 
 func sampleImageConfig() *ImageConfig {

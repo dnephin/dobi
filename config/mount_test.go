@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"gotest.tools/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestResolveBind(t *testing.T) {
