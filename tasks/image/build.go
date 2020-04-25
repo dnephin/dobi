@@ -76,7 +76,11 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	}
 	excludes = append(excludes, ".dobi")
 
-	mtime, err := fs.LastModified(excludes, paths...)
+	mtime, err := fs.LastModified(&fs.LastModifiedSearch{
+		Root:     t.config.Context,
+		Excludes: excludes,
+		Paths:    paths,
+	})
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
