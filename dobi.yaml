@@ -212,7 +212,7 @@ job=examples-shell:
 
 job=build-rtf:
     use: builder
-    mounts: [source, dist]
+    mounts: [dist]
     command: go get github.com/linuxkit/rtf
     artifact: dist/bin/rtf
     annotations:
