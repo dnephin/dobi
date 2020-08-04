@@ -27,7 +27,12 @@ func RunPull(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 		return false, err
 	}
 
-	record = imageModifiedRecord{LastPull: now()}
+	image, err := GetImage(ctx, t.config)
+	if err != nil {
+		return false, err
+	}
+	record = imageModifiedRecord{LastPull: now(), ImageID: image.ID}
+
 	if err := updateImageRecord(recordPath(ctx, t.config), record); err != nil {
 		t.logger().Warnf("Failed to update image record: %s", err)
 	}
