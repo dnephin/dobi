@@ -22,7 +22,7 @@ import (
 // the ``mounts``.
 //
 // ``mounts`` are provided to the container as bind mounts. If the ``DOBI_NO_BIND_MOUNT``
-// environment variable, or `--no-build-mount` flag is set, then ``mounts``
+// environment variable, or `--no-bind-mount` flag is set, then ``mounts``
 // will be copied into the container, and all artifacts will be copied out of the
 // container to the host after the job is complete.
 //
