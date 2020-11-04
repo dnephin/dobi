@@ -36,6 +36,9 @@ func (a *Annotations) Describe() string {
 
 // Group returns the group the resource belongs to
 func (a *Annotations) Group() string {
+	if a.Annotations.Group == "" {
+		return "none"
+	}
 	return a.Annotations.Group
 }
 

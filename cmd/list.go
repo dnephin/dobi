@@ -60,7 +60,7 @@ func runList(opts *dobiOptions, listOpts listOptions) error {
 	if listOpts.groups {
 		descriptions := getResourceGroups(resources)
 		fmt.Print(formatGroups(descriptions, tags))
-		if len(descriptions.groups) == 0 {
+		if len(descriptions) == 0 {
 			logging.Log.Warn("No resources found. Try --all or --tags.")
 			return nil
 		}
@@ -85,10 +85,6 @@ func filterResources(conf *config.Config, listOpts listOptions) []namedResource 
 		}
 	}
 	return resources
-}
-
-type groupedResources struct {
-	groups []resourceGroup
 }
 
 type resourceGroup struct {
@@ -140,28 +136,29 @@ func getTags(resources map[string]config.Resource) []string {
 	return tags
 }
 
-func getResourceGroups(resources []namedResource) groupedResources {
-	var groups groupedResources
+func getResourceGroups(resources []namedResource) []resourceGroup {
+	var groups []resourceGroup
+	groups = append(groups, resourceGroup{group: "none"})
 
 	for _, r := range resources {
 		currentGroupIndex := 0
 		if i, found := findGroup(groups, r.resource.Group()); found {
 			currentGroupIndex = i
 		} else {
-			groups.groups = append(groups.groups, resourceGroup{
+			groups = append(groups, resourceGroup{
 				group: r.resource.Group(),
 			})
-			currentGroupIndex = len(groups.groups) - 1
+			currentGroupIndex = len(groups) - 1
 		}
 
-		groups.groups[currentGroupIndex].resources = append(groups.groups[currentGroupIndex].resources, r)
+		groups[currentGroupIndex].resources = append(groups[currentGroupIndex].resources, r)
 
 	}
 	return groups
 }
 
-func findGroup(slice groupedResources, group string) (int, bool) {
-	for i, item := range slice.groups {
+func findGroup(slice []resourceGroup, group string) (int, bool) {
+	for i, item := range slice {
 		if item.group == group {
 			return i, true
 		}
@@ -184,10 +181,10 @@ func formatRaw(descriptions []string) string {
 	return msg
 }
 
-func formatGroups(groups groupedResources, tags []string) string {
+func formatGroups(groups []resourceGroup, tags []string) string {
 	msg := "Resources:\n"
-	for _, g := range groups.groups {
-		if g.group != "" {
+	for _, g := range groups {
+		if g.group != "none" {
 			msg += fmt.Sprintf("Group: %s\n", g.group)
 		}
 		descriptions := getDescriptions(g.resources)
