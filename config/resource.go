@@ -12,6 +12,7 @@ type Resource interface {
 	Validate(pth.Path, *Config) *pth.Error
 	Resolve(Resolver) (Resource, error)
 	Describe() string
+	Group() string
 	CategoryTags() []string
 	String() string
 }
@@ -31,6 +32,11 @@ func (a *Annotations) Describe() string {
 	}
 	// fall back to old deprecated field
 	return a.Description
+}
+
+// Group returns the group the resource belongs to
+func (a *Annotations) Group() string {
+	return a.Annotations.Group
 }
 
 // CategoryTags tags returns the list of tags
@@ -55,6 +61,8 @@ type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
+	// Annotation group
+	Group string
 	// Tags
 	Tags []string
 }

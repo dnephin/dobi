@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"sort"
-
 	"strings"
 
 	"github.com/dnephin/dobi/config"
@@ -12,8 +11,9 @@ import (
 )
 
 type listOptions struct {
-	all  bool
-	tags []string
+	all    bool
+	groups bool
+	tags   []string
 }
 
 func (o listOptions) tagMatch(tags []string) bool {
@@ -40,6 +40,9 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 	flags.BoolVarP(
 		&listOpts.all, "all", "a", false,
 		"List all resources, including those without descriptions")
+	flags.BoolVarP(
+		&listOpts.groups, "groups", "g", false,
+		"List resources by groups")
 	flags.StringSliceVarP(
 		&listOpts.tags, "tags", "t", nil,
 		"List tasks matching the tag")
@@ -53,15 +56,23 @@ func runList(opts *dobiOptions, listOpts listOptions) error {
 	}
 
 	resources := filterResources(conf, listOpts)
-	descriptions := getDescriptions(resources)
-	if len(descriptions) == 0 {
-		logging.Log.Warn("No resources found. Try --all or --tags.")
-		return nil
+	tags := getTags(conf.Resources)
+	if listOpts.groups {
+		descriptions := getResourceGroups(resources)
+		fmt.Print(formatGroups(descriptions, tags))
+		if len(descriptions.groups) == 0 {
+			logging.Log.Warn("No resources found. Try --all or --tags.")
+			return nil
+		}
+	} else {
+		descriptions := getDescriptions(resources)
+		if len(descriptions) == 0 {
+			logging.Log.Warn("No resources found. Try --all or --tags.")
+			return nil
+		}
+		fmt.Print(format(descriptions, tags))
 	}
 
-	tags := getTags(conf.Resources)
-
-	fmt.Print(format(descriptions, tags))
 	return nil
 }
 
@@ -74,6 +85,15 @@ func filterResources(conf *config.Config, listOpts listOptions) []namedResource 
 		}
 	}
 	return resources
+}
+
+type groupedResources struct {
+	groups []resourceGroup
+}
+
+type resourceGroup struct {
+	group     string
+	resources []namedResource
 }
 
 type namedResource struct {
@@ -120,10 +140,59 @@ func getTags(resources map[string]config.Resource) []string {
 	return tags
 }
 
+func getResourceGroups(resources []namedResource) groupedResources {
+	var groups groupedResources
+
+	for _, r := range resources {
+		currentGroupIndex := 0
+		if i, found := findGroup(groups, r.resource.Group()); found {
+			currentGroupIndex = i
+		} else {
+			groups.groups = append(groups.groups, resourceGroup{
+				group: r.resource.Group(),
+			})
+			currentGroupIndex = len(groups.groups) - 1
+		}
+
+		groups.groups[currentGroupIndex].resources = append(groups.groups[currentGroupIndex].resources, r)
+
+	}
+	return groups
+}
+
+func findGroup(slice groupedResources, group string) (int, bool) {
+	for i, item := range slice.groups {
+		if item.group == group {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func format(descriptions []string, tags []string) string {
 	resources := strings.Join(descriptions, "\n  ")
-
 	msg := fmt.Sprintf("Resources:\n  %s\n", resources)
+	if len(tags) > 0 {
+		msg += fmt.Sprintf("\nTags:\n  %s\n", strings.Join(tags, ", "))
+	}
+	return msg
+}
+
+func formatRaw(descriptions []string) string {
+	resources := strings.Join(descriptions, "\n  ")
+	msg := fmt.Sprintf("  %s\n", resources)
+	return msg
+}
+
+func formatGroups(groups groupedResources, tags []string) string {
+	msg := "Resources:\n"
+	for _, g := range groups.groups {
+		if g.group != "" {
+			msg += fmt.Sprintf("Group: %s\n", g.group)
+		}
+		descriptions := getDescriptions(g.resources)
+		msg += formatRaw(descriptions)
+	}
 	if len(tags) > 0 {
 		msg += fmt.Sprintf("\nTags:\n  %s\n", strings.Join(tags, ", "))
 	}
