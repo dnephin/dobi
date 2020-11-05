@@ -64,7 +64,10 @@ type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
-	// Annotation group
+	// Group Group defines whether the resource can be listed by group.
+	// All resources sharing the same group are listed together.
+	// Don't set this value if the resource shall be not grouped.
+	// The grouped view is visible from ``dobi list -g``.
 	Group string
 	// Tags
 	Tags []string

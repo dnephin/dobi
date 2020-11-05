@@ -34,6 +34,7 @@ func writeDocs() error {
 		{"mount.rst", config.MountConfig{}},
 		{"job.rst", config.JobConfig{}},
 		{"env.rst", config.EnvConfig{}},
+		{"annotationfields.rst", config.AnnotationFields{}},
 	} {
 		fmt.Printf("Generating doc %q\n", basePath+item.filename)
 		if err := write(basePath+item.filename, item.source); err != nil {
