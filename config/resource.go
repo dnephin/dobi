@@ -41,7 +41,9 @@ func (a *Annotations) CategoryTags() []string {
 // ValidateDescription prints a warning if set
 func (a *Annotations) ValidateDescription() error {
 	if a.Description != "" && a.Annotations.Description != "" {
-		return errors.Errorf("deprecated description will be ignored in favor of annotations.description")
+		return errors.Errorf(
+			"deprecated description will be ignored in" +
+				"favor of annotations.description")
 	}
 	if a.Description != "" {
 		logging.Log.Warn("description is deprecated. Use annotations.description")
