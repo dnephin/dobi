@@ -43,7 +43,8 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 		"List all resources, including those without descriptions")
 	flags.BoolVarP(
 		&listOpts.groups, "groups", "g", false,
-		"List resources sorted by their matching tags. Only resources with configured tags will be listed.")
+		"List resources sorted by their matching tags. Only resources"+
+			"with configured tags will be listed.")
 	flags.StringSliceVarP(
 		&listOpts.tags, "tags", "t", nil,
 		"List tasks matching the tag")
@@ -77,6 +78,7 @@ func runList(opts *dobiOptions, listOpts listOptions) error {
 func filterResourcesTags(conf *config.Config, listOpts listOptions) []resourceGroup {
 	tags := []resourceGroup{}
 	if listOpts.all {
+		// Add 'none' tag group accessible via [0] for resources with no tags configured
 		tags = append(tags, resourceGroup{tag: "none"})
 	}
 	for _, name := range conf.Sorted() {
@@ -92,11 +94,19 @@ func filterResourcesTags(conf *config.Config, listOpts listOptions) []resourceGr
 					})
 					currentGroupIndex = len(tags) - 1
 				}
-				tags[currentGroupIndex].resources = append(tags[currentGroupIndex].resources, namedResource{name: name, resource: res})
+				tags[currentGroupIndex].resources = append(tags[currentGroupIndex].resources,
+					namedResource{
+						name:     name,
+						resource: res,
+					})
 			}
 		} else {
 			if listOpts.all {
-				tags[0].resources = append(tags[0].resources, namedResource{name: name, resource: res})
+				tags[0].resources = append(tags[0].resources,
+					namedResource{
+						name:     name,
+						resource: res,
+					})
 			}
 		}
 	}
