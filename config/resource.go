@@ -55,7 +55,9 @@ type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
-	// Tags
+	// Tags Tags can be used to group resources. There can be configured
+	// multiple tags per resource. Adding a tag to a resource outputs a
+	// grouped list from ``dobi list -g``.
 	Tags []string
 }
 

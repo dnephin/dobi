@@ -43,7 +43,7 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 		"List all resources, including those without descriptions")
 	flags.BoolVarP(
 		&listOpts.groups, "groups", "g", false,
-		"List resources sorted by their matching tags")
+		"List resources sorted by their matching tags. Only resources with configured tags will be listed.")
 	flags.StringSliceVarP(
 		&listOpts.tags, "tags", "t", nil,
 		"List tasks matching the tag")
