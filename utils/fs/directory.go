@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	execenv "github.com/dnephin/dobi/execenv"
 	"github.com/docker/docker/pkg/fileutils"
 )
 
@@ -46,6 +48,18 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 			}
 			return err
 		}
+		// Append the cwd if the paths are relative. This is needed because
+		// source/artifact handling (`filepath.Rel()`) needs absolute paths to work properly.
+		cwd, err := execenv.ValueFromFilesystem("cwd", "")
+		if err != nil {
+			return err
+		}
+		if !strings.HasPrefix(rootPath, "/") {
+			rootPath = cwd + "/" + rootPath
+		}
+		if !strings.HasPrefix(filePath, "/") {
+			filePath = cwd + "/" + filePath
+		}
 		if relFilePath, err := filepath.Rel(rootPath, filePath); err != nil {
 			return err
 		} else if skip, err := filepathMatches(pm, relFilePath); err != nil {
@@ -69,6 +83,15 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 		}
 		switch info.IsDir() {
 		case false:
+			// Append the cwd if the path is relative. This is needed because
+			// source/artifact handling (`filepath.Rel()`) needs absolute paths to work properly.
+			if !strings.HasPrefix(path, "/") {
+				cwd, err := execenv.ValueFromFilesystem("cwd", "")
+				if err != nil {
+					return time.Time{}, err
+				}
+				path = cwd + "/" + path
+			}
 			if relPath, err := filepath.Rel(rootPath, path); err != nil {
 				return time.Time{}, err
 			} else if skip, err := filepathMatches(pm, relPath); err != nil {

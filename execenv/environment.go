@@ -94,7 +94,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	case "time":
 		return write(fmtdate.Format(suffix, e.startTime), nil)
 	case "fs":
-		val, err := valueFromFilesystem(suffix, e.workingDir)
+		val, err := ValueFromFilesystem(suffix, e.workingDir)
 		return write(val, err)
 	case "user":
 		val, err := valueFromUser(suffix)
@@ -113,7 +113,8 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	}
 }
 
-func valueFromFilesystem(name string, workingdir string) (string, error) {
+// ValueFromFilesystem can return either `cwd` or `projectdir`
+func ValueFromFilesystem(name string, workingdir string) (string, error) {
 	switch name {
 	case "cwd":
 		return os.Getwd()
