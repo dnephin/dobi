@@ -42,7 +42,7 @@ func (a *Annotations) CategoryTags() []string {
 func (a *Annotations) ValidateDescription() error {
 	if a.Description != "" && a.Annotations.Description != "" {
 		return errors.Errorf(
-			"deprecated description will be ignored in" +
+			"deprecated description will be ignored in " +
 				"favor of annotations.description")
 	}
 	if a.Description != "" {

@@ -12,9 +12,9 @@ import (
 )
 
 type listOptions struct {
-	all    bool
-	groups bool
-	tags   []string
+	all     bool
+	grouped bool
+	tags    []string
 }
 
 func (o listOptions) tagMatch(tags []string) bool {
@@ -42,8 +42,8 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 		&listOpts.all, "all", "a", false,
 		"List all resources, including those without descriptions")
 	flags.BoolVarP(
-		&listOpts.groups, "groups", "g", false,
-		"List resources sorted by their matching tags. Only resources"+
+		&listOpts.grouped, "grouped", "g", false,
+		"List resources grouped by tag. Only resources "+
 			"with configured tags will be listed.")
 	flags.StringSliceVarP(
 		&listOpts.tags, "tags", "t", nil,
@@ -59,7 +59,7 @@ func runList(opts *dobiOptions, listOpts listOptions) error {
 
 	tags := getTags(conf.Resources)
 	var descriptions []string
-	if listOpts.groups {
+	if listOpts.grouped {
 		resources := filterResourcesTags(conf, listOpts)
 		descriptions = getDescriptionsByTag(resources)
 	} else {
