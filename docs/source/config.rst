@@ -33,3 +33,6 @@ Each resource must be one of the following resource types:
 
 
 .. include:: ../gen/config/meta.rst
+
+
+.. include:: ../gen/config/annotationFields.rst

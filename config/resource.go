@@ -42,7 +42,8 @@ func (a *Annotations) CategoryTags() []string {
 func (a *Annotations) ValidateDescription() error {
 	if a.Description != "" && a.Annotations.Description != "" {
 		return errors.Errorf(
-			"deprecated description will be ignored in favor of annotations.description")
+			"deprecated description will be ignored in " +
+				"favor of annotations.description")
 	}
 	if a.Description != "" {
 		logging.Log.Warn("description is deprecated. Use annotations.description")
@@ -55,7 +56,9 @@ type AnnotationFields struct {
 	// Description Description of the resource. Adding a description to a
 	// resource makes it visible from ``dobi list``.
 	Description string
-	// Tags
+	// Tags Tags can be used to group resources. There can be configured
+	// multiple tags per resource. Adding a tag to a resource outputs a
+	// grouped list from ``dobi list -g``.
 	Tags []string
 }
 

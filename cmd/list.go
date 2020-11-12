@@ -12,8 +12,9 @@ import (
 )
 
 type listOptions struct {
-	all  bool
-	tags []string
+	all     bool
+	grouped bool
+	tags    []string
 }
 
 func (o listOptions) tagMatch(tags []string) bool {
@@ -40,6 +41,10 @@ func newListCommand(opts *dobiOptions) *cobra.Command {
 	flags.BoolVarP(
 		&listOpts.all, "all", "a", false,
 		"List all resources, including those without descriptions")
+	flags.BoolVarP(
+		&listOpts.grouped, "grouped", "g", false,
+		"List resources grouped by tag. Only resources "+
+			"with configured tags will be listed.")
 	flags.StringSliceVarP(
 		&listOpts.tags, "tags", "t", nil,
 		"List tasks matching the tag")
@@ -52,17 +57,61 @@ func runList(opts *dobiOptions, listOpts listOptions) error {
 		return err
 	}
 
-	resources := filterResources(conf, listOpts)
-	descriptions := getDescriptions(resources)
+	tags := getTags(conf.Resources)
+	var descriptions []string
+	if listOpts.grouped {
+		resources := filterResourcesTags(conf, listOpts)
+		descriptions = getDescriptionsByTag(resources)
+	} else {
+		resources := filterResources(conf, listOpts)
+		descriptions = getDescriptions(resources)
+	}
+
 	if len(descriptions) == 0 {
 		logging.Log.Warn("No resources found. Try --all or --tags.")
 		return nil
 	}
-
-	tags := getTags(conf.Resources)
-
 	fmt.Print(format(descriptions, tags))
 	return nil
+}
+
+func filterResourcesTags(conf *config.Config, listOpts listOptions) []resourceGroup {
+	tags := []resourceGroup{}
+	if listOpts.all {
+		// Add 'none' tag group accessible via [0] for resources with no tags configured
+		tags = append(tags, resourceGroup{tag: "none"})
+	}
+	for _, name := range conf.Sorted() {
+		res := conf.Resources[name]
+		if len(res.CategoryTags()) > 0 {
+			for _, tagname := range res.CategoryTags() {
+				currentGroupIndex := 0
+				if i, found := findGroup(tags, tagname); found {
+					currentGroupIndex = i
+				} else {
+					tags = append(tags, resourceGroup{
+						tag: tagname,
+					})
+					currentGroupIndex = len(tags) - 1
+				}
+				tags[currentGroupIndex].resources = append(tags[currentGroupIndex].resources,
+					namedResource{
+						name:     name,
+						resource: res,
+					})
+			}
+		} else {
+			if listOpts.all {
+				tags[0].resources = append(tags[0].resources,
+					namedResource{
+						name:     name,
+						resource: res,
+					})
+			}
+		}
+	}
+
+	return tags
 }
 
 func filterResources(conf *config.Config, listOpts listOptions) []namedResource {
@@ -74,6 +123,11 @@ func filterResources(conf *config.Config, listOpts listOptions) []namedResource 
 		}
 	}
 	return resources
+}
+
+type resourceGroup struct {
+	tag       string
+	resources []namedResource
 }
 
 type namedResource struct {
@@ -105,6 +159,15 @@ func getDescriptions(resources []namedResource) []string {
 	return lines
 }
 
+func getDescriptionsByTag(resources []resourceGroup) []string {
+	lines := []string{}
+	for _, tag := range resources {
+		descriptions := getDescriptions(tag.resources)
+		lines = append(lines, formatTags(tag.tag, descriptions))
+	}
+	return lines
+}
+
 func getTags(resources map[string]config.Resource) []string {
 	mapped := make(map[string]struct{})
 	for _, res := range resources {
@@ -120,6 +183,15 @@ func getTags(resources map[string]config.Resource) []string {
 	return tags
 }
 
+func findGroup(slice []resourceGroup, tag string) (int, bool) {
+	for i, item := range slice {
+		if item.tag == tag {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func format(descriptions []string, tags []string) string {
 	resources := strings.Join(descriptions, "\n  ")
 
@@ -127,5 +199,12 @@ func format(descriptions []string, tags []string) string {
 	if len(tags) > 0 {
 		msg += fmt.Sprintf("\nTags:\n  %s\n", strings.Join(tags, ", "))
 	}
+	return msg
+}
+
+func formatTags(tag string, descriptions []string) string {
+	msg := fmt.Sprintf("Tag: %s\n", tag)
+	resources := strings.Join(descriptions, "\n  ")
+	msg += fmt.Sprintf("  %s\n", resources)
 	return msg
 }
