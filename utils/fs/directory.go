@@ -12,6 +12,9 @@ import (
 // LastModifiedSearch provides the means by which to specify your search parameters when
 // finding the last modified file.
 type LastModifiedSearch struct {
+	// Root must be set to the absolute path of the directory to traverse. Any
+	// relative paths in Paths and Excludes will be considered relative to this
+	// root directory.
 	Root     string
 	Excludes []string
 	Paths    []string
@@ -24,28 +27,23 @@ type LastModifiedSearch struct {
 // nolint: gocyclo
 func LastModified(search *LastModifiedSearch) (time.Time, error) {
 	var latest time.Time
-	var rootPath string
 	var err error
-
-	rootPath = search.Root
-	if rootPath == "" {
-		if rootPath, err = os.Getwd(); err != nil {
-			return time.Time{}, err
-		}
-	}
-
-	// Make absolute path out of `rootPath` to ensure proper functionality later on
-	if !filepath.IsAbs(rootPath) {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return time.Time{}, err
-		}
-		rootPath = cwd + string(os.PathSeparator) + rootPath
-	}
 
 	pm, err := fileutils.NewPatternMatcher(search.Excludes)
 	if err != nil {
 		return time.Time{}, err
+	}
+
+	isExcluded := func(path string) (bool, error) {
+		relPath, err := filepath.Rel(search.Root, path)
+		if err != nil {
+			return false, err
+		}
+		if relPath == "." {
+			// Don't let them exclude everything, kind of silly.
+			return false, nil
+		}
+		return pm.Matches(relPath)
 	}
 
 	walker := func(filePath string, info os.FileInfo, err error) error {
@@ -55,16 +53,18 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 			}
 			return err
 		}
-		if relFilePath, err := filepath.Rel(rootPath, filePath); err != nil {
+
+		skip, err := isExcluded(filePath)
+		switch {
+		case err != nil:
 			return err
-		} else if skip, err := filepathMatches(pm, relFilePath); err != nil {
-			return err
-		} else if skip {
+		case skip:
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
 			return nil
 		}
+
 		if info.ModTime().After(latest) {
 			latest = info.ModTime()
 		}
@@ -72,28 +72,24 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 	}
 
 	for _, path := range search.Paths {
-		// Append the cwd if `path` is relative. This is needed because
-		// source/artifact handling (`filepath.Rel()`) needs absolute paths to work properly.
 		if !filepath.IsAbs(path) {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return time.Time{}, err
-			}
-			path = cwd + string(os.PathSeparator) + path
+			path = filepath.Join(search.Root, path)
 		}
+
 		info, err := os.Stat(path)
 		if err != nil {
-			return latest, err
+			return latest, fmt.Errorf("internal error: %w", err)
 		}
 		switch info.IsDir() {
 		case false:
-			if relPath, err := filepath.Rel(rootPath, path); err != nil {
+			skip, err := isExcluded(path)
+			switch {
+			case err != nil:
 				return time.Time{}, err
-			} else if skip, err := filepathMatches(pm, relPath); err != nil {
-				return time.Time{}, err
-			} else if skip {
+			case skip:
 				continue
 			}
+
 			if info.ModTime().After(latest) {
 				latest = info.ModTime()
 				continue
@@ -105,13 +101,4 @@ func LastModified(search *LastModifiedSearch) (time.Time, error) {
 		}
 	}
 	return latest, nil
-}
-
-func filepathMatches(matcher *fileutils.PatternMatcher, file string) (bool, error) {
-	file = filepath.Clean(file)
-	if file == "." {
-		// Don't let them exclude everything, kind of silly.
-		return false, nil
-	}
-	return matcher.Matches(file)
 }
