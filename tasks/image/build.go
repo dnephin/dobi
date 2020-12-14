@@ -4,7 +4,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/dnephin/dobi/config"
@@ -78,7 +77,7 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	excludes = append(excludes, ".dobi")
 
 	mtime, err := fs.LastModified(&fs.LastModifiedSearch{
-		Root:     filepath.Join(ctx.WorkingDir, t.config.Context),
+		Root:     ctx.WorkingDir,
 		Excludes: excludes,
 		Paths:    paths,
 	})
