@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dnephin/dobi/config"
@@ -77,7 +78,7 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	excludes = append(excludes, ".dobi")
 
 	mtime, err := fs.LastModified(&fs.LastModifiedSearch{
-		Root:     ctx.WorkingDir,
+		Root:     absPath(ctx.WorkingDir, t.config.Context),
 		Excludes: excludes,
 		Paths:    paths,
 	})
@@ -101,6 +102,13 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func absPath(path string, wd string) string {
+	if filepath.IsAbs(path) {
+		return filepath.Clean(path)
+	}
+	return filepath.Join(wd, path)
 }
 
 func buildImage(ctx *context.ExecuteContext, t *Task) error {
