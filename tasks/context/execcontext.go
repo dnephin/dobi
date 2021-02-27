@@ -69,7 +69,6 @@ func NewExecuteContext(
 	execEnv *execenv.ExecEnv,
 	settings Settings,
 ) *ExecuteContext {
-
 	authConfigs, err := docker.NewAuthConfigurationsFromDockerCfg()
 	if err != nil {
 		logging.Log.Warnf("Failed to load auth config: %s", err)

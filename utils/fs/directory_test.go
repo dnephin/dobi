@@ -10,8 +10,8 @@ import (
 	"gotest.tools/v3/fs"
 )
 
-func TestLastModified(t *testing.T) {
-	tmpdir := fs.NewDir(t, "test-directory-last-modified",
+func TestLastModified_AbsolutePathsForDirectories(t *testing.T) {
+	tmpdir := fs.NewDir(t, "test-directory-last-modified-absolute-paths-for-dir",
 		fs.WithDir("a"),
 		fs.WithDir("b",
 			fs.WithDir("c")))
@@ -19,7 +19,7 @@ func TestLastModified(t *testing.T) {
 
 	for index, dir := range []string{"a", "b", "b/c"} {
 		mtime := time.Now().AddDate(0, 0, index+10)
-		assert.Assert(t, cmp.Nil(touch(tmpdir.Join(dir, "file"), mtime)))
+		assert.NilError(t, touch(tmpdir.Join(dir, "file"), mtime))
 
 		actual, err := LastModified(&LastModifiedSearch{
 			Root:  tmpdir.Path(),
@@ -28,6 +28,44 @@ func TestLastModified(t *testing.T) {
 		assert.NilError(t, err)
 		assert.Equal(t, actual, mtime)
 	}
+}
+
+func TestLastModified_RelativePathsForDirectories(t *testing.T) {
+	tmpdir := fs.NewDir(t, "test-directory-last-modified-relative-paths-for-dir",
+		fs.WithDir("inner",
+			fs.WithDir("a"),
+			fs.WithDir("b",
+				fs.WithDir("c"))))
+	defer tmpdir.Remove()
+
+	for index, dir := range []string{"a", "b", "b/c"} {
+		mtime := time.Now().AddDate(0, 0, index+10)
+		assert.NilError(t, touch(tmpdir.Join("inner", dir, "file"), mtime))
+
+		actual, err := LastModified(&LastModifiedSearch{
+			Root:  tmpdir.Join("inner"),
+			Paths: []string{"a", "b", "b/c"},
+		})
+		assert.NilError(t, err)
+		assert.Equal(t, actual, mtime)
+	}
+}
+
+func TestLastModified_RelativePathsForFile(t *testing.T) {
+	tmpdir := fs.NewDir(t, "test-directory-last-modified-relative-paths-for-file",
+		fs.WithDir("inner",
+			fs.WithDir("a")))
+	defer tmpdir.Remove()
+
+	mtime := time.Now().AddDate(0, 0, 10)
+	assert.NilError(t, touch(tmpdir.Join("inner", "a", "file"), mtime))
+
+	actual, err := LastModified(&LastModifiedSearch{
+		Root:  tmpdir.Join("inner"),
+		Paths: []string{"a/file"},
+	})
+	assert.NilError(t, err)
+	assert.Equal(t, actual, mtime)
 }
 
 func TestLastModifiedExcludesFile(t *testing.T) {

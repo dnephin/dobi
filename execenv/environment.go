@@ -113,6 +113,7 @@ func (e *ExecEnv) templateContext(out io.Writer, tag string) (int, error) {
 	}
 }
 
+// valueFromFilesystem can return either `cwd` or `projectdir`
 func valueFromFilesystem(name string, workingdir string) (string, error) {
 	switch name {
 	case "cwd":
