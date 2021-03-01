@@ -5,7 +5,7 @@
 meta:
     project: dobi
     default: all
-
+    exec-id: david
 #
 # Mounts
 #
@@ -242,12 +242,12 @@ env=linux-only:
 #
 
 alias=test:
-    tasks: [test-unit, test-examples]
+    tasks: [test-unit]
     annotations:
       description: "Run all tests"
 
 alias=all:
-    tasks: [lint, test, docs-build, binary]
+    tasks: [lint, test, binary]
     annotations:
       description: "Run all lint and build tasks"
 
