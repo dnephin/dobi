@@ -1,0 +1,20 @@
+#
+# Build a minimal docker image for a static go binary.
+# See README.md for a full description.
+#
+
+meta:
+    project: hosted
+    hosted: true
+
+image=dist-img:
+    image: example/hosted-hello
+    dockerfile: Dockerfile
+    tags: ['{user.name}']
+    annotations:
+        description: "Build the distribution image"
+
+job=run-dist:
+    use: dist-img
+    annotations:
+        description: "Run the distribution image"

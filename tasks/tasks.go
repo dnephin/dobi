@@ -202,6 +202,7 @@ func Run(options RunOptions) error {
 		options.Config.Meta.ExecID,
 		options.Config.Meta.Project,
 		options.Config.WorkingDir,
+		options.Config.Meta.Hosted,
 	)
 	if err != nil {
 		return err

@@ -45,7 +45,7 @@ func RunBuild(ctx *context.ExecuteContext, t *Task, hasModifiedDeps bool) (bool,
 	}
 
 	record := imageModifiedRecord{ImageID: image.ID}
-	if err := updateImageRecord(recordPath(ctx, t.config), record); err != nil {
+	if err := updateImageRecord(ctx, recordPath(ctx, t.config), record); err != nil {
 		t.logger().Warnf("Failed to update image record: %s", err)
 	}
 	t.logger().Info("Created")
@@ -81,11 +81,13 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 		Root:     absPath(ctx.WorkingDir, t.config.Context),
 		Excludes: excludes,
 		Paths:    paths,
+		UseGit:   ctx.Env.Hosted,
 	})
 	if err != nil {
 		t.logger().Warnf("Failed to get last modified time of context.")
 		return true, err
 	}
+	t.logger().Debugf("Your context was last modified on %s", mtime)
 
 	record, err := getImageRecord(recordPath(ctx, t.config))
 	if err != nil {
@@ -97,7 +99,7 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 		return false, nil
 	}
 
-	if image.ID != record.ImageID || record.Info.ModTime().Before(mtime) {
+	if image.ID != record.ImageID || record.WasModifiedBefore(ctx, mtime) {
 		t.logger().Debug("Image record older than context")
 		return true, nil
 	}
@@ -126,7 +128,7 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 		return err
 	}
 	record := imageModifiedRecord{ImageID: image.ID}
-	return updateImageRecord(recordPath(ctx, t.config), record)
+	return updateImageRecord(ctx, recordPath(ctx, t.config), record)
 }
 
 func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
