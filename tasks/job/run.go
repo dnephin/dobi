@@ -400,7 +400,7 @@ func handleWinSizeChangeSignal(
 	err = client.ResizeContainerTTY(containerID, int(winsize.Height), int(winsize.Width))
 	if err != nil {
 		logger.WithError(err).
-			Error("Failed to set container's TTY window size")
+			Warning("Failed to set container's TTY window size.")
 	}
 }
 
