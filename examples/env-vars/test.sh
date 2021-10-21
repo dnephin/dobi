@@ -5,6 +5,12 @@
 # AUTHOR:
 set -eu -o pipefail
 
+cleanup() {
+    echo "running cleanup"
+    dobi autoclean
+}
+trap "cleanup" EXIT
+
 dobi dist
 
 echo "image tagged with version"
