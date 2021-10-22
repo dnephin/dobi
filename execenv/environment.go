@@ -140,26 +140,30 @@ func valueFromGit(out io.Writer, cwd string, tag, defValue string) (int, error) 
 		return writeValue(defValue)
 	}
 
-	repo, err := git.OpenRepository(cwd)
+	repo, err := git.Open(cwd)
 	if err != nil {
 		return writeError(err)
 	}
 
 	switch tag {
 	case "branch":
-		branch, err := repo.GetHEADBranch()
+		branch, err := repo.SymbolicRef()
 		if err != nil {
 			return writeError(err)
 		}
-		return writeValue(branch.Name)
+		branchName := git.RefShortName(branch)
+		if branch == branchName {
+			return writeError(errors.New("HEAD is not referenced by a branch."))
+		}
+		return writeValue(branchName)
 	case "sha":
-		commit, err := repo.GetCommit("HEAD")
+		commit, err := repo.CatFileCommit("HEAD")
 		if err != nil {
 			return writeError(err)
 		}
 		return writeValue(commit.ID.String())
 	case "short-sha":
-		commit, err := repo.GetCommit("HEAD")
+		commit, err := repo.CatFileCommit("HEAD")
 		if err != nil {
 			return writeError(err)
 		}

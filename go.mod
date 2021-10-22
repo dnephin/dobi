@@ -9,7 +9,7 @@ require (
 	github.com/docker/docker v20.10.9+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/fsouza/go-dockerclient v1.7.4
-	github.com/gogs/git-module v0.8.3
+	github.com/gogs/git-module v1.1.5
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.6
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
