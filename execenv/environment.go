@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/dnephin/dobi/logging"
-	git "github.com/gogits/git-module"
+	git "github.com/gogs/git-module"
 	"github.com/metakeule/fmtdate"
 	"github.com/pkg/errors"
 	fasttmpl "github.com/valyala/fasttemplate"
