@@ -15,11 +15,12 @@ require (
 	github.com/lithammer/dedent v1.1.0
 	github.com/metakeule/fmtdate v1.1.2
 	github.com/moby/moby v20.10.9+incompatible
+	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/valyala/fasttemplate v1.2.1
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.3
 )
@@ -41,7 +42,6 @@ require (
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.4.1 // indirect
 	github.com/moby/sys/symlink v0.1.0 // indirect
-	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
@@ -50,6 +50,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/sys v0.0.0-20211022215931-8e5104632af7 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )

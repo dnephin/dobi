@@ -22,7 +22,7 @@ import (
 	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/go-connections/nat"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/moby/moby/pkg/term"
+	"github.com/moby/term"
 	log "github.com/sirupsen/logrus"
 )
 
