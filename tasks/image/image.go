@@ -9,9 +9,9 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
-	"github.com/docker/docker/pkg/jsonmessage"
-	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/moby/moby/pkg/jsonmessage"
+	"github.com/moby/moby/pkg/term"
 	log "github.com/sirupsen/logrus"
 )
 

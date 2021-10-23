@@ -153,7 +153,7 @@ func valueFromGit(out io.Writer, cwd string, tag, defValue string) (int, error) 
 		}
 		branchName := git.RefShortName(branch)
 		if branch == branchName {
-			return writeError(errors.New("HEAD is not referenced by a branch."))
+			return writeError(errors.New("HEAD is not referenced by a branch"))
 		}
 		return writeValue(branchName)
 	case "sha":
