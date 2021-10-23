@@ -23,7 +23,7 @@ func RunPull(ctx *context.ExecuteContext, t *Task, _ bool) (bool, error) {
 	pullTag := func(tag string) error {
 		return pullImage(ctx, t, tag)
 	}
-	if err := t.ForEachTag(ctx, pullTag); err != nil {
+	if err := t.ForEachRemoteTag(ctx, pullTag); err != nil {
 		return false, err
 	}
 

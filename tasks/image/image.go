@@ -44,15 +44,43 @@ func (t *Task) Run(ctx *context.ExecuteContext, depsModified bool) (bool, error)
 
 // ForEachTag runs a function for each tag
 func (t *Task) ForEachTag(ctx *context.ExecuteContext, each func(string) error) error {
-	if len(t.config.Tags) == 0 {
-		return each(GetImageName(ctx, t.config))
+	if err := t.forEachLocalTag(ctx, each); err != nil {
+		return err
 	}
 
-	for _, tag := range t.config.Tags {
-		imageTag := t.config.Image + ":" + tag
-		// If the tag is already a complete image name then use it directly
-		if _, hasTag := docker.ParseRepositoryTag(tag); hasTag != "" {
-			imageTag = tag
+	return t.forEachRemoteTagNoFallback(each)
+}
+
+// forEachLocalTag runs a function for each local tag
+func (t *Task) forEachLocalTag(ctx *context.ExecuteContext, each func(string) error) error {
+	if len(t.config.Tags) == 0 {
+		return t.forEachProvidedTag(each, []string{GetImageName(ctx, t.config)})
+	}
+
+	return t.forEachProvidedTag(each, t.config.Tags)
+}
+
+// ForEachRemoteTag runs a function for each remote tag, if no remote tags uses local tags
+func (t *Task) ForEachRemoteTag(ctx *context.ExecuteContext, each func(string) error) error {
+	if len(t.config.RemoteTags) == 0 {
+		return t.forEachLocalTag(ctx, each)
+	}
+
+	return t.forEachRemoteTagNoFallback(each)
+}
+
+// forEachRemoteTagNoFallback runs a function for each remote tag
+func (t *Task) forEachRemoteTagNoFallback(each func(string) error) error {
+	return t.forEachProvidedTag(each, t.config.RemoteTags)
+}
+
+// forEachProvidedTag runs a function for each provided tag
+func (t *Task) forEachProvidedTag(each func(string) error, tags []string) error {
+	for _, tag := range tags {
+		imageTag := tag
+		// Create complete image name if the tag does not already have it.
+		if _, hasTag := docker.ParseRepositoryTag(tag); hasTag == "" {
+			imageTag = t.config.Image + ":" + tag
 		}
 
 		if err := each(imageTag); err != nil {

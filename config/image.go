@@ -62,12 +62,18 @@ type ImageConfig struct {
 	// type: string
 	// default: ``always``
 	Pull pull
-	// Tags The image tags applied to the image before pushing the image to a
-	// registry.  The first tag in the list is used when the image is built.
+	// Tags The image tags applied to the image.
+	// The first tag in the list is used when the image is built.
 	// Each item in the list supports :doc:`variables`.
 	// default: ``['{unique}']``
 	// type: list of tags
 	Tags []string `config:"validate"`
+	// RemoteTags The image tags applied to the image before pushing/pulling the image
+	// to/from a registry.  If not provided, regular tags are used for remote operations.
+	// Each item in the list supports :doc:`variables`.
+	// default: ``tags``
+	// type: list of tags
+	RemoteTags []string
 	// NetworkMode The network mode to use for each step in the Dockerfile.
 	NetworkMode string
 	// CacheFrom A list of images to use as the cache for a build.
