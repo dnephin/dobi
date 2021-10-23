@@ -11,6 +11,7 @@ import (
 	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/tasks/types"
 	docker "github.com/fsouza/go-dockerclient"
+	log "github.com/sirupsen/logrus"
 )
 
 // Task is a mount task
@@ -24,6 +25,10 @@ type Task struct {
 // Name returns the name of the task
 func (t *Task) Name() task.Name {
 	return t.name
+}
+
+func (t *Task) logger() *log.Entry {
+	return logging.ForTask(t)
 }
 
 // Repr formats the task for logging
@@ -98,5 +103,9 @@ func remove(task *Task, ctx *context.ExecuteContext) (bool, error) {
 		return false, nil
 	}
 
-	return true, ctx.Client.RemoveVolume(task.config.Name)
+	if err := ctx.Client.RemoveVolume(task.config.Name); err != nil {
+		task.logger().Warnf("failed to remove %q: %s", task.config.Name, err)
+	}
+
+	return true, nil
 }
