@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v4.0.1
+    rev: v4.0.1
     hooks:
       - id: check-merge-conflict
       - id: end-of-file-fixer
@@ -16,7 +16,7 @@ repos:
         exclude: '^vendor/'
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: v0.3.5
+    rev: v0.3.5
     hooks:
       - id: golangci-lint
         args: ['-v', './...']
