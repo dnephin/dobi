@@ -2,22 +2,22 @@ FROM    golang:1.17-alpine
 RUN     apk add -U git bash curl tree
 
 ARG     FILEWATCHER_VER=v0.3.2
-RUN     go install github.com/dnephin/filewatcher@$FILEWATCHER_VER && \
+RUN     go install github.com/dnephin/filewatcher@${FILEWATCHER_VER} && \
         cp /go/bin/filewatcher /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 ARG     GOTESTSUM_VER=v1.7.0
-RUN     go install gotest.tools/gotestsum@$GOTESTSUM_VER && \
+RUN     go install gotest.tools/gotestsum@${GOTESTSUM_VER} && \
         cp /go/bin/gotestsum /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 ARG     GOX_VER=v1.0.1
-RUN     go install github.com/mitchellh/gox@$GOX_VER && \
+RUN     go install github.com/mitchellh/gox@${GOX_VER} && \
         cp /go/bin/gox /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 ARG     MOCKGEN_VER=v1.6.0
-RUN     go install github.com/golang/mock/mockgen@$MOCKGEN_VER && \
+RUN     go install github.com/golang/mock/mockgen@${MOCKGEN_VER} && \
         cp /go/bin/mockgen /usr/bin && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
