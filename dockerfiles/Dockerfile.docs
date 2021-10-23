@@ -16,7 +16,7 @@ RUN     go install github.com/dnephin/filewatcher@${FILEWATCHER_VER} && \
         cp /go/bin/filewatcher /usr/bin/ && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
-RUN     pip install sphinx==1.4.5
+RUN     pip install wheel sphinx==4.2.0
 
 WORKDIR /go/src/github.com/dnephin/dobi
 ENV     PS1="# "

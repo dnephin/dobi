@@ -15,7 +15,7 @@ repos:
         exclude: '^vendor/'
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.3.5
+    rev: v0.4.0
     hooks:
       - id: golangci-lint
         args: ['-v', './...']
