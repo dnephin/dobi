@@ -1,8 +1,8 @@
-FROM    alpine:3.10
+FROM    alpine:3.14
 
 RUN     apk -U add \
-            python \
-            py-pip \
+            python3 \
+            py3-pip \
             go \
             bash \
             git \
@@ -11,7 +11,8 @@ RUN     apk -U add \
 
 ENV     GOPATH=/go
 RUN     git config --global http.https://gopkg.in.followRedirects true
-RUN     go get github.com/dnephin/filewatcher && \
+ARG     FILEWATCHER_VER=v0.3.2
+RUN     go install github.com/dnephin/filewatcher@${FILEWATCHER_VER} && \
         cp /go/bin/filewatcher /usr/bin/ && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
