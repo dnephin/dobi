@@ -1,21 +1,22 @@
-- repo: git://github.com/pre-commit/pre-commit-hooks
-  sha: v0.7.1
-  hooks:
-    - id: check-merge-conflict
-    - id: end-of-file-fixer
-      files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
-      exclude: '^vendor/'
-    - id: trailing-whitespace
-      files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
-      args: ['--no-markdown-linebreak-ext']
-      exclude: '^vendor/'
-    - id: check-yaml
-      exclude: '^vendor/'
-    - id: check-json
-      exclude: '^vendor/'
+repos:
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: v4.0.1
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
+        exclude: '^vendor/'
+      - id: trailing-whitespace
+        files: '(\.(go|md|sh|yml|yaml|json|ini|rst)|Dockerfile.*)$'
+        args: ['--no-markdown-linebreak-ext']
+        exclude: '^vendor/'
+      - id: check-yaml
+        exclude: '^vendor/'
+      - id: check-json
+        exclude: '^vendor/'
 
-- repo: git://github.com/dnephin/pre-commit-golang
-  sha: v0.3.5
-  hooks:
-    - id: golangci-lint
-      args: ['-v', './...']
+  - repo: git://github.com/dnephin/pre-commit-golang
+    sha: v0.3.5
+    hooks:
+      - id: golangci-lint
+        args: ['-v', './...']
