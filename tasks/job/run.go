@@ -361,7 +361,7 @@ func (t *Task) forwardSignals(
 ) chan<- os.Signal {
 	chanSig := make(chan os.Signal, 128)
 
-	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, SIGWINCH)
+	signal.Notify(chanSig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGWINCH)
 
 	go func() {
 		for sig := range chanSig {
@@ -375,7 +375,7 @@ func (t *Task) forwardSignals(
 			}
 
 			switch sysSignal {
-			case SIGWINCH:
+			case syscall.SIGWINCH:
 				handleWinSizeChangeSignal(logger, client, containerID)
 			default:
 				handleShutdownSignals(logger, client, containerID, sysSignal)
