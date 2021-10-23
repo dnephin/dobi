@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/renstrom/dedent"
+	"github.com/lithammer/dedent"
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
 )

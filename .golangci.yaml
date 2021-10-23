@@ -16,10 +16,9 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
+    - revive
     - gosimple
     - ineffassign
-    - interfacer
     - errcheck
     - lll
     - megacheck
@@ -30,9 +29,3 @@ linters:
     - unused
     - varcheck
     - vet
-
-issues:
-  exclude-rules:
-    - path: tasks/image/tag_test\.go
-      linters:
-        - interfacer

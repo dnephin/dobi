@@ -1,9 +1,9 @@
-FROM    golang:1.14-alpine
+FROM    golang:1.17-alpine
 
-RUN     apk add -U python3 py-pip python3-dev musl-dev gcc git bash
+RUN     apk add -U python3 py3-pip python3-dev musl-dev gcc git bash
 RUN     pip install --ignore-installed pre-commit
 
-COPY    --from=golangci/golangci-lint:v1.24.0 /usr/bin/golangci-lint /usr/bin/golangci-lint
+COPY    --from=golangci/golangci-lint:v1.42.1 /usr/bin/golangci-lint /usr/bin/golangci-lint
 
 WORKDIR /go/src/github.com/dnephin/dobi
 COPY    .pre-commit-config.yaml ./
