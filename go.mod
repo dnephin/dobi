@@ -14,6 +14,7 @@ require (
 	github.com/golang/mock v1.1.1
 	github.com/google/go-cmp v0.4.0
 	github.com/kballard/go-shellquote v0.0.0-20170619183022-cd60e84ee657
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mcuadros/go-version v0.0.0-20161105183618-257f7b9a7d87 // indirect
 	github.com/metakeule/fmtdate v1.1.2-0.20150502212323-427373e7d2f8
 	github.com/opencontainers/runc v1.0.0-rc3.0.20170716065720-825b5c020ace // indirect
@@ -25,11 +26,16 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975
-	golang.org/x/time v0.0.0-20170927054726-6dc17368e09b // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	golang.org/x/net v0.0.0-20190522155817-f3200d17e092 // indirect
+	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
+	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/yaml.v2 v2.2.4
 	gotest.tools/v3 v3.0.2
 )
 
 replace github.com/spf13/cobra => github.com/dnephin/cobra v1.5.2-0.20170125185912-5d13e8c9d917
 
 replace github.com/Nvveen/Gotty => github.com/ijc/Gotty v0.0.0-20170406111628-a8b993ba6abd
+
+replace golang.org/x/sys => golang.org/x/sys v0.0.0-20190830141801-acfa387b8d69
