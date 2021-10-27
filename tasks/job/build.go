@@ -17,8 +17,8 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/tasks/image"
 	"github.com/docker/cli/cli/command/image/build"
-	"github.com/docker/docker/pkg/archive"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

@@ -5,7 +5,7 @@ defaults:
     - image: dnephin/circleci-alpine-step@sha256:75f925e006ea379870ea7d2ce6539072e584f62a74063d73a9b1c2fd75ec233f
   steps:
     - setup_remote_docker: &setup_docker
-        version: 17.07.0-ce
+        version: 20.10.6
   filters: &default_filters
     branches: {ignore: [gh-pages]}
     tags: {only: '/v[0-9]+(\.[0-9]+)*/'}
@@ -35,7 +35,7 @@ jobs:
 
   lint:
     docker:
-      - image: "golangci/golangci-lint:v1.24.0"
+      - image: "golangci/golangci-lint:v1.42.1"
     steps:
       - checkout
       - attach_workspace: {at: /work}

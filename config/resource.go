@@ -59,6 +59,7 @@ type AnnotationFields struct {
 	// Tags Tags can be used to group resources. There can be configured
 	// multiple tags per resource. Adding a tag to a resource outputs a
 	// grouped list from ``dobi list -g``.
+	// type:list of strings
 	Tags []string
 }
 

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/docker/docker/pkg/fileutils"
+	"github.com/moby/moby/pkg/fileutils"
 )
 
 // LastModifiedSearch provides the means by which to specify your search parameters when
