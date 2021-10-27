@@ -141,6 +141,7 @@ func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
 		opts := t.commonBuildImageOptions(ctx, out)
 
 		if urlutil.IsGitURL(t.config.Context) {
+			t.logger().Info("Pulling remote Git repository")
 			tempDir, relDockerfilePath, err := build.GetContextFromGitURL(t.config.Context, t.config.Dockerfile)
 			if err != nil {
 				return errors.WithMessage(err, "Problem while pulling context from remote Git repository")
