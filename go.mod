@@ -6,6 +6,7 @@ require (
 	github.com/dnephin/configtf v0.0.0-20161020003418-6b0d1fdf5e68
 	github.com/dnephin/go-os-user v0.0.0-20161029070903-44e2994deb1e
 	github.com/docker/cli v20.10.9+incompatible
+	github.com/docker/docker v20.10.9+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/fsouza/go-dockerclient v1.7.4
 	github.com/gogs/git-module v1.1.5
@@ -32,7 +33,6 @@ require (
 	github.com/containerd/cgroups v1.0.2 // indirect
 	github.com/containerd/containerd v1.5.7 // indirect
 	github.com/containerd/continuity v0.2.1 // indirect
-	github.com/docker/docker v20.10.9+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
