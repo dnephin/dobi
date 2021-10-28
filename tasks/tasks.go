@@ -179,23 +179,13 @@ type RunOptions struct {
 	BindMount bool
 }
 
-func getNames(options RunOptions) []string {
-	if len(options.Tasks) > 0 {
-		return options.Tasks
-	}
-
-	if options.Config.Meta.Default != "" {
-		return []string{options.Config.Meta.Default}
-	}
-
-	return options.Tasks
-}
-
 // Run one or more tasks
 func Run(options RunOptions) error {
-	options.Tasks = getNames(options)
 	if len(options.Tasks) == 0 {
-		return fmt.Errorf("no task to run, and no default task defined")
+		if options.Config.Meta.Default == "" {
+			return fmt.Errorf("no task to run, and no default task defined")
+		}
+		options.Tasks = []string{options.Config.Meta.Default}
 	}
 
 	execEnv, err := execenv.NewExecEnvFromConfig(
