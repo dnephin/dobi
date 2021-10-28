@@ -24,14 +24,14 @@ type RunFunc func(*context.ExecuteContext, bool) (bool, error)
 type TaskConfig interface {
 	Name() task.Name
 	Resource() config.Resource
-	Dependencies() []string
+	Dependencies() []task.Name
 	Task(config.Resource) Task
 }
 
 type taskConfig struct {
 	name      task.Name
 	resource  config.Resource
-	deps      func() []string
+	deps      []task.Name
 	buildTask func(task.Name, config.Resource) Task
 }
 
@@ -43,8 +43,8 @@ func (t taskConfig) Resource() config.Resource {
 	return t.resource
 }
 
-func (t taskConfig) Dependencies() []string {
-	return t.deps()
+func (t taskConfig) Dependencies() []task.Name {
+	return t.deps
 }
 
 func (t taskConfig) Task(res config.Resource) Task {
@@ -58,7 +58,7 @@ type TaskBuilder func(task.Name, config.Resource) Task
 func NewTaskConfig(
 	name task.Name,
 	resource config.Resource,
-	deps func() []string,
+	deps []task.Name,
 	buildTask TaskBuilder,
 ) TaskConfig {
 	return &taskConfig{

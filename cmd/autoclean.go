@@ -5,6 +5,7 @@ import (
 
 	"github.com/dnephin/dobi/config"
 	"github.com/dnephin/dobi/tasks"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/spf13/cobra"
 )
 
@@ -39,10 +40,11 @@ func runClean(opts *dobiOptions) error {
 }
 
 func removeTasks(conf *config.Config) []string {
-	resources := conf.Sorted()
 	tasks := []string{}
-	for i := len(resources) - 1; i >= 0; i-- {
-		tasks = append(tasks, resources[i]+":rm")
+	for name, res := range conf.Resources {
+		if _, alias := res.(*config.AliasConfig); !alias {
+			tasks = append(tasks, name+":"+task.Remove.String())
+		}
 	}
 	return tasks
 }

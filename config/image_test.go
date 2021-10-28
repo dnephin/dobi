@@ -28,7 +28,9 @@ func TestImageConfigValidateMissingDependencies(t *testing.T) {
 	image := sampleImageConfig()
 	image.Depends = []string{"one", "two"}
 	conf := NewConfig()
-	err := validateResourcesExist(pth.NewPath(""), conf, image.Dependencies())
+	deps, err := image.Dependencies()
+	assert.Assert(t, is.Nil(err))
+	err = validateResourcesExist(pth.NewPath(""), conf, deps)
 	assert.Assert(t, is.ErrorContains(err, "missing dependencies: one, two"))
 }
 

@@ -15,11 +15,16 @@ func TestExecuteContext_GetAuthConfig_NoAuthConfig(t *testing.T) {
 	assert.Check(t, is.DeepEqual(auth, docker.AuthConfiguration{}))
 }
 
+func parseNameNoErrors(name string) task.Name {
+	tName, _ := task.ParseName(name)
+	return tName
+}
+
 func TestExecuteContext_IsModified(t *testing.T) {
 	context := &ExecuteContext{modified: make(map[string]bool)}
-	context.SetModified(task.ParseName("task1"))
-	context.SetModified(task.NewDefaultName("task2", "pull"))
-	context.SetModified(task.ParseName("task3:rm"))
+	context.SetModified(parseNameNoErrors("task1"))
+	context.SetModified(parseNameNoErrors("task2:create"))
+	context.SetModified(parseNameNoErrors("task3:rm"))
 
 	var testcases = []struct {
 		doc      string
@@ -28,30 +33,34 @@ func TestExecuteContext_IsModified(t *testing.T) {
 	}{
 		{
 			doc:      "match no action",
-			name:     task.ParseName("task1"),
+			name:     parseNameNoErrors("task1"),
 			expected: true,
 		},
 		{
 			doc:      "match default action",
-			name:     task.NewDefaultName("task1", "build"),
+			name:     parseNameNoErrors("task1:build"),
 			expected: true,
 		},
 		{
 			doc:      "match with action",
-			name:     task.NewName("task3", "rm"),
+			name:     parseNameNoErrors("task3:rm"),
 			expected: true,
 		},
 		{
-			doc:      "match with specified default action",
-			name:     task.ParseName("task2:pull"),
+			doc:      "match default with specified action",
+			name:     parseNameNoErrors("task2"),
 			expected: true,
 		},
 		{
-			doc:  "no match default action",
-			name: task.NewDefaultName("task3", "build"),
+			doc:  "no match valid wrong action",
+			name: parseNameNoErrors("task3:build"),
 		},
 		{
-			doc:  "no match",
+			doc:  "no match wrong default action",
+			name: parseNameNoErrors("task3"),
+		},
+		{
+			doc:  "no match invalid",
 			name: task.NewName("task3", "other"),
 		},
 	}

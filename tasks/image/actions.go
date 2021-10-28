@@ -10,75 +10,85 @@ import (
 )
 
 // GetTaskConfig returns a new TaskConfig for the action
-func GetTaskConfig(name, action string, conf *config.ImageConfig) (types.TaskConfig, error) {
-	var taskName task.Name
-
-	if action == "" {
-		action = defaultAction(conf)
-		taskName = task.NewDefaultName(name, action)
-	} else {
-		taskName = task.NewName(name, action)
+func GetTaskConfig(name task.Name, conf *config.ImageConfig) (types.TaskConfig, error) {
+	if !conf.IsBuildable() && name.Action() == task.Create {
+		name = task.NewName(name.Resource(), task.Pull)
 	}
-	imageAction, err := getAction(action, name)
+	imageAction, err := getImageAction(name, conf)
 	if err != nil {
 		return nil, err
 	}
+
 	return types.NewTaskConfig(
-		taskName,
+		name,
 		conf,
-		deps(conf, imageAction.dependencies),
+		imageAction.deps,
 		NewTask(imageAction.run),
 	), nil
 }
 
 type runFunc func(*context.ExecuteContext, *Task, bool) (bool, error)
 
-type action struct {
-	name         string
-	run          runFunc
-	dependencies []string
+type imageAction struct {
+	name task.Name
+	run  runFunc
+	deps []task.Name
 }
 
-func newAction(name string, run runFunc, deps []string) (action, error) {
-	return action{name: name, run: run, dependencies: deps}, nil
+func newImageAction(
+	name task.Name, run runFunc, deps []task.Name) imageAction {
+	return imageAction{name: name, run: run, deps: deps}
 }
 
-func getAction(name string, task string) (action, error) {
-	switch name {
-	case "build":
-		return newAction("build", RunBuild, nil)
-	case "pull":
-		return newAction("pull", RunPull, nil)
-	case "push":
-		return newAction("push", RunPush, imageDeps(task, "tag"))
-	case "tag":
-		return newAction("tag", RunTag, imageDeps(task, "build"))
-	case "remove", "rm":
-		return newAction("remove", RunRemove, nil)
+// nolint: gocyclo
+func getImageAction(name task.Name, conf *config.ImageConfig) (imageAction, error) {
+	switch name.Action() {
+	case task.Create:
+		deps, err := getDeps(conf)
+		if err != nil {
+			return imageAction{}, err
+		}
+		return newImageAction(name, RunBuild, deps), nil
+	case task.Pull:
+		deps, err := getDeps(conf)
+		if err != nil {
+			return imageAction{}, err
+		}
+		return newImageAction(name, RunPull, deps), nil
+	case task.Push:
+		deps, err := getDepsWith(conf, task.NewName(name.Resource(), task.Tag))
+		if err != nil {
+			return imageAction{}, err
+		}
+		return newImageAction(name, RunPush, deps), nil
+	case task.Tag:
+		deps, err := getDepsWith(conf, task.NewName(name.Resource(), task.Create))
+		if err != nil {
+			return imageAction{}, err
+		}
+		return newImageAction(name, RunTag, deps), nil
+	case task.Remove:
+		return newImageAction(name, RunRemove, task.NoDependencies()), nil
 	default:
-		return action{}, fmt.Errorf("invalid image action %q for task %q", name, task)
+		return imageAction{},
+			fmt.Errorf("invalid image action %q for task %q", name.Action(), name.Resource())
 	}
 }
 
-func defaultAction(conf *config.ImageConfig) string {
-	if conf.IsBuildable() {
-		return "build"
+func getDepsWith(conf *config.ImageConfig, newdep task.Name) ([]task.Name, error) {
+	deps, err := getDeps(conf)
+	if err != nil {
+		return []task.Name{}, err
 	}
-	return "pull"
+	return append(deps, newdep), nil
 }
 
-func imageDeps(name string, actions ...string) []string {
-	deps := []string{}
-	for _, action := range actions {
-		deps = append(deps, task.NewName(name, action).Name())
+func getDeps(conf *config.ImageConfig) ([]task.Name, error) {
+	deps, err := conf.Dependencies()
+	if err != nil {
+		return []task.Name{}, err
 	}
-	return deps
-}
-
-func deps(conf config.Resource, deps []string) func() []string {
-	return func() []string {
-		return append(deps, conf.Dependencies()...)
-	}
+	return deps, nil
 }
 
 // NewTask creates a new Task object

@@ -7,6 +7,7 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
+	"github.com/dnephin/dobi/tasks/task"
 	shlex "github.com/kballard/go-shellquote"
 	"golang.org/x/term"
 )
@@ -109,8 +110,20 @@ type Device struct {
 }
 
 // Dependencies returns the list of implicit and explicit dependencies
-func (c *JobConfig) Dependencies() []string {
-	return append([]string{c.Use}, append(c.Depends, c.Mounts...)...)
+func (c *JobConfig) Dependencies() ([]task.Name, error) {
+	deps, err := task.ParseNames(c.Depends)
+	if err != nil {
+		return []task.Name{}, err
+	}
+	mnts, err := task.ParseNames(c.Mounts)
+	if err != nil {
+		return []task.Name{}, err
+	}
+	use, err := task.ParseName(c.Use)
+	if err != nil {
+		return []task.Name{}, err
+	}
+	return append(mnts, append(deps, use)...), nil
 }
 
 // Validate checks that all fields have acceptable values

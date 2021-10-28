@@ -6,6 +6,7 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
+	"github.com/dnephin/dobi/tasks/task"
 )
 
 // EnvConfig An **env** resource provides environment variables to **job** and
@@ -30,9 +31,9 @@ type EnvConfig struct {
 	Annotations
 }
 
-// Dependencies returns the list of job dependencies
-func (c *EnvConfig) Dependencies() []string {
-	return []string{}
+// Dependencies returns the list of env dependencies
+func (c *EnvConfig) Dependencies() ([]task.Name, error) {
+	return []task.Name{}, nil
 }
 
 // Validate runs config validation

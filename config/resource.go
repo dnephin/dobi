@@ -3,12 +3,13 @@ package config
 import (
 	pth "github.com/dnephin/configtf/path"
 	"github.com/dnephin/dobi/logging"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/pkg/errors"
 )
 
 // Resource is an interface for each configurable type
 type Resource interface {
-	Dependencies() []string
+	Dependencies() ([]task.Name, error)
 	Validate(pth.Path, *Config) *pth.Error
 	Resolve(Resolver) (Resource, error)
 	Describe() string
@@ -71,8 +72,8 @@ type Dependent struct {
 }
 
 // Dependencies returns the list of tasks
-func (d *Dependent) Dependencies() []string {
-	return d.Depends
+func (d *Dependent) Dependencies() ([]task.Name, error) {
+	return task.ParseNames(d.Depends)
 }
 
 // Resolver is an interface for a type that returns values for variables

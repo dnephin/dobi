@@ -15,6 +15,7 @@ cleanup() {
     rm -f output
     remove_all_tags example/tagged-app
     remove_all_tags example/tagged-db
+    dobi autoclean
 }
 trap "cleanup" EXIT
 

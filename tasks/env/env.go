@@ -14,16 +14,14 @@ import (
 )
 
 // GetTaskConfig returns a new task for the action
-func GetTaskConfig(name, action string, conf *config.EnvConfig) (types.TaskConfig, error) {
-	switch action {
-	case "", "set":
-		return types.NewTaskConfig(
-			task.NewDefaultName(name, "set"), conf, task.NoDependencies, newTask), nil
-	case "rm":
-		return types.NewTaskConfig(
-			task.NewName(name, "rm"), conf, task.NoDependencies, newRemoveTask), nil
+func GetTaskConfig(name task.Name, conf *config.EnvConfig) (types.TaskConfig, error) {
+	switch name.Action() {
+	case task.Create:
+		return types.NewTaskConfig(name, conf, task.NoDependencies(), newTask), nil
+	case task.Remove:
+		return types.NewTaskConfig(name, conf, task.NoDependencies(), newRemoveTask), nil
 	default:
-		return nil, fmt.Errorf("invalid env action %q for task %q", action, name)
+		return nil, fmt.Errorf("invalid env action %q for task %q", name.Action(), name)
 	}
 }
 
