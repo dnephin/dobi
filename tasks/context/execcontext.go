@@ -25,7 +25,7 @@ type ExecuteContext struct {
 // during this execution
 func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 	for _, name := range names {
-		if modified := ctx.modified[name.MapKey()]; modified {
+		if modified := ctx.modified[name.Name()]; modified {
 			return true
 		}
 	}
@@ -34,9 +34,6 @@ func (ctx *ExecuteContext) IsModified(names ...task.Name) bool {
 
 // SetModified sets the task name as modified
 func (ctx *ExecuteContext) SetModified(name task.Name) {
-	// Add both the key and the string name so that it matches against
-	// dependencies specified with or without an action
-	ctx.modified[name.MapKey()] = true
 	ctx.modified[name.Name()] = true
 }
 

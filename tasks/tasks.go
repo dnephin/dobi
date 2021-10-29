@@ -63,14 +63,17 @@ type collectionState struct {
 
 func collect(options RunOptions, state *collectionState) (*TaskCollection, error) {
 	for _, taskname := range options.Tasks {
-		taskname := task.ParseName(taskname)
-		resourceName := taskname.Resource()
+		task, err := task.ParseName(taskname)
+		if err != nil {
+			return nil, err
+		}
+		resourceName := task.Resource()
 		resource, ok := options.Config.Resources[resourceName]
 		if !ok {
 			return nil, fmt.Errorf("resource %q does not exist", resourceName)
 		}
 
-		taskConfig, err := buildTaskConfig(resourceName, taskname.Action(), resource)
+		taskConfig, err := buildTaskConfig(task, resource)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +84,12 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 		}
 		state.taskStack.Push(taskConfig.Name())
 
-		options.Tasks = taskConfig.Dependencies()
+		depStrings := []string{}
+		for _, dep := range taskConfig.Dependencies() {
+			depStrings = append(depStrings, dep.Name())
+		}
+		options.Tasks = depStrings
+
 		if _, err := collect(options, state); err != nil {
 			return nil, err
 		}
@@ -92,20 +100,20 @@ func collect(options RunOptions, state *collectionState) (*TaskCollection, error
 }
 
 // TODO: some way to make this a registry
-func buildTaskConfig(name, action string, resource config.Resource) (types.TaskConfig, error) {
+func buildTaskConfig(name task.Name, resource config.Resource) (types.TaskConfig, error) {
 	switch conf := resource.(type) {
 	case *config.ImageConfig:
-		return image.GetTaskConfig(name, action, conf)
+		return image.GetTaskConfig(name, conf)
 	case *config.JobConfig:
-		return job.GetTaskConfig(name, action, conf)
+		return job.GetTaskConfig(name, conf)
 	case *config.MountConfig:
-		return mount.GetTaskConfig(name, action, conf)
+		return mount.GetTaskConfig(name, conf)
 	case *config.AliasConfig:
-		return alias.GetTaskConfig(name, action, conf)
+		return alias.GetTaskConfig(name, conf)
 	case *config.EnvConfig:
-		return env.GetTaskConfig(name, action, conf)
+		return env.GetTaskConfig(name, conf)
 	case *config.ComposeConfig:
-		return compose.GetTaskConfig(name, action, conf)
+		return compose.GetTaskConfig(name, conf)
 	default:
 		panic(fmt.Sprintf("Unexpected config type %T", conf))
 	}
@@ -143,9 +151,11 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 		startedTasks = append(startedTasks, currentTask)
 		start := time.Now()
 		logging.Log.WithFields(log.Fields{"time": start, "task": currentTask}).Debug("Start")
+		if taskConfig.Name().Action() != task.Remove {
+			logging.Log.WithFields(log.Fields{"time": start, "task": currentTask}).Info("Start")
+		}
 
-		depsModified := hasModifiedDeps(ctx, taskConfig.Dependencies())
-		modified, err := currentTask.Run(ctx, depsModified)
+		modified, err := currentTask.Run(ctx, hasModifiedDeps(ctx, taskConfig.Dependencies()))
 		if err != nil {
 			return fmt.Errorf("failed to execute task %q: %s", currentTask.Name(), err)
 		}
@@ -160,10 +170,9 @@ func executeTasks(ctx *context.ExecuteContext, tasks *TaskCollection) error {
 	return nil
 }
 
-func hasModifiedDeps(ctx *context.ExecuteContext, deps []string) bool {
+func hasModifiedDeps(ctx *context.ExecuteContext, deps []task.Name) bool {
 	for _, dep := range deps {
-		taskName := task.ParseName(dep)
-		if ctx.IsModified(taskName) {
+		if ctx.IsModified(dep) {
 			return true
 		}
 	}
@@ -179,23 +188,13 @@ type RunOptions struct {
 	BindMount bool
 }
 
-func getNames(options RunOptions) []string {
-	if len(options.Tasks) > 0 {
-		return options.Tasks
-	}
-
-	if options.Config.Meta.Default != "" {
-		return []string{options.Config.Meta.Default}
-	}
-
-	return options.Tasks
-}
-
 // Run one or more tasks
 func Run(options RunOptions) error {
-	options.Tasks = getNames(options)
 	if len(options.Tasks) == 0 {
-		return fmt.Errorf("no task to run, and no default task defined")
+		if options.Config.Meta.Default == "" {
+			return fmt.Errorf("no task to run, and no default task defined")
+		}
+		options.Tasks = []string{options.Config.Meta.Default}
 	}
 
 	execEnv, err := execenv.NewExecEnvFromConfig(

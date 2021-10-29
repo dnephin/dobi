@@ -11,8 +11,9 @@ import (
 	"github.com/dnephin/dobi/tasks/context"
 	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/cli/cli/command/image/build"
-	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/pkg/urlutil"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/moby/moby/pkg/archive"
 	"github.com/pkg/errors"
 )
 
@@ -63,6 +64,12 @@ func buildIsStale(ctx *context.ExecuteContext, t *Task) (bool, error) {
 	case nil:
 	default:
 		return true, err
+	}
+
+	// TODO: Support caching for remote contexts https://github.com/dnephin/dobi/issues/225
+	if urlutil.IsGitURL(t.config.Context) || urlutil.IsURL(t.config.Context) {
+		t.logger().Debug("Context is remote")
+		return true, nil
 	}
 
 	paths := []string{t.config.Context}
@@ -132,8 +139,25 @@ func buildImage(ctx *context.ExecuteContext, t *Task) error {
 func (t *Task) buildImageFromDockerfile(ctx *context.ExecuteContext) error {
 	return Stream(os.Stdout, func(out io.Writer) error {
 		opts := t.commonBuildImageOptions(ctx, out)
-		opts.Dockerfile = t.config.Dockerfile
-		opts.ContextDir = t.config.Context
+
+		if urlutil.IsGitURL(t.config.Context) {
+			t.logger().Info("Pulling remote Git repository")
+			tempDir, relPath, err := build.GetContextFromGitURL(t.config.Context, t.config.Dockerfile)
+			if err != nil {
+				return errors.WithMessage(err, "Problem while pulling context from remote Git repository")
+			}
+
+			defer os.RemoveAll(tempDir)
+
+			opts.ContextDir = tempDir
+			opts.Dockerfile = relPath
+		} else if urlutil.IsURL(t.config.Context) {
+			opts.Remote = t.config.Context
+			opts.Dockerfile = t.config.Dockerfile
+		} else {
+			opts.ContextDir = t.config.Context
+			opts.Dockerfile = t.config.Dockerfile
+		}
 		return ctx.Client.BuildImage(opts)
 	})
 }

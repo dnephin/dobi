@@ -5,6 +5,7 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
+	"github.com/dnephin/dobi/tasks/task"
 	"github.com/dnephin/dobi/utils/fs"
 )
 
@@ -44,8 +45,8 @@ type MountConfig struct {
 }
 
 // Dependencies returns an empty list, Mount resources have no dependencies
-func (c *MountConfig) Dependencies() []string {
-	return []string{}
+func (c *MountConfig) Dependencies() ([]task.Name, error) {
+	return []task.Name{}, nil
 }
 
 // Validate checks that all fields have acceptable values

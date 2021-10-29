@@ -15,7 +15,7 @@ import (
 
 const (
 	// DefaultDockerAPIVersion is the default version of the docker API to use
-	DefaultDockerAPIVersion = "1.25"
+	DefaultDockerAPIVersion = "1.41"
 )
 
 var (

@@ -10,18 +10,18 @@ import (
 )
 
 // GetTaskConfig returns a new task for the action
-func GetTaskConfig(name, action string, conf *config.MountConfig) (types.TaskConfig, error) {
+func GetTaskConfig(name task.Name, conf *config.MountConfig) (types.TaskConfig, error) {
 
 	newTaskConfig := func(name task.Name, builder types.TaskBuilder) (types.TaskConfig, error) {
-		return types.NewTaskConfig(name, conf, task.NoDependencies, builder), nil
+		return types.NewTaskConfig(name, conf, task.NoDependencies(), builder), nil
 	}
-	switch action {
-	case "", "create":
-		return newTaskConfig(task.NewDefaultName(name, action), NewTask(runCreate))
-	case "remove", "rm":
-		return newTaskConfig(task.NewName(name, action), NewTask(remove))
+	switch name.Action() {
+	case task.Create:
+		return newTaskConfig(name, NewTask(runCreate))
+	case task.Remove:
+		return newTaskConfig(name, NewTask(remove))
 	default:
-		return nil, fmt.Errorf("invalid mount action %q for task %q", action, name)
+		return nil, fmt.Errorf("invalid mount action %q for task %q", name.Action(), name.Resource())
 	}
 }
 

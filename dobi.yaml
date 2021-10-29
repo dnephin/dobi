@@ -63,6 +63,11 @@ image=circleci-alpine:
     dockerfile: Dockerfile.circleci
     context: dockerfiles/ci
 
+image=refactorer:
+    image: dnephin/go-refactor
+    tags: [latest]
+    pull: 72h
+
 #
 # Jobs
 #
@@ -217,11 +222,6 @@ job=build-rtf:
     artifact: dist/bin/rtf
     annotations:
       tags: [test]
-
-image=refactorer:
-    image: dnephin/go-refactor
-    tags: [latest]
-    pull: 72h
 
 job=refactor-shell:
     use: refactorer

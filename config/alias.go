@@ -6,6 +6,7 @@ import (
 
 	"github.com/dnephin/configtf"
 	pth "github.com/dnephin/configtf/path"
+	"github.com/dnephin/dobi/tasks/task"
 )
 
 // AliasConfig An **alias** resource is a list of other tasks which will be run
@@ -26,8 +27,8 @@ type AliasConfig struct {
 }
 
 // Dependencies returns the list of tasks
-func (c *AliasConfig) Dependencies() []string {
-	return c.Tasks
+func (c *AliasConfig) Dependencies() ([]task.Name, error) {
+	return task.ParseNames(c.Tasks)
 }
 
 // Validate the resource

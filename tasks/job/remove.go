@@ -33,7 +33,7 @@ func (t *RemoveTask) Repr() string {
 	return fmt.Sprintf("%s %v", t.name.Format("job"), t.config.Artifact)
 }
 
-// Run creates the host path if it doesn't already exist
+// Run removes the container and artifact host path
 func (t *RemoveTask) Run(ctx *context.ExecuteContext, _ bool) (bool, error) {
 	logger := logging.ForTask(t)
 

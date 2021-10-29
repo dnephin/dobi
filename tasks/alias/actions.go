@@ -9,16 +9,23 @@ import (
 )
 
 // GetTaskConfig returns a new TaskConfig for the action
-func GetTaskConfig(name, act string, conf *config.AliasConfig) (types.TaskConfig, error) {
-	switch act {
-	case "", "run":
+func GetTaskConfig(name task.Name, conf *config.AliasConfig) (types.TaskConfig, error) {
+	switch name.Action() {
+	case task.Create:
+		deps, err := conf.Dependencies()
+		if err != nil {
+			return nil, err
+		}
+		return types.NewTaskConfig(name, conf, deps, NewTask), nil
+	case task.Remove:
+		deps, err := RemoveDeps(conf)
+		if err != nil {
+			return nil, err
+		}
 		return types.NewTaskConfig(
-			task.NewDefaultName(name, "run"), conf, RunDeps(conf), NewTask), nil
-	case "remove", "rm":
-		return types.NewTaskConfig(
-			task.NewName(name, "rm"), conf, RemoveDeps(conf), NewTask), nil
+			name, conf, deps, NewTask), nil
 	default:
-		return nil, fmt.Errorf("invalid alias action %q for task %q", act, name)
+		return nil, fmt.Errorf("invalid alias action %q for task %q", name.Action(), name)
 	}
 }
 
@@ -28,22 +35,15 @@ func NewTask(name task.Name, conf config.Resource) types.Task {
 	return &Task{name: name, config: conf.(*config.AliasConfig)}
 }
 
-// RunDeps returns the dependencies for the run action
-func RunDeps(conf config.Resource) func() []string {
-	return func() []string {
-		return conf.Dependencies()
-	}
-}
-
 // RemoveDeps returns the dependencies for the remove action
-func RemoveDeps(conf config.Resource) func() []string {
-	return func() []string {
-		confDeps := conf.Dependencies()
-		deps := []string{}
-		for i := len(confDeps); i > 0; i-- {
-			taskname := task.ParseName(confDeps[i-1])
-			deps = append(deps, taskname.Resource()+":"+"rm")
-		}
-		return deps
+func RemoveDeps(conf config.Resource) ([]task.Name, error) {
+	confDeps, err := conf.Dependencies()
+	if err != nil {
+		return []task.Name{}, err
 	}
+	deps := []task.Name{}
+	for i := len(confDeps) - 1; i >= 0; i-- {
+		deps = append(deps, task.NewName(confDeps[i].Resource(), task.Remove))
+	}
+	return deps, nil
 }

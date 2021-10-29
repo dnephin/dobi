@@ -10,8 +10,8 @@ import (
 )
 
 // GetTaskConfig returns a new task for the action
-func GetTaskConfig(name, action string, conf *config.ComposeConfig) (types.TaskConfig, error) {
-	act, err := getAction(action, name, conf)
+func GetTaskConfig(name task.Name, conf *config.ComposeConfig) (types.TaskConfig, error) {
+	act, err := getAction(name, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -24,36 +24,46 @@ type action struct {
 	name task.Name
 	Run  actionFunc
 	Stop actionFunc
-	deps func() []string
+	deps []task.Name
 }
 
 func newAction(
 	name task.Name,
 	run actionFunc,
 	stop actionFunc,
-	deps func() []string,
-) (action, error) {
+	deps []task.Name,
+) action {
 	if stop == nil {
 		stop = StopNothing
 	}
-	return action{name: name, Run: run, Stop: stop, deps: deps}, nil
+	return action{name: name, Run: run, Stop: stop, deps: deps}
 }
 
-func getAction(name string, resname string, conf *config.ComposeConfig) (action, error) {
-	switch name {
-	case "", "up":
-		return newAction(
-			task.NewDefaultName(resname, "up"), RunUp, StopUp, deps(conf))
-	case "remove", "rm", "down":
-		return newAction(task.NewName(resname, "down"), RunDown, nil, noDeps)
-	case "attach":
-		return newAction(
-			task.NewName(resname, "attach"), RunUpAttached, nil, deps(conf))
-	case "detach":
-		return newAction(
-			task.NewDefaultName(resname, "detach"), RunUp, nil, deps(conf))
+func getAction(name task.Name, conf *config.ComposeConfig) (action, error) {
+	switch name.Action() {
+	case task.Create:
+		deps, err := conf.Dependencies()
+		if err != nil {
+			return action{}, err
+		}
+		return newAction(name, RunUp, StopUp, deps), nil
+	case task.Remove:
+		return newAction(name, RunDown, nil, task.NoDependencies()), nil
+	case task.Attach:
+		deps, err := conf.Dependencies()
+		if err != nil {
+			return action{}, err
+		}
+		return newAction(name, RunUpAttached, nil, deps), nil
+	case task.Detach:
+		deps, err := conf.Dependencies()
+		if err != nil {
+			return action{}, err
+		}
+		return newAction(name, RunUp, nil, deps), nil
 	default:
-		return action{}, fmt.Errorf("invalid compose action %q for task %q", name, resname)
+		return action{},
+			fmt.Errorf("invalid compose action %q for task %q", name.Action(), name.Resource())
 	}
 }
 
@@ -85,14 +95,4 @@ func StopUp(_ *context.ExecuteContext, t *Task) error {
 func RunDown(_ *context.ExecuteContext, t *Task) error {
 	t.logger().Info("project down")
 	return t.execCompose("down")
-}
-
-func deps(conf *config.ComposeConfig) func() []string {
-	return func() []string {
-		return conf.Dependencies()
-	}
-}
-
-func noDeps() []string {
-	return []string{}
 }
