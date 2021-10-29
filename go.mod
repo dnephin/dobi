@@ -5,8 +5,8 @@ go 1.17
 require (
 	github.com/dnephin/configtf v0.0.0-20161020003418-6b0d1fdf5e68
 	github.com/dnephin/go-os-user v0.0.0-20161029070903-44e2994deb1e
-	github.com/docker/cli v20.10.9+incompatible
-	github.com/docker/docker v20.10.9+incompatible
+	github.com/docker/cli v20.10.10+incompatible
+	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/fsouza/go-dockerclient v1.7.4
 	github.com/gogs/git-module v1.1.5
@@ -15,7 +15,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/lithammer/dedent v1.1.0
 	github.com/metakeule/fmtdate v1.1.2
-	github.com/moby/moby v20.10.9+incompatible
+	github.com/moby/moby v20.10.10+incompatible
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1

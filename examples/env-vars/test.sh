@@ -7,7 +7,10 @@ set -eu -o pipefail
 
 cleanup() {
     echo "running cleanup"
-    dobi autoclean
+    # These changes break autoclean. 
+    # See https://github.com/dnephin/dobi/issues/227
+    # and https://github.com/dnephin/dobi/issues/228
+    dobi autoclean || true
 }
 trap "cleanup" EXIT
 
