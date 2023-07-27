@@ -12,6 +12,7 @@ import (
 	"github.com/dnephin/dobi/utils/fs"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/pkg/idtools"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/pkg/errors"
 )
@@ -190,6 +191,7 @@ func getBuildContext(config *config.ImageConfig) (io.Reader, string, error) {
 	}
 	buildCtx, err := archive.TarWithOptions(contextDir, &archive.TarOptions{
 		ExcludePatterns: excludes,
+		ChownOpts:       &idtools.Identity{UID: 0, GID: 0},
 	})
 	if err != nil {
 		return nil, "", err
