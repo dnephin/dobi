@@ -1,7 +1,7 @@
 FROM    golang:1.14-alpine
 
 RUN     apk add -U python3 py-pip python3-dev musl-dev gcc git bash
-RUN     pip install --ignore-installed pre-commit
+RUN     pip install --ignore-installed 'pre-commit<3.0'
 
 COPY    --from=golangci/golangci-lint:v1.24.0 /usr/bin/golangci-lint /usr/bin/golangci-lint
 
