@@ -7,7 +7,9 @@ COPY    --from=golangci/golangci-lint:v1.24.0 /usr/bin/golangci-lint /usr/bin/go
 
 WORKDIR /go/src/github.com/dnephin/dobi
 COPY    .pre-commit-config.yaml ./
-RUN     git init && pre-commit install-hooks
+RUN     git init && \
+        pre-commit install-hooks && \
+        git config --global --add safe.directory /go/src/github.com/dnephin/dobi
 
 ENV     CGO_ENABLED=0
 CMD     ["pre-commit", "run", "-a", "-v"]
