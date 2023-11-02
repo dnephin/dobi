@@ -2,14 +2,14 @@ FROM    golang:1.13-alpine
 RUN     apk add -U git bash curl tree
 
 ARG     FILEWATCHER_SHA=v0.3.2
-RUN     go get -d github.com/dnephin/filewatcher && \
+RUN     git clone https://github.com/dnephin/filewatcher.git /go/src/github.com/dnephin/filewatcher && \
         cd /go/src/github.com/dnephin/filewatcher && \
         git checkout -q "$FILEWATCHER_SHA" && \
         go build -v -o /usr/bin/filewatcher . && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
 ARG     GOTESTSUM=v0.4.0
-RUN     go get -d gotest.tools/gotestsum && \
+RUN     git clone https://github.com/gotestyourself/gotestsum.git /go/src/gotest.tools/gotestsum && \
         cd /go/src/gotest.tools/gotestsum && \
         git checkout -q "$GOTESTSUM" && \
         go build -v -o /usr/bin/gotestsum . && \
