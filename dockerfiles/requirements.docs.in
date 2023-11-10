@@ -1,0 +1,4 @@
+sphinx==1.6.7
+markupsafe==0.23
+Jinja2<3
+docutils

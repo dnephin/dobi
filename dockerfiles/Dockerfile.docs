@@ -19,7 +19,9 @@ RUN     git clone https://github.com/dnephin/filewatcher.git /go/src/github.com/
         go build -v -o /usr/bin/filewatcher . && \
         rm -rf /go/src/* /go/pkg/* /go/bin/*
 
-RUN     pip install sphinx==1.4.5
+WORKDIR /pip
+COPY    requirements.docs.txt .
+RUN     pip install -r requirements.docs.txt
 
 WORKDIR /go/src/github.com/dnephin/dobi
 ENV     PS1="# "
