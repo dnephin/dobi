@@ -90,7 +90,6 @@ jobs:
       - run:
           name: "Run example tests"
           command: |
-            cp -r "$DOCKER_CERT_PATH" ./circleci-certs
             script/ci/step dobi test-examples
       - store_artifacts:
           path: _results
